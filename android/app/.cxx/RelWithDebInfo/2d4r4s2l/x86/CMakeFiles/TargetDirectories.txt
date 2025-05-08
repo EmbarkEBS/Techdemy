@@ -1,0 +1,2 @@
+D:/Projects/Techdemy-cpy/android/app/.cxx/RelWithDebInfo/2d4r4s2l/x86/CMakeFiles/edit_cache.dir
+D:/Projects/Techdemy-cpy/android/app/.cxx/RelWithDebInfo/2d4r4s2l/x86/CMakeFiles/rebuild_cache.dir
