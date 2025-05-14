@@ -427,7 +427,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                       "CONTENT-TYPE": "application/json"
                                     }).timeout(const Duration(seconds:20)
                                   );
-                                  print("${response.statusCode}bfbfb");
+                                  print("${response.statusCode}");
                                   if (response.statusCode == 200) {
                                     // ignore: prefer_interpolation_to_compose_strings
                                     Map<String, dynamic> result = jsonDecode(decryption(response.body.toString().trim()).split("}")[0] +"}") as Map<String, dynamic>;

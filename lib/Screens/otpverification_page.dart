@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:sms_autofill/sms_autofill.dart';
 
 import '../Helpers/encrypter.dart';
 
@@ -26,7 +27,14 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
   String successtxt = "", errtxt = "";
   final _formkey_2 = GlobalKey<FormState>();
-  String email = "";
+  String email = "";  
+  String _code = "";
+
+  @override
+  void dispose() {
+    super.dispose();
+    SmsAutoFill().unregisterListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,19 +68,40 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                   const SizedBox(height: 10,),
                   //Text("example@gmail.com",style: TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold),),
                   const SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _textFieldOTP(first: true, last: false, controllerr: contrller1),
-                      _textFieldOTP(first: false, last: false, controllerr: contrller2),
-                      _textFieldOTP(first: false, last: false, controllerr: contrller3),
-                      _textFieldOTP(first: false, last: false, controllerr: contrller4),
-                      /* _textFieldOTP(first: false, last: false, controllerr:
-                    contrller5),
-                    _textFieldOTP(first: false, last: true, controllerr:
-                    contrller6)*/
-                    ]
+                  PinFieldAutoFill(
+                    codeLength: 4,
+                    decoration: UnderlineDecoration(
+                      textStyle: const TextStyle(fontSize: 20, color: Colors.black),
+                      colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
+                    ),
+                    currentCode: _code,
+                    onCodeChanged: (code) async {
+                      if (code!.length == 4) {
+                        setState(() {
+                          _code = code;
+                        });
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      }
+                      try {
+                       
+                      } catch (e) {
+                        print("Error occured: $e");
+                      }
+                    },
                   ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     _textFieldOTP(first: true, last: false, controllerr: contrller1),
+                  //     _textFieldOTP(first: false, last: false, controllerr: contrller2),
+                  //     _textFieldOTP(first: false, last: false, controllerr: contrller3),
+                  //     _textFieldOTP(first: false, last: false, controllerr: contrller4),
+                  //     /* _textFieldOTP(first: false, last: false, controllerr:
+                  //   contrller5),
+                  //   _textFieldOTP(first: false, last: true, controllerr:
+                  //   contrller6)*/
+                  //   ]
+                  // ),
                   const SizedBox(height: 15,),
                   (errtxt != "")
                     ? Text(

@@ -424,7 +424,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
+// ErrorException: Attempt to read property &quot;course_id&quot; on null in file /home/techdemy/domains/techdemy.in/public_html/connect/app/Http/Controllers/Api/ApiController.php on line 693
   void _onTapItem(BuildContext context, CourseList courseList) async {
     var url = 'https://techdemy.in/connect/api/coursedetail';
 

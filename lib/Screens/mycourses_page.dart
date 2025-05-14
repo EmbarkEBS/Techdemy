@@ -94,15 +94,18 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
       //var jsondata=array.toString();
       // debugPrint("my course api:"+jsondata.toString(), wrapWidth: 1024);
       print(response.body.toString());
+      // Map<String, dynamic> jsonData = json.decode(decryption(response.body.toString()).trim().replaceAll(RegExp(r'\u0004'), '')) as Map<String, dynamic>;
+      
+      String decrptedData = decryption(response.body);
+      print('Course list Body: $decrptedData');
+      Map<String, dynamic> jsonData = json.decode(decrptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), ''));
+      debugPrint('results:$jsonData', wrapWidth: 1024);
+      var jsonArray = jsonData['results'];
+      //var tagArray=jsonData['tag_data'];
+      //print("tagarray:"+tagArray.toString());
+      print("array$jsonArray");
       // if(jsonData["results"]!=null && jsonData["results"].isNotEmpty){
       if (response.statusCode == 200) {
-        //Map<String, dynamic> jsonData = json.decode(decryption(response.body.toString()).trim().replaceAll(RegExp(r'\u0004'), '')) as Map<String, dynamic>;
-        Map<String, dynamic> jsonData = json.decode(response.body.toString()) as Map<String, dynamic>;
-        debugPrint('results:$jsonData', wrapWidth: 1024);
-        var jsonArray = jsonData['results'];
-        //var tagArray=jsonData['tag_data'];
-        //print("tagarray:"+tagArray.toString());
-        print("array$jsonArray");
         List<MyCoursesList> courses = [];
         //List<TagData> tag=[];
         for (var courselist in jsonArray) {
@@ -301,103 +304,109 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 List<MyCoursesList> courses = snapshot.data!;
-                                return ListView.builder(
-                                  //scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  itemCount: courses.length,
-                                  itemBuilder:(BuildContext context, int index) {
-                                    MyCoursesList courselist = courses[index];
-                                    if (courselist.course_status == "OnGoing") {
-                                      return Card(
-                                          child: ListTile(
-                                            onTap: () => Navigator.pushNamed(context, "/"),
-                                            leading: Container(
-                                              alignment: Alignment.center,
-                                              //padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                              height: 150,
-                                              width: 70,
-                                              child: Image(
-                                                image: NetworkImage(courselist.image),
-                                                fit: BoxFit.fill,
-                                              )
-                                            ),
-                                            title: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(height: 12,),
-                                                Text(
-                                                  courselist.name,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold
+                                bool haveCompletedCourses = courses.any((course) => course.course_status == "OnGoing");
+                                return !haveCompletedCourses
+                                ? const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(child: Text("No on-going courses found")),
+                                    ],
+                                  )
+                                : ListView.builder(
+                                    //scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: courses.length,
+                                    itemBuilder:(BuildContext context, int index) {
+                                      MyCoursesList courselist = courses[index];
+                                      if (courselist.course_status == "OnGoing") {
+                                        return Card(
+                                            child: ListTile(
+                                              // onTap: () => Navigator.pushNamed(context, "/"),
+                                              leading: Container(
+                                                alignment: Alignment.center,
+                                                //padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                                height: 150,
+                                                width: 70,
+                                                child: Image(
+                                                  image: NetworkImage(courselist.image),
+                                                  fit: BoxFit.fill,
+                                                )
+                                              ),
+                                              title: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  const SizedBox(height: 12,),
+                                                  Text(
+                                                    courselist.name,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 10,),
-                                                Text(
-                                                  courselist.description,
-                                                  maxLines: 3,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    fontWeight:FontWeight.w600
+                                                  const SizedBox(height: 10,),
+                                                  Text(
+                                                    courselist.description,
+                                                    maxLines: 3,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      fontWeight:FontWeight.w600
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                LinearPercentIndicator(
-                                                  width: 195.0,
-                                                  lineHeight: 14.0,
-                                                  percent: double.parse(courselist.percentage.toString()) / 100,
-                                                  center: Text(
-                                                    "${courselist.percentage.toString()}%",
-                                                    style: const TextStyle(fontSize: 12.0),
+                                                  const SizedBox(
+                                                    height: 10,
                                                   ),
-                                                  //trailing: Icon(Icons.thumb_down, color: Colors.red,),
-                                                  barRadius: const Radius.circular(10),
-                                                  backgroundColor:Colors.grey,
-                                                  progressColor: Colors.blue,
-                                                ),
-                                                const SizedBox(height: 10,),
-                                              ]
-                                            ),
-                                            subtitle: Wrap(
-                                              spacing: 5.0,
-                                              children: [
-                                                for (var tag in courselist.tag_data.toString().trim().split("-")) ...[
-                                                  Chip(
-                                                    label: Text(
-                                                      tag,
-                                                      style: const TextStyle(
-                                                        fontSize: 10,
-                                                        color: Colors.black,
-                                                        fontWeight:FontWeight.bold
+                                                  LinearPercentIndicator(
+                                                    width: 195.0,
+                                                    lineHeight: 14.0,
+                                                    percent: double.parse(courselist.percentage.toString()) / 100,
+                                                    center: Text(
+                                                      "${courselist.percentage.toString()}%",
+                                                      style: const TextStyle(fontSize: 12.0),
+                                                    ),
+                                                    //trailing: Icon(Icons.thumb_down, color: Colors.red,),
+                                                    barRadius: const Radius.circular(10),
+                                                    backgroundColor:Colors.grey,
+                                                    progressColor: Colors.blue,
+                                                  ),
+                                                  const SizedBox(height: 10,),
+                                                ]
+                                              ),
+                                              subtitle: Wrap(
+                                                spacing: 5.0,
+                                                children: [
+                                                  for (var tag in courselist.tag_data.toString().trim().split("-")) ...[
+                                                    Chip(
+                                                      label: Text(
+                                                        tag,
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors.black,
+                                                          fontWeight:FontWeight.bold
+                                                        ),
                                                       ),
-                                                    ),
-                                                    shadowColor: Colors.black54,
-                                                    backgroundColor: Color.fromRGBO(
-                                                      _random.nextInt(256),
-                                                      _random.nextInt(256),
-                                                      _random.nextInt(256),
-                                                      _random.nextDouble()
-                                                    ),
-                                                    //elevation: 10,
-                                                    autofocus: true,
-                                                    visualDensity: const VisualDensity(horizontal: -4,vertical: -4),
-                                                  )
+                                                      shadowColor: Colors.black54,
+                                                      backgroundColor: Color.fromRGBO(
+                                                        _random.nextInt(256),
+                                                        _random.nextInt(256),
+                                                        _random.nextInt(256),
+                                                        _random.nextDouble()
+                                                      ),
+                                                      //elevation: 10,
+                                                      autofocus: true,
+                                                      visualDensity: const VisualDensity(horizontal: -4,vertical: -4),
+                                                    )
+                                                  ],
+                                                  const SizedBox(width: 5,),
                                                 ],
-                                                const SizedBox(width: 5,),
-                                              ],
-                                            ),
-                                          )
-                                      );
-                                    }else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                                      return const Text("No On-Going Courses Found");
-                                    }
-                                    return const Text("No on-going courses found");
-                                  },
-                                );
+                                              ),
+                                            )
+                                        );
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  );
                               } else if (snapshot.hasError) {
                                 return Text('${snapshot.error}');
                               }
@@ -418,7 +427,15 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 List<MyCoursesList> courses = snapshot.data!;
-                                return ListView.builder(
+                                bool haveCompletedCourses = courses.any((course) => course.course_status == "Completed");
+                                return !haveCompletedCourses
+                                ? const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(child: Text("No Course Completed Yet")),
+                                    ],
+                                  )
+                                : ListView.builder(
                                   //scrollDirection: Axis.vertical,
                                   shrinkWrap: true,
                                   itemCount: courses.length,
@@ -571,12 +588,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                                         )
                                       );
                                     }
-                                    return const Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Center(child: Text("No Course Completed Yet")),
-                                      ],
-                                    );
+                                    return const SizedBox();
                                   },
                                 );
                               }  else if (snapshot.hasError) {
