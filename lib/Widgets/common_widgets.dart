@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 Widget button({required String name, required VoidCallback onPressed, Color? boxColor, Color? textColor}) {
-  return ElevatedButton(
+  return FilledButton(
     onPressed: onPressed,
-    style: ElevatedButton.styleFrom(
+    style: FilledButton.styleFrom(
       backgroundColor: boxColor ?? Colors.black87,
       elevation: 0,
       shape: RoundedRectangleBorder(

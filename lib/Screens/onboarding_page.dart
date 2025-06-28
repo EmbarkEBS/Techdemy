@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
 
-  @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
-}
-
-class _OnboardingPageState extends State<OnboardingPage> {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,26 +40,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
               ),
               const SizedBox(height: 30,),
-              /*ElevatedButton(
-                  child: Text('LOGIN', style: TextStyle(color: Colors.black),),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.yellow,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                          side:BorderSide(color: Colors.black)
-                      ),
-                      minimumSize: Size(130, 45)
-                  ),
-                  onPressed: (){
-                    Navigator.pushNamed(context,'/homepage');
-                  },
-                ),*/
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                  FilledButton(
+                    style: FilledButton.styleFrom(
                       backgroundColor: Colors.yellow,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3),
@@ -80,8 +60,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                   const SizedBox(width: 10,),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                  FilledButton(
+                    style: FilledButton.styleFrom(
                       backgroundColor: Colors.black87,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3),

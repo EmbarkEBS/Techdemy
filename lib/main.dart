@@ -1,20 +1,25 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:tech/Widgets/quiz_start_widget.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:tech/bindings/bindings.dart';
+import 'package:tech/firebase_options.dart';
+import 'package:tech/routes/routes.dart';
+import 'package:tech/service/firebase_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'Screens/courselist_page.dart';
-import 'Screens/login_page.dart';
-import 'Screens/mycourses_page.dart';
-import 'Screens/onboarding_page.dart';
-import 'Screens/otpverification_page.dart';
-import 'Screens/signup_page.dart';
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await firebaseMessageInit();
   WebViewPlatform.instance;
   runApp(const MyApp());
+}
+
+Future<void> firebaseMessageInit() async {
+  final FirebaseService firebaseService = FirebaseService();
+  await firebaseService.getFCMToken();
 }
 
 class MyApp extends StatelessWidget {
@@ -22,17 +27,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      initialRoute: AppRoutes.onBoarding,
+      getPages: AppScreens.screens,
       debugShowCheckedModeBanner: false,
-      home: const OnboardingPage(),
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/signup': (context) => const SignUpPage(),
-        '/verification': (context) => const OTPVerificationPage(),
-        '/homepage': (context) => const HomePage(title: 'course details',),
-        '/quiz': (context) => QuizStartWidget(),
-        '/mycourses': (context) => const MyCoursesPage(),
-      },
+      initialBinding: InitialBindings(),
     );
   }
 }

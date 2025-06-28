@@ -1,5 +1,8 @@
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -25,7 +28,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.example.tech"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion = "27.2.12479018"
     // applicationVarients.all{ variant ->
     //     variant.all{
     //         outputFileName = "Techdemy.apk"

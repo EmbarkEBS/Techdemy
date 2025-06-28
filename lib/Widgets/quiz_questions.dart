@@ -8,15 +8,15 @@ import 'package:tech/Widgets/quiz_result_page.dart';
 
 import '../Models/quiz_question_model.dart';
 
-class QuizQuesionPage extends StatefulWidget {
+class QuizQuestionPage extends StatefulWidget {
   final List<QuizQuestions> quesions;
-  const QuizQuesionPage({super.key, required this.quesions});
+  const QuizQuestionPage({super.key, required this.quesions});
 
   @override
-  State<QuizQuesionPage> createState() => _QuizQuesionPageState();
+  State<QuizQuestionPage> createState() => _QuizQuestionPageState();
 }
 
-class _QuizQuesionPageState extends State<QuizQuesionPage> {
+class _QuizQuestionPageState extends State<QuizQuestionPage> {
   // ignore: unused_field
   late Timer _timer;
   int questionTime = 150;

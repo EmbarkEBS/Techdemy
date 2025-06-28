@@ -1,12 +1,6 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously, unused_local_variable
-
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:math';
-import 'dart:ui';
-
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tech/Helpers/encrypter.dart';
-import 'package:tech/Screens/myprofile_page.dart';
+import 'package:tech/controllers/profile_controller.dart';
+import 'package:tech/routes/routes.dart';
 
 import '../Models/mycourses_model.dart';
 
@@ -29,127 +23,11 @@ class MyCoursesPage extends StatefulWidget {
 }
 
 class _MyCoursesPageState extends State<MyCoursesPage> {
-  MyCoursesList? mycourses;
-  double progress = 0.0;
-  final ReceivePort _receivePort = ReceivePort();
-  //String url='https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf';
-  // ProgressDialog? _progressdialog;
-  // late String _downloadedFilePath;
-  final _random = Random();
-  @override
-  void initState() {
-    super.initState();
 
-    IsolateNameServer.registerPortWithName(
-        _receivePort.sendPort, "downloading");
-
-    ///Listening for the data is comming other isolataes
-    _receivePort.listen((message) {
-      setState(() {
-        progress = message[2];
-      });
-      print(progress);
-    });
-    FlutterDownloader.registerCallback(downloadingCallback);
-    getCoursesList();
-    // _progressdialog = ProgressDialog(context);
-    // _progressdialog!.style(
-    //   message: 'Downloading...',
-    //   progress: progress/100,
-    //   maxProgress: 100.0,
-    // );
-  }
-
-  static downloadingCallback(id, status, progress) {
-    ///Looking up for a send port
-    SendPort? sendPort = IsolateNameServer.lookupPortByName("downloading");
-
-    ///ssending the data
-    sendPort?.send([id, status, progress]);
-  }
-
-  Future<List<MyCoursesList>> getCoursesList() async {
-    var url = 'https://techdemy.in/connect/api/mycourse';
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    final Map<String, String> data = {
-      "user_id": sp.getInt("user_id").toString()
-    };
-    print("Testing data$data");
-
-    Map<String, String> dat = {"data": encryption(json.encode(data))};
-    print("testing data$dat");
-
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        body: json.encode(dat),
-        headers: {
-          "Accept": "application/json",
-          "content-type": "application/json",
-          "Charset": "utf-8",
-        },
-      );
-      print('Response: ${response.body}');
-      //var array =jsonEncode(decryption(response.body.toString()));
-      //var jsondata=array.toString();
-      // debugPrint("my course api:"+jsondata.toString(), wrapWidth: 1024);
-      print(response.body.toString());
-      // Map<String, dynamic> jsonData = json.decode(decryption(response.body.toString()).trim().replaceAll(RegExp(r'\u0004'), '')) as Map<String, dynamic>;
-      
-      String decrptedData = decryption(response.body);
-      print('Course list Body: $decrptedData');
-      Map<String, dynamic> jsonData = json.decode(decrptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), ''));
-      debugPrint('results:$jsonData', wrapWidth: 1024);
-      var jsonArray = jsonData['results'];
-      //var tagArray=jsonData['tag_data'];
-      //print("tagarray:"+tagArray.toString());
-      print("array$jsonArray");
-      // if(jsonData["results"]!=null && jsonData["results"].isNotEmpty){
-      if (response.statusCode == 200) {
-        List<MyCoursesList> courses = [];
-        //List<TagData> tag=[];
-        for (var courselist in jsonArray) {
-          MyCoursesList cList = MyCoursesList(
-            course_id: courselist['course_id'],
-            name: courselist['name'],
-            description: courselist['description'],
-            price: courselist['price'],
-            duration: courselist['duration'],
-            image: courselist['image'],
-            tag_data: courselist['tag_data'],
-            enroll_id: courselist['enroll_id'],
-            percentage: courselist['percentage'],
-            course_status: courselist['course_status'],
-            certificate_file: courselist['certificate_file']
-          );
-          var coursestatus = courselist['course_status'];
-          print("course status: $coursestatus");
-          if (coursestatus == "OnGoing") {
-            print("Yess$coursestatus");
-          }
-          /*for(var tags in courselist['tag_data']){
-          TagData taglist=TagData(tag_name:tags['tag_name']);
-          tag.add(taglist);
-          print("Tag Array"+tags.toString());
-        }*/
-          courses.add(cList);
-        }
-        return courses;
-      } else {
-        // var jsonArray = [];
-        return [];
-      }
-    } on TimeoutException catch (e) {
-      print("Timeout: $e");
-    } on Exception catch (e) {
-      print("$e");
-    }
-    return [];
-  }
 
   @override
   Widget build(BuildContext context) {
-    String successtxt = "", errtxt = "";
+    final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Courses",),
@@ -185,86 +63,58 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                 ),
               ),
             ),
-            ListTile(
-              leading: const Icon(
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white12,
+                overlayColor: Colors.transparent.withValues(alpha: 0.43),
+              ),
+              onPressed: () async {
+                controller.profile != null 
+                ? await controller.getProfile().then((value) => Get.toNamed(AppRoutes.profile),)
+                : Get.toNamed(AppRoutes.profile);
+              },
+              label: const Text('My Profile', style: TextStyle(color: Colors.black),),
+              icon: const Icon(
                 Icons.account_circle_rounded,
+                color: Colors.black,
               ),
-              title: const Text('My Profile'),
-              onTap: () async {
-                SharedPreferences sp = await SharedPreferences.getInstance();
-                print(sp.getInt("user_id").toString());
-                var url = 'https://techdemy.in/connect/api/userprofile';
-                final Map<String, String> data = {
-                  "user_id": sp.getInt("user_id").toString()
-                };
-                print("testing data $data");
-                Map<String, String> dat = {
-                  "data": encryption(json.encode(data))
-                };
-                print("testing data $dat");
-                try {
-                  final response = await http.post(Uri.parse(url),
-                    body: json.encode(dat),
-                    headers: {
-                      "CONTENT-TYPE": "application/json"
-                    }).timeout(const Duration(seconds: 20)
-                  );
-                  print("status code: ${response.statusCode}");
-                  if (response.statusCode == 200) {
-                    String decrptedData = decryption(response.body);
-                    Map<String, dynamic> jsonData = json.decode(decrptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), ''));
-                    if (jsonData["status"] == "success") {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => MyProfilePage(jsonData["results"])));
-                    }
-                    //Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfile()));
-                  } else {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      successtxt = "";
-                      errtxt = "${response.statusCode} :Please Check your Internet Connection And data - 1";
-                    });
-                  }
-                } on TimeoutException catch (e) {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    errtxt = "Please Check your Internet Connection And data - 2 $e";
-                    successtxt = "";
-                  });
-                } on Exception catch (e) {
-                  print("Exception: $e");
-                }
-              },
             ),
-            ListTile(
-              leading: const Icon(
-                Icons.menu_book_sharp,
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white12,
+                overlayColor: Colors.transparent.withValues(alpha: 0.43),
               ),
-              title: const Text('My Courses'),
-              onTap: () async {
+              onPressed: () async {
                 Navigator.pop(context);
-                // Navigator.pushNamed(context, "/mycourses");
+                Navigator.pushNamed(context, "/mycourses");
               },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.logout,
+              icon: const Icon(
+                Icons.menu_book_sharp,
+                color: Colors.black,
               ),
-              title: const Text('Logout'),
-              onTap: () async {
+              label: const Text('My Courses', style: TextStyle(color: Colors.black)),
+            ),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white12,
+                overlayColor: Colors.transparent.withValues(alpha: 0.43),
+              ),
+              icon: const Icon(
+                Icons.logout,
+                color: Colors.black,
+              ),
+              label: const Text('Logout', style: TextStyle(color: Colors.black)),
+              onPressed: () async {
                 //Navigator.pushNamed(context, "/mycourses");
                 SharedPreferences sp = await SharedPreferences.getInstance();
-                //sp.setBool("stay_signed",false);
-                print("before${sp.getInt("user_id")}");
                 sp.setInt("user_id", 0);
-                //sp.clear();
-                print("after${sp.getInt("user_id")}");
                 Navigator.of(context).pushNamedAndRemoveUntil("/login", (route) => route.isFirst);
               },
             ),
           ],
         ),
       ),
+     
       body: SafeArea(
         minimum: const EdgeInsets.all(15),
         child: DefaultTabController(
@@ -300,7 +150,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                       children: [
                         Expanded(
                           child: FutureBuilder<List<MyCoursesList>>(
-                            future: getCoursesList(),
+                            future: controller.getMyCourses(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 List<MyCoursesList> courses = snapshot.data!;
@@ -388,10 +238,10 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                                                       ),
                                                       shadowColor: Colors.black54,
                                                       backgroundColor: Color.fromRGBO(
-                                                        _random.nextInt(256),
-                                                        _random.nextInt(256),
-                                                        _random.nextInt(256),
-                                                        _random.nextDouble()
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextDouble()
                                                       ),
                                                       //elevation: 10,
                                                       autofocus: true,
@@ -423,7 +273,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                       children: [
                         Expanded(
                           child: FutureBuilder<List<MyCoursesList>>(
-                            future: getCoursesList(),
+                            future: controller.getMyCourses(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 List<MyCoursesList> courses = snapshot.data!;
@@ -477,7 +327,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                                                 ),
                                               ),
                                               const SizedBox(height: 10,),
-                                              ElevatedButton(
+                                              FilledButton(
                                                 onPressed: () async {
                                                   downloadFile(courselist.certificate_file, courselist.name, context);
                                                   final status = await Permission.storage.request();
@@ -520,7 +370,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                                                     print('no permission');
                                                   }
                                                 },
-                                                style: ElevatedButton.styleFrom(
+                                                style: FilledButton.styleFrom(
                                                     backgroundColor:
                                                         Colors.black87,
                                                     elevation: 0,
@@ -572,10 +422,10 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
                                                   shadowColor: Colors.black54,
                                                   backgroundColor:
                                                       Color.fromRGBO(
-                                                        _random.nextInt(256),
-                                                        _random.nextInt(256),
-                                                        _random.nextInt(256),
-                                                        _random.nextDouble()
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextInt(256),
+                                                        controller.random.nextDouble()
                                                       ),
                                                   //elevation: 10,
                                                   autofocus: true,

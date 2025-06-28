@@ -59,7 +59,7 @@ class QuizStartWidget extends StatelessWidget {
               name: 'Start quiz',
               onPressed: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => QuizQuesionPage(quesions: samples),
+                  builder: (context) => QuizQuestionPage(quesions: samples),
                 ));
               },
             )
