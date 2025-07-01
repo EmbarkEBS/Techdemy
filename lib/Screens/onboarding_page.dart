@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tech/routes/routes.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -53,7 +55,7 @@ class OnboardingPage extends StatelessWidget {
                       ),
                       minimumSize: const Size(130, 45)
                     ),
-                    onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                    onPressed: () async => Get.toNamed(AppRoutes.login),
                     child: const Text(
                       'LOGIN',
                       style: TextStyle(color: Colors.black),
@@ -69,7 +71,7 @@ class OnboardingPage extends StatelessWidget {
                       ),
                       minimumSize: const Size(130, 45)
                     ),
-                    onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
+                    onPressed: () => Get.toNamed(AppRoutes.signup),
                     child: const Text(
                       'SIGNUP',
                       style: TextStyle(color: Colors.white),

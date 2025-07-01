@@ -2,11 +2,9 @@ import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/quiz_model.dart';
-import 'package:tech/Screens/code_editor.dart';
-import 'package:tech/Screens/quiz/quiz.dart';
+import 'package:tech/Widgets/courseDetail/chapter_detail_widget.dart';
+import 'package:tech/Widgets/courseDetail/course_detail_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
-
-import '../Models/coursedetail_model.dart';
 
 
 class CourseDetailsScreen extends StatelessWidget {
@@ -43,9 +41,6 @@ class CourseDetailsScreen extends StatelessWidget {
                         fit: BoxFit.fill,
                       ),
                     ),
-                    /*shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30),bottomRight: Radius.circular(30)),
-                ),*/
                   ),
                   SliverToBoxAdapter(
                     child: Container(
@@ -132,220 +127,10 @@ class CourseDetailsScreen extends StatelessWidget {
                   ),
                 ];
               },
-              body: TabBarView(
+              body: const TabBarView(
                 children: [
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.all(15),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          spacing: 5.0, 
-                          children: [
-                            for (var tag in controller.courseDetail!.courseDetailPart.tag_data.toString().trim().split("-")) 
-                            ...[
-                              Chip(
-                                label: Text(
-                                  tag,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold
-                                  ),
-                                ),
-                                shadowColor: Colors.black54,
-                                backgroundColor: Color.fromRGBO(
-                                  controller.random.nextInt(256),
-                                  controller.random.nextInt(256),
-                                  controller.random.nextInt(256),
-                                  controller.random.nextDouble()
-                                ),
-                                autofocus: true,
-                                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                              )
-                            ],
-                          ]
-                        ),
-                        Text(
-                          controller.courseDetail!.courseDetailPart.description.toString(),
-                          maxLines: controller.descTextShowFlag ? 2 : 15,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            controller.selectDesc(!controller.descTextShowFlag);
-                          },
-                          child: Column(
-                            children: <Widget>[
-                              controller.descTextShowFlag
-                                ? const Text("Show More",style: TextStyle(color: Colors.blue),)
-                                : const Text("Show Less",style: TextStyle(color: Colors.blue))
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20,),
-                        const Row(
-                          children: [
-                            Icon(Icons.menu_book_sharp),
-                            SizedBox(width: 10,),
-                            Text("Lessons")
-                          ],
-                        ),
-                        const Row(
-                          children: [
-                            Icon(Icons.timelapse),
-                            SizedBox(width: 10,),
-                            Text("Duration")
-                          ],
-                        ),
-                        const Row(
-                          children: [
-                            Icon(Icons.translate),
-                            SizedBox(width: 10,),
-                            Text("English")
-                          ],
-                        ),
-                        const Row(
-                          children: [
-                            Icon(Icons.badge),
-                            SizedBox(width: 10,),
-                            Text("Certification")
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.picture_as_pdf),
-                            const SizedBox(width: 10,),
-                            const Text("Course Material"),
-                            const Spacer(),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                surfaceTintColor: Colors.transparent,
-                                disabledBackgroundColor: Colors.transparent,
-                                disabledForegroundColor:Colors.transparent
-                              ),
-                              onPressed: () async {
-                                await controller.downloadFile(controller.courseDetail!.courseDetailPart.courseMaterial, controller.courseDetail!.courseDetailPart.name);
-                              },
-                              child: const Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.download,
-                                    size: 16,
-                                    color: Colors.blue,
-                                  ),
-                                  SizedBox(width: 3,),
-                                  Text(
-                                    'Download',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold
-                                    )
-                                  ),
-                                ],
-                              )
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.comment_sharp),
-                            const SizedBox(width: 10,),
-                            const Text("Try code"),
-                            const Spacer(),
-                            IconButton(
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CodeEditorPage(),)),
-                              icon: const Icon(
-                                Icons.code,
-                                size: 16,
-                                color: Colors.blue,
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    //),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(10),
-                    child: ListView.builder(
-                      itemCount: controller.courseDetail!.chapters.length,
-                      itemBuilder:(BuildContext context, int index) {
-                        ChapterDataPart chapterlist = controller.courseDetail!.chapters[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(borderRadius:BorderRadius.circular(10.0)),
-                          color: Colors.yellow.shade100,
-                          child: ExpansionTile(
-                            leading: const Icon(
-                              Icons.check,
-                              color: Colors.blue,
-                            ),
-                            title: Text(
-                              chapterlist.chapter_name,
-                              style: const TextStyle(
-                                color: Colors.black
-                              ),
-                            ),
-                            trailing: TextButton(
-                              style: TextButton.styleFrom(),
-                              onPressed: () async {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => QuizScreen(question: quizQuestions, ),));
-                              },
-                              child: const Text(
-                                'Quiz',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600
-                                ),
-                              ),
-                            ),
-                            children:  chapterlist.topic_data.isEmpty
-                            ? [
-                              const ListTile(
-                                  title: Text(
-                                    'No topics for this chapter',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                )
-                              ]
-                            : [
-                              for (var topics in chapterlist.topic_data.toString().trim().split("-")) 
-                              ...[
-                                GestureDetector(
-                                  onTap: () {
-                                  },
-                                  child: ListTile(
-                                    dense: true,
-                                    tileColor: Colors.white,
-                                    contentPadding: const EdgeInsets.all(20),
-                                    title: Text(
-                                      topics,
-                                      style: const TextStyle(color: Colors.blue),
-                                    ),
-                                    trailing: IconButton(
-                                      onPressed: () {
-                                      },
-                                      icon: const Icon(
-                                        Icons.download,
-                                        size: 16,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ) 
-                                ),
-                              ]
-                            ],
-                          )
-                        );
-                      },
-                    )
-                  )
+                  CourseDetailWidget(),
+                  ChapterDetailWidget()
                 ],
               ),
             )
@@ -382,6 +167,7 @@ class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
+
 final List<QuizQuestion> quizQuestions = [
   QuizQuestion(
     id: 1,

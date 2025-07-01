@@ -5,6 +5,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:tech/bindings/bindings.dart';
 import 'package:tech/firebase_options.dart';
 import 'package:tech/routes/routes.dart';
+import 'package:tech/service/api_service.dart';
 import 'package:tech/service/firebase_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -14,7 +15,9 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await firebaseMessageInit();
   WebViewPlatform.instance;
-  runApp(const MyApp());
+  final _apiService = ApiService();
+  bool isLoggedIn = await _apiService.checkLoggedIn();
+  runApp(MyApp(isLoggedIn: isLoggedIn,));
 }
 
 Future<void> firebaseMessageInit() async {
@@ -23,15 +26,26 @@ Future<void> firebaseMessageInit() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       initialRoute: AppRoutes.onBoarding,
+      // initialRoute: isLoggedIn ? AppRoutes.homepage : AppRoutes.onBoarding,
       getPages: AppScreens.screens,
       debugShowCheckedModeBanner: false,
       initialBinding: InitialBindings(),
+      theme: ThemeData(
+        filledButtonTheme: FilledButtonThemeData(
+          style: ButtonStyle(
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8)
+            ))
+          )
+        )
+      ),
     );
   }
 }

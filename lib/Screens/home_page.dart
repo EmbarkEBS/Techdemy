@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tech/Widgets/drawer_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
 import 'package:tech/routes/routes.dart';
 
@@ -18,72 +18,7 @@ class HomePage extends StatelessWidget {
         // backgroundColor: Colors.black,
         surfaceTintColor: Colors.transparent,
       ),
-      drawer: Drawer(
-        width: 250,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.yellow,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50.0),
-                child: Image.asset(
-                  "assets/images/Techdemy-logo-onboarding.png",
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.fitHeight,
-                ),
-              ),
-            ),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white12,
-                overlayColor: Colors.transparent.withValues(alpha: 0.43),
-              ),
-              onPressed: () async => await controller.getProfile().then((value) => Get.toNamed(AppRoutes.profile),),
-              label: const Text('My Profile', style: TextStyle(color: Colors.black),),
-              icon: const Icon(
-                Icons.account_circle_rounded,
-                color: Colors.black,
-              ),
-            ),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white12,
-                overlayColor: Colors.transparent.withValues(alpha: 0.43),
-              ),
-              onPressed: () async {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, "/mycourses");
-              },
-              icon: const Icon(
-                Icons.menu_book_sharp,
-                color: Colors.black,
-              ),
-              label: const Text('My Courses', style: TextStyle(color: Colors.black)),
-            ),
-           FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white12,
-                overlayColor: Colors.transparent.withValues(alpha: 0.43),
-              ),
-              icon: const Icon(
-                Icons.logout,
-                color: Colors.black,
-              ),
-              label: const Text('Logout', style: TextStyle(color: Colors.black)),
-              onPressed: () async {
-                //Navigator.pushNamed(context, "/mycourses");
-                SharedPreferences sp = await SharedPreferences.getInstance();
-                await sp.clear();
-                controller.logout();
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const DrawerWidget(),
       body: FutureBuilder<List<CourseList>>(
         future: controller.getCoursesList(),
         builder: (context, snapshot) {
@@ -93,8 +28,7 @@ class HomePage extends StatelessWidget {
                 itemCount: courses.length,
                 itemBuilder: (context, index) {
                   CourseList courselist = courses[index];
-                  if (controller.selectedCategory == 'All' ||
-                      controller.selectedCategory == courselist.name) {
+                  if (controller.selectedCategory == 'All' || controller.selectedCategory == courselist.name) {
                     return ListTile(
                       onTap: () async => await controller.getCoursesDetail(courselist.course_id.toString()).then((value) {
                         Get.toNamed(AppRoutes.courseDetail);
@@ -132,22 +66,40 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10,),
-                          FilledButton(
-                            onPressed: () async {
-                              Navigator.pushNamed(context, "/mycourses",);
-                            },
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.black87,
-                              minimumSize: const Size(double.infinity, 40)
-                            ),
-                            child: const Text(
-                              'Start Now',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.yellow,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
+                          GetBuilder<CourseController>(
+                            id: 'enroll_${courselist.course_id.toString()}',
+                            builder: (ctr2) {
+                              return FilledButton(
+                                onPressed: () async {
+                                  await ctr2.enrollCourse(courselist.course_id.toString()).then((value) {
+                                    Get.toNamed(AppRoutes.mycourses);
+                                  },);
+                                },
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: Colors.black87,
+                                  minimumSize: const Size(double.infinity, 40)
+                                ),
+                                child: ctr2.isEnrolling[courselist.course_id.toString()] != null 
+                                  && ctr2.isEnrolling[courselist.course_id.toString()]!
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.yellow,
+                                      ),
+                                    ),
+                                  )
+                                : const Text(
+                                  'Start Now',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.yellow,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              );
+                            }
                           ),
                         ],
                       ),
@@ -204,6 +156,5 @@ class HomePage extends StatelessWidget {
       )
     );
   }
-
 
 }

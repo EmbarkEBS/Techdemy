@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,12 +17,23 @@ import 'package:http/http.dart' as http;
 import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/Models/profile_model.dart';
 import 'package:tech/Models/quiz_model.dart';
-import 'package:tech/Screens/myprofile_page.dart';
 import 'package:tech/routes/routes.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
- 
+  final _storage = const FlutterSecureStorage();
+  static const platform = MethodChannel('com.example.device_info');
+
+  Future<String?> getDeviceId() async {
+    try {
+      final String? deviceId = await platform.invokeMethod('getDeviceId');
+      return deviceId;
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get device ID: '${e.message}'.");
+      return null;
+    }
+  }
+
   /// Login
   Future<Map<String, String>> login(String mobile) async {
     var url = 'https://techdemy.in/connect/api/userlogin';
@@ -44,20 +57,59 @@ class ApiService {
           SharedPreferences sp = await SharedPreferences.getInstance();
           sp.setInt("user_id", result["user_id"]);
           sp.setString("login_data", mobile);
-          Get.showSnackbar(const GetSnackBar(message: "Loggedin successfully", duration: Duration(seconds: 1))).close().then((value) {
-           Get.offNamed(AppRoutes.verification);
-          },);
+          _storage.write(key: "${getDeviceId()}_${sp.getInt("user_id")}", value: true.toString());
+          String value = await _storage.read(key: "${getDeviceId()}_${sp.getInt("user_id")}") ?? "";
+          Get.showSnackbar(const GetSnackBar(message: "Loggedin successfully", duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+          Get.offNamed(AppRoutes.verification);
           return {"message": result["message"], "status": "success"};
         } 
       }
     return {"message": result["message"], "status": "error"};
     } on TimeoutException catch (_) {
-      Get.showSnackbar(GetSnackBar(message: _.toString(), duration: const Duration(seconds: 1)));
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
       return {"message": _.message.toString(), "status": "error"};
     } on Exception catch (e) {
       log("Login error", error: e.toString(), stackTrace: StackTrace.current);
       return {"message": e.toString(), "status": "error"};
     }
+  }
+
+  Future<bool> checkLoggedIn() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String value = await _storage.read(key: "${getDeviceId()}_${sp.getInt("user_id")}") ?? "";
+    if(value.isNotEmpty) {
+      bool check = bool.tryParse(value) ?? false;
+      return check;
+    }
+    return false;
+  }
+  
+  /// Send OTP using instant alerts
+  Future<void> sendOTP(String mobile) async {
+    try{
+      int otp = await generateOTP();
+      // TODO: Change them with techdemy API key, templateId, sender and sms
+      String endpoint =  "https://sms.embarkinteractive.com/api/smsapi",
+      key = "d6c8a9db43d8789803f77ab74c02ab9d", // TODO : add key here
+      sender = "INSTNE", templateid = "1407175039545567178", 
+      sms = "<#> $otp is your Techdemy OTP. NDeYICHXQsQ" ;
+      String url = "$endpoint?key=$key&route=2&sender=$sender&number=$mobile&templateid=$templateid&sms=$sms";
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+
+      } else {
+        
+      }
+    } catch(e) {
+      log("Error sending OTP:", error: e.toString(), stackTrace: StackTrace.current);
+    }
+  }
+
+
+  Future<int> generateOTP() async {
+    int otp = 1000 + (9999 - 1000) * (DateTime.now().millisecondsSinceEpoch % 1000) ~/ 1000;
+    // await storeOtp(otp.toString());
+    return otp;
   }
 
   /// Register
@@ -116,22 +168,22 @@ class ApiService {
         String decryptedData = decryption(response.body.toString().trim()).split("}")[0];
         Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
         if (result["status"] == "success") {
-          Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
+          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
             Get.offNamed(AppRoutes.homepage);
           },);
         } else if (result["status"] == "expired") {
-          Get.showSnackbar(const GetSnackBar(message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
+          Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
         } else {
-          Get.showSnackbar(GetSnackBar(message:  result["message"], duration: const Duration(seconds: 1)));
+          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
         }
       } else {
         String message = "Please Check your Internet Connection And data statusCode - 3 ${response.statusCode.toString()}";
-        Get.showSnackbar(GetSnackBar(message: message, duration: const Duration(seconds: 1)));
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: message, duration: const Duration(seconds: 1)));
       }
     } on TimeoutException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+      Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
-      Get.showSnackbar(GetSnackBar(message: e.toString(), duration: const Duration(seconds: 1)));
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: e.toString(), duration: const Duration(seconds: 1)));
     }
   
   }
@@ -156,17 +208,17 @@ class ApiService {
         String decryptedData = "${decryption(response.body.toString().trim()).split("}")[0]}}";
         Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
         if (result["status"] == "success") {
-          Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1)));
+          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
         } else {
-          Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1)));
+          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
         }
       } else {
-        Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+        Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
       }
     } on TimeoutException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+      Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
-      Get.showSnackbar(GetSnackBar(message: e.toString(), duration: const Duration(seconds: 1)));
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: e.toString(), duration: const Duration(seconds: 1)));
     }
   }
 
@@ -236,10 +288,10 @@ class ApiService {
       if (response.statusCode == 200) {
         Map<String, dynamic> result = jsonDecode("${decryption(response.body.toString().trim()).split("}")[0]}}") as Map<String, dynamic>;
         debugPrint("result$result");
-        Get.offNamed(AppRoutes.mycourses);
+        // Get.offNamed(AppRoutes.mycourses);
       }
     } on TimeoutException catch (_) {
-     Get.showSnackbar(GetSnackBar(message: _.toString(), duration: const Duration(seconds: 1)));
+     Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
     } on Exception catch (e) {
       log("My courses", error: e.toString(), stackTrace: StackTrace.current);
     }
@@ -269,7 +321,7 @@ class ApiService {
         return ProfileModel.fromJson(result["results"]);
         // Get.off(MyProfilePage(result["results"]));
       } else {
-        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1)));
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       }
       return null;
     } on TimeoutException catch (_) {
@@ -283,10 +335,10 @@ class ApiService {
   // update profile
   Future<void> updateProfile(Map<String, dynamic> data) async {
     var url = 'https://techdemy.in/connect/api/updateprofile';
-    Map<String, String> dat = {
-      "data": encryption(json.encode(data))
-    };
     try {
+      Map<String, String> dat = {
+        "data": encryption(json.encode(data))
+      };
       final response = await http.post(
         Uri.parse(url),
         body: json.encode(dat),
@@ -294,19 +346,19 @@ class ApiService {
           "CONTENT-TYPE": "application/json"
         }).timeout(const Duration(seconds:20)
       );
-      String decrptedData = "${decryption(response.body.toString().trim()).split("}")[0]}}";
+      String decrptedData = decryption(response.body.toString().trim()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(decrptedData) as Map<String, dynamic>;
       if (response.statusCode == 200 && result["status"] == "success") {
         // SharedPreferences sp = await SharedPreferences.getInstance();
         // sp.setInt("user_id", int.parse(widget.results["appuser_id"]));
         // sp.setString("email", email);
-        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1)));
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
         
       } else {
-        Get.showSnackbar(GetSnackBar(message:  result["message"], duration: const Duration(seconds: 1)));
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
       }
     } on TimeoutException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", snackPosition: SnackPosition.TOP, duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       log("Update profile got issue", error: e.toString(), stackTrace: StackTrace.current);
     }
@@ -361,7 +413,7 @@ class ApiService {
         return [];
       }
     } on TimeoutException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", snackPosition: SnackPosition.TOP,  duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       log("My courses API", error: e.toString(), stackTrace: StackTrace.current);
     }
@@ -382,6 +434,7 @@ class ApiService {
         Get.showSnackbar(GetSnackBar(
           message: "File already exists", 
           duration: const Duration(seconds: 3),
+          snackPosition: SnackPosition.TOP, 
           mainButton:  SnackBarAction(
             label: 'Open',
             onPressed: () {
@@ -408,6 +461,7 @@ class ApiService {
         GetSnackBar(
           message: 'File downloaded and saved to: ${file.path}',
           duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.TOP, 
           mainButton: SnackBarAction(
             label: 'Open',
             onPressed: () {

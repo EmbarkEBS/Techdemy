@@ -1,8 +1,10 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
+import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/service/api_service.dart';
 
 class CourseController extends GetxController{
@@ -11,9 +13,16 @@ class CourseController extends GetxController{
   CourseDetail? courseDetail;
   final random = Random();
   bool descTextShowFlag = true;
+  Map<String, bool> isEnrolling = <String, bool>{};
   
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
   String selectedCategory = 'All';
+  
+
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  // }
 
   void selectDesc(bool value) {
     descTextShowFlag = value;
@@ -30,7 +39,17 @@ class CourseController extends GetxController{
   }
 
   Future<void> enrollCourse(String courseId) async {
-    await _apiService.enrollCourse(courseId);
+    try {
+      isEnrolling[courseId] = true;
+      update(['enroll_$courseId']);
+      await Future.delayed(const Duration(seconds: 2));
+      await _apiService.enrollCourse(courseId);
+    } catch (e) {
+      dev.log("Enroll course issue", error: e.toString(), stackTrace: StackTrace.current);
+    } finally {
+      isEnrolling[courseId] = false;
+      update(['enroll_$courseId']);
+    }
   }
 
   Future<void> downloadFile(String url, String fileName) async {
@@ -38,6 +57,8 @@ class CourseController extends GetxController{
   }
 
   Future<void> getProfile() async => await _apiService.getProfile();
+
+  Future<List<MyCoursesList>> getMyCourses() async => await _apiService.getMyCourses();
 
   Future<void> logout() async => _apiService.logout();
 }

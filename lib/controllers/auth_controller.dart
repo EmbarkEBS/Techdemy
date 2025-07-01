@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/service/api_service.dart';
@@ -10,7 +12,9 @@ class AuthController extends GetxController {
   Map<String, String> loginMessage = {};
   final loginFormKey = GlobalKey<FormState>();
   final TextEditingController loginController = TextEditingController();
-
+  bool isLoggingIn = false;
+  bool isRegistering = false;
+  bool isVerifying = false;
   // Register properties
   String gender = 'Gender';
   List<String> genders = ['Gender','Male','Female',];
@@ -55,13 +59,22 @@ class AuthController extends GetxController {
 
   // Login
   Future<void> login() async {
-    loginMessage = await _apiService.login(loginController.text);
-    update();
+    try {
+      isLoggingIn = true;
+      update();
+      loginMessage = await _apiService.login(loginController.text);
+    } catch (e) {
+      log("Loggin issue", error: e.toString(), stackTrace: StackTrace.current);
+    } finally {
+      isLoggingIn = false;
+      update();
+    }
   }
 
   // Register
   Future<void> register() async {
-    final Map<String, String> registerData = {
+    try {
+      final Map<String, String> registerData = {
       "name": registerNamecontroller.text,
       "email": registerEmailcontroller.text,
       "phone_no": registerMobilecontroller.text,
@@ -73,15 +86,34 @@ class AuthController extends GetxController {
       "year": studentyear,
       "exp_level": experiencelevel
     };
+    update(["registering"]);
     registerMessage = await _apiService.register(registerData);
-    update();
+    } catch (e) {
+      log("Registeration issue", error: e.toString(), stackTrace: StackTrace.current);
+    } finally {
+      isRegistering = false;
+      update(["registering"]);
+    }
   }
   
   // OtP verify
   Future<void> verifyOtp(String otp) async {
-    await _apiService.otpVerify(otp);
+    try {
+      isVerifying = true;
+      update(["verifying"]);
+      await _apiService.otpVerify(otp);
+    } catch (e) {
+      log("Something wrong in OTP", error: e.toString(), stackTrace: StackTrace.current);
+    } finally {
+      isVerifying = false;
+      update(["verifying"]);
+    }
   }
   
+  Future<void> deviceID() async {
+    await _apiService.getDeviceId() ?? "";
+  }
+
   // Resend OTP
   Future<void> resendOtp() async {
     await _apiService.resendOtp();

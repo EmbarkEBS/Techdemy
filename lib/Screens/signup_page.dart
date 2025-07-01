@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/state_manager.dart';
 import 'package:tech/controllers/auth_controller.dart';
 
@@ -73,14 +74,17 @@ class SignUpPage extends StatelessWidget {
                           controller: controller.registerMobilecontroller,
                           keyboardType: TextInputType.number,
                           validator: (value) =>FieldValidator.validateMobile(value!),
-                          decoration: const InputDecoration(
+                            maxLength: 10,
+                            maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
+                            decoration: const InputDecoration(
+                            counterText: '',
                             prefixIcon: Icon(Icons.phone_android),
                             //labelText: 'Email',
-                            hintText: 'Mobile Number',
+                            hintText: 'Mobile number',
                             border: OutlineInputBorder(),
                           ),
                         ),
-                        const SizedBox(),
+                        const SizedBox(height: 10,),
                         DropdownButtonFormField(
                           value: controller.gender,
                           validator: (value) {
@@ -108,7 +112,7 @@ class SignUpPage extends StatelessWidget {
                           controller: controller.registerAddresscontroller,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please Enter Address';
+                              return 'Please enter address';
                             }
                             return null;
                           },
@@ -124,7 +128,7 @@ class SignUpPage extends StatelessWidget {
                           value: controller.usercategory,
                           validator: (value) {
                             if (value == null || value == "Select Type") {
-                              return 'Please Select Type';
+                              return 'Please select type';
                             }
                             return null;
                           },
@@ -153,7 +157,7 @@ class SignUpPage extends StatelessWidget {
                                 decoration: const InputDecoration(
                                   prefixIcon: Icon(Icons.short_text),
                                   //labelText: 'Email',
-                                  hintText: 'College Name',
+                                  hintText: 'College name',
                                   border: OutlineInputBorder(),
                                 ),
                               ),
@@ -171,7 +175,7 @@ class SignUpPage extends StatelessWidget {
                                 value: controller.studentyear,
                                 validator: (value) {
                                   if (value == null || value == "Select Year") {
-                                    return 'Please Select Year';
+                                    return 'Please select year';
                                   }
                                   return null;
                                 },
@@ -196,8 +200,8 @@ class SignUpPage extends StatelessWidget {
                             value: controller.experiencelevel,
                             validator: (value) {
                               if (value == null ||
-                                  value == "Select Experience Level") {
-                                return 'Please Select Experience Level';
+                                  value == "Select experience level") {
+                                return 'Please select experience level';
                               }
                               return null;
                             },
@@ -229,22 +233,37 @@ class SignUpPage extends StatelessWidget {
                               ),
                             ),
                         const SizedBox(height: 10,),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Colors.black87,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: Colors.black)
-                            ),
-                            minimumSize: const Size(double.infinity, 50)
-                          ),
-                          onPressed: () async {
-                            if(controller.registerFormKey.currentState!.validate()) {
-                              await controller.register();
-                            }
-                          },
-                          child: const Text('REGISTER'),
+                        GetBuilder<AuthController>(
+                          id: "registering",
+                          builder: (ctr) {
+                            return FilledButton(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.black87,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: Colors.black)
+                                ),
+                                minimumSize: const Size(double.infinity, 50)
+                              ),
+                              onPressed: () async {
+                                if(controller.registerFormKey.currentState!.validate()) {
+                                  await controller.register();
+                                }
+                              },
+                              child: ctr.isRegistering
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.yellow,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Register', style: TextStyle(color: Colors.yellow)),
+                            );
+                          }
                         ),
                         const SizedBox(height: 20,),
                         Row(

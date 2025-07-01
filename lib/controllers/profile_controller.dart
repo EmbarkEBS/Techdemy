@@ -17,7 +17,7 @@ class ProfileController extends GetxController{
   final TextEditingController addresscontroller = TextEditingController();
   final TextEditingController collegecontroller = TextEditingController();
   final TextEditingController departmentcontroller = TextEditingController();
-
+  bool isEditing = false;
   
   String gender = 'Gender';
   var items1 = [
@@ -82,6 +82,16 @@ class ProfileController extends GetxController{
     update();
   }
 
+  void editProfile(bool value) {
+    isEnabled = value;
+    update();
+  }
+
+  void cancelEdit(bool value) {
+    isEnabled = value;
+    update();
+  }
+
   Future<void> getProfile() async {
     profile = await _apiService.getProfile();
     namecontroller.text = profile!.name;
@@ -98,21 +108,34 @@ class ProfileController extends GetxController{
   }
 
   Future<void> updateProfile() async {
-    final updateData  = {
-      "user_id": profile!.id,
-      "name": namecontroller.text,
-      "gender": gender,
-      "address": addresscontroller.text,
-      "email": emailcontroller.text,
-      "phone_no": mobilecontroller.text,
-      "user_category": usercategory,
-      "college_name": collegecontroller.text,
-      "department": departmentcontroller.text,
-      "year": studentyear,
-      "exp_level": experiencelevel
-    };
-    await _apiService.updateProfile(updateData);
+      try {
+        final updateData  = {
+        "user_id": profile!.id,
+        "name": namecontroller.text,
+        "gender": gender,
+        "address": addresscontroller.text,
+        "email": emailcontroller.text,
+        "phone_no": mobilecontroller.text,
+        "user_category": usercategory,
+        "college_name": collegecontroller.text,
+        "department": departmentcontroller.text,
+        "year": studentyear,
+        "exp_level": experiencelevel
+      };
+      isEditing = true;
+      update(["updating"]);
+      await _apiService.updateProfile(updateData).then((value) async {
+        await getProfile();
+      },);
+    } catch (e) {
+      debugPrint("Something wrong in edit API. ${e.toString()}", wrapWidth: 1064);
+    } finally {
+      isEditing = false;
+      update(["updating"]);
+    }
   }
 
+  Future<void> downloadFile(String url, String fileName) => _apiService.downloadFile(url, fileName);
+  
   Future<List<MyCoursesList>> getMyCourses() async => await _apiService.getMyCourses();
 }

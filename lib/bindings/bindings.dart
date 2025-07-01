@@ -6,29 +6,30 @@ import 'package:tech/controllers/profile_controller.dart';
 class CourseBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => CourseController(), fenix: false);
+    // If I put fenix : false it will not create the Controller when it disposed
+    Get.lazyPut(() => CourseController(), fenix: true);
   }
 }
 
 class AuthBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => AuthController(), fenix: false);
+    Get.lazyPut(() => AuthController(), fenix: true);
   }
 }
 
 class ProfileBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => ProfileController(), fenix: false);
+    Get.lazyPut(() => ProfileController(), fenix: true);
   }
 }
 
 class InitialBindings extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => ProfileController(), fenix: false);
-    Get.lazyPut(() => CourseController(), fenix: false);
+    Get.lazyPut(() => ProfileController(), fenix: true);
+    Get.lazyPut(() => CourseController(), fenix: true);
   }
 }
 

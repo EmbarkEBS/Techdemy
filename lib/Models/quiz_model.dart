@@ -11,7 +11,7 @@ class QuizQuestion {
     required this.correctAnswerIndex,
   });
 
-  /// ✅ Factory constructor to create from JSON
+  /// Factory constructor to create from JSON
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
     return QuizQuestion(
       id: json["question_id"] ?? 0,

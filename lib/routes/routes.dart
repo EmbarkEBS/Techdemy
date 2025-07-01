@@ -1,6 +1,6 @@
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:tech/Screens/coursedetails_page.dart';
-import 'package:tech/Screens/courselist_page.dart';
+import 'package:tech/Screens/home_page.dart';
 import 'package:tech/Screens/login_page.dart';
 import 'package:tech/Screens/mycourses_page.dart';
 import 'package:tech/Screens/myprofile_page.dart';
@@ -57,7 +57,7 @@ class AppScreens {
     GetPage(
       name: AppRoutes.mycourses, 
       page: () => const MyCoursesPage(),
-      // binding: bindings
+      binding: ProfileBinding()
     ),
     GetPage(
       name: AppRoutes.courseDetail, 

@@ -10,10 +10,24 @@ class OTPVerificationPage extends StatefulWidget {
   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
 }
 
-class _OTPVerificationPageState extends State<OTPVerificationPage> {
+class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAutoFill{
 
   final _formkey_2 = GlobalKey<FormState>();
   String _code = "";
+  final TextEditingController _otpController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    listenForCode();
+  }
+
+  @override
+  void codeUpdated() {
+    setState(() {
+      _otpController.text = code!;
+    });
+    // TODO verify the OTP and navigate to home screen
+  }
 
   @override
   void dispose() {
@@ -44,12 +58,13 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                   ),
                   const SizedBox(height: 30,),
                   const Text(
-                    "Enter the verification code sent to your mail-id",
+                    "Enter the verification code sent to your Mobile number",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16.0,),
                   ),
                   const SizedBox(height: 10,),
                   PinFieldAutoFill(
+                    controller: _otpController,
                     codeLength: 4,
                     decoration: UnderlineDecoration(
                       textStyle: const TextStyle(fontSize: 20, color: Colors.black),
@@ -58,11 +73,10 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                     currentCode: _code,
                     onCodeChanged: (code) async {
                       if (code!.length == 4) {
-                        setState(() {
-                          _code = code;
-                        });
+                        _code = code;
                         FocusScope.of(context).requestFocus(FocusNode());
                       }
+                      // TODO: Verfiy OTP with backend
                       try {
                         // await controller.verifyOtp(_code);
                       } catch (e) {
@@ -71,30 +85,44 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                     },
                   ),
                   const SizedBox(height: 20,),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.black87,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: Colors.black)
-                      ),
-                      minimumSize: const Size(double.infinity, 50)
-                    ),
-                    onPressed: () async {
-                      Navigator.pushReplacementNamed(context, '/homepage');
-                     if (!_formkey_2.currentState!.validate()) {
-                        await controller.verifyOtp(_code);
-                     }
-                    },
-                    child: const Text('Verify OTP'),
+                  GetBuilder<AuthController>(
+                    builder: (ctr) {
+                      return FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.black87,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(color: Colors.black)
+                          ),
+                          minimumSize: const Size(double.infinity, 50)
+                        ),
+                        onPressed: () async {
+                          Navigator.pushNamedAndRemoveUntil(context, '/homepage', (route) => false,);
+                        //  if (!_formkey_2.currentState!.validate()) {
+                        //     await controller.verifyOtp(_code);
+                        //  }
+                        },
+                        child: ctr.isVerifying
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.yellow,
+                              ),
+                            ),
+                          )
+                        : const Text('Verify OTP', style: TextStyle(color: Colors.yellow)),
+                      );
+                    }
                   ),
                   const SizedBox(height: 10,),
                   TextButton(
                     onPressed: () async {
                       await controller.resendOtp();
                     },
-                    child: const Text("Resend OTP"),
+                    child: const Text("Resend OTP",),
                   )
                 ],
               ),
@@ -104,58 +132,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
       )
     );
   }
+  
+ 
 
 }
-
-  // TextEditingController contrller1 = TextEditingController();
-  // TextEditingController contrller2 = TextEditingController();
-  // TextEditingController contrller3 = TextEditingController();
-  // TextEditingController contrller4 = TextEditingController();
-  // TextEditingController contrller5 = TextEditingController();
-  // TextEditingController contrller6 = TextEditingController();
-
-  // Widget _textFieldOTP({bool? first, last, TextEditingController? controllerr}) {
-  //   double height = MediaQuery.of(context).size.height;
-  //   double width = MediaQuery.of(context).size.width;
-  //   return SizedBox(
-  //     height: width > 600 ? 55 : height / 12,
-  //     child: AspectRatio(
-  //       aspectRatio: 1.0,
-  //       child: TextFormField(
-  //         controller: controllerr,
-  //         validator: (value) {
-  //           if (value == null || value.isEmpty) {
-  //             return 'Enter Valid OTP';
-  //           }
-  //           return null;
-  //         },
-  //         autofocus: true,
-  //         onChanged: (value) {
-  //           if (value.length == 1 && last == false) {
-  //             FocusScope.of(context).nextFocus();
-  //           }
-  //           if (value.isEmpty && first == false) {
-  //             FocusScope.of(context).previousFocus();
-  //           }
-  //         },
-  //         showCursor: false,
-  //         readOnly: false,
-  //         textAlign: TextAlign.center,
-  //         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-  //         keyboardType: TextInputType.number,
-  //         maxLength: 1,
-  //         decoration: InputDecoration(
-  //           counter: const Offstage(),
-  //           enabledBorder: OutlineInputBorder(
-  //             borderSide: const BorderSide(width: 2, color: Colors.black54),
-  //             borderRadius: BorderRadius.circular(5)
-  //           ),
-  //           focusedBorder: OutlineInputBorder(
-  //             borderSide: const BorderSide(width: 2, color: Colors.blue),
-  //             borderRadius: BorderRadius.circular(5)
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
