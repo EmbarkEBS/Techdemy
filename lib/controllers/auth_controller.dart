@@ -86,8 +86,10 @@ class AuthController extends GetxController {
       "year": studentyear,
       "exp_level": experiencelevel
     };
+    isRegistering = true;
     update(["registering"]);
     registerMessage = await _apiService.register(registerData);
+    update();
     } catch (e) {
       log("Registeration issue", error: e.toString(), stackTrace: StackTrace.current);
     } finally {

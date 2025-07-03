@@ -23,7 +23,7 @@ class MyProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      drawer: const DrawerWidget(isProfile: true,),
+      drawer: const DrawerWidget(isProfile: true, profileCaller: "Profile screen",),
       body: GetBuilder<ProfileController>(
         builder: (controller) {
           return SingleChildScrollView(

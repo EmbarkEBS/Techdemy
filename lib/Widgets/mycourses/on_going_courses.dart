@@ -24,6 +24,7 @@ class OnGoingCourses extends StatelessWidget {
               ],
             )
           : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
               //scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemCount: courses.length,

@@ -59,7 +59,7 @@ class ProfileController extends GetxController{
   @override
   void onInit() {
     super.onInit();
-    getProfile();
+    if(profile != null ) getProfile("Controller init");
   }
 
   void selectGender(String value) {
@@ -92,8 +92,8 @@ class ProfileController extends GetxController{
     update();
   }
 
-  Future<void> getProfile() async {
-    profile = await _apiService.getProfile();
+  Future<void> getProfile(String caller) async {
+    profile = await _apiService.getProfile(caller);
     namecontroller.text = profile!.name;
     gender = profile!.gender;
     addresscontroller.text = profile!.address;
@@ -125,7 +125,7 @@ class ProfileController extends GetxController{
       isEditing = true;
       update(["updating"]);
       await _apiService.updateProfile(updateData).then((value) async {
-        await getProfile();
+        await getProfile("Update profile API");
       },);
     } catch (e) {
       debugPrint("Something wrong in edit API. ${e.toString()}", wrapWidth: 1064);

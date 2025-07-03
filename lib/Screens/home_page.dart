@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
         // backgroundColor: Colors.black,
         surfaceTintColor: Colors.transparent,
       ),
-      drawer: const DrawerWidget(),
+      drawer: const DrawerWidget(profileCaller: "Home screen",),
       body: FutureBuilder<List<CourseList>>(
         future: controller.getCoursesList(),
         builder: (context, snapshot) {

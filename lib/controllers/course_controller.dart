@@ -56,7 +56,7 @@ class CourseController extends GetxController{
     await _apiService.downloadFile(url, fileName);
   }
 
-  Future<void> getProfile() async => await _apiService.getProfile();
+  // Future<void> getProfile() async => await _apiService.getProfile();
 
   Future<List<MyCoursesList>> getMyCourses() async => await _apiService.getMyCourses();
 

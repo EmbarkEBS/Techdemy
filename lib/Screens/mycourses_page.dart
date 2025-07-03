@@ -25,42 +25,45 @@ class MyCoursesPage extends StatelessWidget {
           ),
         ],
       ),
-      drawer: const DrawerWidget(isMyCourse: true,),
-      body: DefaultTabController(
-        length: 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ButtonsTabBar(
-              unselectedBackgroundColor: Colors.transparent,
-              unselectedLabelStyle: const TextStyle(color: Colors.blue),
-              labelStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-              backgroundColor: Colors.yellow,
-              contentPadding: const EdgeInsets.all(10),
-              tabs: const [
-                Tab(
-                  child: Text(
-                    "OnGoing",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+      drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ButtonsTabBar(
+                unselectedBackgroundColor: Colors.transparent,
+                unselectedLabelStyle: const TextStyle(color: Colors.blue),
+                labelStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                backgroundColor: Colors.yellow,
+                contentPadding: const EdgeInsets.all(10),
+                tabs: const [
+                  Tab(
+                    child: Text(
+                      "OnGoing",
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                   ),
-                ),
-                Tab(
-                  child: Text(
-                    "Completed",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  Tab(
+                    child: Text(
+                      "Completed",
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const Expanded(
-              child: TabBarView(
-                children: <Widget>[
-                  OnGoingCourses(),
-                  CompletedCourses()
                 ],
               ),
-            ),
-          ],
+              const Expanded(
+                child: TabBarView(
+                  children: <Widget>[
+                    OnGoingCourses(),
+                    CompletedCourses()
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

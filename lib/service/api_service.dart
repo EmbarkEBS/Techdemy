@@ -34,7 +34,7 @@ class ApiService {
     }
   }
 
-  /// Login
+  /// Login -> Completed
   Future<Map<String, String>> login(String mobile) async {
     var url = 'https://techdemy.in/connect/api/userlogin';
     final Map<String, String> data = {
@@ -42,29 +42,26 @@ class ApiService {
     };
     try {
       final response = await http.post(Uri.parse(url),
-        body: json.encode({
+        body: {
           "data": encryption(json.encode(data))
-        }),
-        encoding: Encoding.getByName('utf-8'),
-        headers: {
-          "CONTENT-TYPE": "application/json"
-        }).timeout(const Duration(seconds: 20)
+        },
+       ).timeout(const Duration(seconds: 20)
       );
-      String decryptedData = "${decryption(response.body.toString().trim()).split("}")[0]}}";
+      String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), "");
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
-      if (response.statusCode == 200) {
-        if (result["status"] == "success") {
-          SharedPreferences sp = await SharedPreferences.getInstance();
-          sp.setInt("user_id", result["user_id"]);
-          sp.setString("login_data", mobile);
-          _storage.write(key: "${getDeviceId()}_${sp.getInt("user_id")}", value: true.toString());
-          String value = await _storage.read(key: "${getDeviceId()}_${sp.getInt("user_id")}") ?? "";
-          Get.showSnackbar(const GetSnackBar(message: "Loggedin successfully", duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
-          Get.offNamed(AppRoutes.verification);
-          return {"message": result["message"], "status": "success"};
-        } 
+      log("login response log $result");
+      if (response.statusCode == 200 && result["status"] == "success") {
+        SharedPreferences sp = await SharedPreferences.getInstance();
+        sp.setInt("user_id", result["user_id"]);
+        sp.setString("login_data", mobile);
+        _storage.write(key: "${getDeviceId()}_${sp.getInt("user_id")}", value: true.toString());
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        Get.offNamed(AppRoutes.verification);
+        return {"message": result["message"], "status": "success"};
+      } else {
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        return {"message": result["message"], "status": "error"};
       }
-    return {"message": result["message"], "status": "error"};
     } on TimeoutException catch (_) {
       Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
       return {"message": _.message.toString(), "status": "error"};
@@ -117,30 +114,35 @@ class ApiService {
     var url = 'https://techdemy.in/connect/api/userregister';
     try {
       final response = await http.post(Uri.parse(url),
-        body: json.encode(registerData),
-        headers: {
-          "CONTENT-TYPE": "application/json"
-        }).timeout(const Duration(seconds: 20)
+        body: {
+          "data" : encryption(json.encode(registerData))
+        },
+        ).timeout(const Duration(seconds: 20)
       );
-      Map<String, dynamic> result = jsonDecode(
-        "${decryption(response.body.toString().trim()).split("}")[0]}}"
-      ) as Map<String, dynamic>;
+      String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Registration response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-          SharedPreferences sp = await SharedPreferences.getInstance();
-          sp.setInt("user_id", result["user_id"]);
-          sp.setString("login_data", registerData["phone_no"]);
-          Future.delayed(const Duration(seconds: 2), () {
-            Get.offNamed(AppRoutes.login);
-          });
+        SharedPreferences sp = await SharedPreferences.getInstance();
+        sp.setInt("user_id", result["user_id"]);
+        sp.setString("login_data", registerData["phone_no"]);
+        Future.delayed(const Duration(seconds: 2), () {
+          Get.offNamed(AppRoutes.login);
+        });
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message": result["message"], "status": "success"};
       } else if (result["status"] == "email_exist") {
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message": result["message"], "status": "error"};
       }  else {
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message" : "${response.statusCode} :Please Check your Internet Connection And data", "status" : "error"};
       }
     } on TimeoutException catch (_) {
+      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
       return {"message": "Please Check your Internet Connection And data", "status": "error"};
     } on Exception catch (e) {
+      log("Registration error", error: e.toString(), stackTrace: StackTrace.current);
       return {"message": e.toString(), "status": "error"};
     }
   }
@@ -159,31 +161,30 @@ class ApiService {
     };
     try {
       final response = await http.post(Uri.parse(url),
-          body: json.encode({"data": encryption(json.encode(data))}),
-          encoding: Encoding.getByName('utf-8'),
-          headers: {
-            "CONTENT-TYPE": "application/json"
-          }).timeout(const Duration(seconds: 20));
-      if (response.statusCode == 200) {
-        String decryptedData = decryption(response.body.toString().trim()).split("}")[0];
-        Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
-        if (result["status"] == "success") {
-          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
-            Get.offNamed(AppRoutes.homepage);
-          },);
-        } else if (result["status"] == "expired") {
-          Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
-        } else {
-          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
-        }
+        body: json.encode({"data": encryption(json.encode(data))}),
+        encoding: Encoding.getByName('utf-8'),).timeout(const Duration(seconds: 20)
+      );
+      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
+      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Verify otp response log $result");
+      if (response.statusCode == 200 && result["status"] == "success") {
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
+          Get.offNamed(AppRoutes.homepage);
+        },);  
+        // May use this if something went wrong if (result["status"] == "expired")
       } else {
-        String message = "Please Check your Internet Connection And data statusCode - 3 ${response.statusCode.toString()}";
-        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: message, duration: const Duration(seconds: 1)));
-      }
+          Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
+      } 
+      // else {
+      //   Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
+      //   String message = "Please Check your Internet Connection And data statusCode - 3 ${response.statusCode.toString()}";
+      //   Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: message, duration: const Duration(seconds: 1)));
+      // }
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: e.toString(), duration: const Duration(seconds: 1)));
+      log("Verifuy otp exception", error: e.toString(), stackTrace: StackTrace.current);
     }
   
   }
@@ -200,25 +201,21 @@ class ApiService {
       final response = await http.post(Uri.parse(url),
         body: json.encode({"data": encryption(json.encode(data))}),
         encoding: Encoding.getByName('utf-8'),
-        headers: {
-          "CONTENT-TYPE": "application/json"
-        }).timeout(const Duration(seconds: 20)
+        ).timeout(const Duration(seconds: 20)
       );
-      if (response.statusCode == 200) {
-        String decryptedData = "${decryption(response.body.toString().trim()).split("}")[0]}}";
-        Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
-        if (result["status"] == "success") {
-          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
-        } else {
-          Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
-        }
+      String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), "");
+      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Resend otp response log $result");
+      if (response.statusCode == 200 && result["status"] == "success") {
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       } else {
-        Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       }
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: e.toString(), duration: const Duration(seconds: 1)));
+      log("Resend otp exception", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
 
@@ -226,13 +223,12 @@ class ApiService {
   Future<List<CourseList>> getCoursesList() async {
     var url = 'https://techdemy.in/connect/api/courselist';
     var response = await http.get(Uri.parse(url),);
-
+    String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
+    Map<String, dynamic> result= json.decode(decrptedData);
     if (response.statusCode == 200) {
-      String decrptedData = decryption(response.body);
-      Map<String, dynamic> jsonData = json.decode(decrptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), ''));
-      debugPrint('Result: ${jsonData['results']}', wrapWidth: 1024);
+      log('Course list response log: ${result['results']}');
       List<CourseList> courses = [];
-      for (var courselist in jsonData['results']) {
+      for (var courselist in result['results']) {
         courses.add(CourseList.fromJson(courselist));
       }
       return courses;
@@ -250,16 +246,12 @@ class ApiService {
     var response = await http.post(
       Uri.parse(url),
       body: json.encode({"data": encryption(json.encode(data))}),
-      headers: {
-        "Accept": "application/json",
-        'Content-Type': 'application/json; charset=utf-8'
-      },
     );
-    debugPrint("coursedetails: ${response.body}", wrapWidth: 1024);
+    log("Course detail Response log: ${response.body}");
     if (response.statusCode == 200) {
-      String decryptedData = decryption(response.body);
+      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       //Map<String,dynamic> result=json.decode(decryption(response.body.toString().trim()).split("}")[0]+"}") as Map<String,dynamic>;
-      Map<String, dynamic> result = json.decode(decryptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), ''));
+      Map<String, dynamic> result = json.decode(decryptedData);
       debugPrint("Course detail: $result");
       return CourseDetail.fromJson(result);
     }
@@ -280,25 +272,36 @@ class ApiService {
         body: json.encode({
           "data": encryption(json.encode(data))
         }),
-        encoding: Encoding.getByName('utf-8'),
-        headers: {
-          "CONTENT-TYPE": "application/json"
-        }).timeout(const Duration(seconds: 20)
+        ).timeout(const Duration(seconds: 20)
       );
-      if (response.statusCode == 200) {
-        Map<String, dynamic> result = jsonDecode("${decryption(response.body.toString().trim()).split("}")[0]}}") as Map<String, dynamic>;
+      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Enroll course response log $result");
+      if (response.statusCode == 200 && result["status"] == "success") {
         debugPrint("result$result");
-        // Get.offNamed(AppRoutes.mycourses);
+        Get.showSnackbar(GetSnackBar(
+          snackPosition: SnackPosition.TOP, 
+          message: result["message"], 
+          duration: const Duration(seconds: 1)
+        ));
+        // 
+      } else {
+        Get.showSnackbar(GetSnackBar(
+          snackPosition: SnackPosition.TOP, 
+          message: result["message"], 
+          duration: const Duration(seconds: 1)
+        ));
+        Get.toNamed(AppRoutes.mycourses);
       }
     } on TimeoutException catch (_) {
-     Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
     } on Exception catch (e) {
-      log("My courses", error: e.toString(), stackTrace: StackTrace.current);
+      log("Enroll courses exception", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
 
   // Get user Profile
-  Future<ProfileModel?> getProfile() async {
+  Future<ProfileModel?> getProfile(String caller) async {
     try {
       SharedPreferences sp = await SharedPreferences.getInstance();
       var url = 'https://techdemy.in/connect/api/userprofile';
@@ -309,17 +312,13 @@ class ApiService {
         "data": encryption(json.encode(data))
       };
       final response = await http.post(Uri.parse(url),
-          body: json.encode(dat),
-          headers: {
-            "CONTENT-TYPE": "application/json"
-          }).timeout(const Duration(seconds:20)); 
-      
-      String a = "${decryption(response.body.toString().trim()).split("}")[0]}}}";
+        body: json.encode(dat),).timeout(const Duration(seconds:20)
+      ); 
+      String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
-      debugPrint("Profile details: $a");
+      log("Profile details log: $result", name: caller);
       if (response.statusCode == 200 && result["status"] == "success") {
         return ProfileModel.fromJson(result["results"]);
-        // Get.off(MyProfilePage(result["results"]));
       } else {
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       }
@@ -327,7 +326,7 @@ class ApiService {
     } on TimeoutException catch (_) {
       Get.back();
     } on Exception catch (e) {
-      log("My profile", error: e.toString(), stackTrace: StackTrace.current);
+      log("My profile exception", error: e.toString(), stackTrace: StackTrace.current);
     }
     return null;
   }
@@ -342,25 +341,23 @@ class ApiService {
       final response = await http.post(
         Uri.parse(url),
         body: json.encode(dat),
-        headers: {
-          "CONTENT-TYPE": "application/json"
-        }).timeout(const Duration(seconds:20)
+        ).timeout(const Duration(seconds:20)
       );
-      String decrptedData = decryption(response.body.toString().trim()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      String decrptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(decrptedData) as Map<String, dynamic>;
+      log("Update profile response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        // SharedPreferences sp = await SharedPreferences.getInstance();
-        // sp.setInt("user_id", int.parse(widget.results["appuser_id"]));
-        // sp.setString("email", email);
+        SharedPreferences sp = await SharedPreferences.getInstance();
+        sp.setInt("user_id", int.parse(data["user_id"]));
+        sp.setString("login_data", data["phone_no"]);
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
-        
       } else {
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
       }
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", snackPosition: SnackPosition.TOP, duration: Duration(seconds: 1)));
     } on Exception catch (e) {
-      log("Update profile got issue", error: e.toString(), stackTrace: StackTrace.current);
+      log("Update profile exception log", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
 
@@ -372,19 +369,14 @@ class ApiService {
       "user_id": sp.getInt("user_id").toString()
     };
     Map<String, String> dat = {"data": encryption(json.encode(data))};
+    var response = await http.post(
+      Uri.parse(url),
+      body: json.encode(dat),
+    );
+    String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
+    Map<String, dynamic> jsonData = json.decode(decrptedData);
     try {
-      var response = await http.post(
-        Uri.parse(url),
-        body: json.encode(dat),
-        headers: {
-          "Accept": "application/json",
-          "content-type": "application/json",
-          "Charset": "utf-8",
-        },
-      );
-      String decrptedData = decryption(response.body);
-      Map<String, dynamic> jsonData = json.decode(decrptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), ''));
-      debugPrint('results:$jsonData', wrapWidth: 1024);
+      log('My courses log:$jsonData');
       var jsonArray = jsonData['results'];
       if (response.statusCode == 200) {
         List<MyCoursesList> courses = [];
@@ -415,7 +407,7 @@ class ApiService {
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", snackPosition: SnackPosition.TOP,  duration: Duration(seconds: 1)));
     } on Exception catch (e) {
-      log("My courses API", error: e.toString(), stackTrace: StackTrace.current);
+      log("My courses exception", error: e.toString(), stackTrace: StackTrace.current);
     }
     return [];
   }
@@ -470,9 +462,9 @@ class ApiService {
           ),
         ),
       );
-      debugPrint('File downloaded and saved to: ${file.path}');
+      log('File downloaded and saved to: ${file.path}');
     } catch (e) {
-      debugPrint('Error downloading file: $e');
+      log('Error downloading file exception: $e');
     }
   }
 

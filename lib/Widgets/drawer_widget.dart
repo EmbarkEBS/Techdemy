@@ -6,7 +6,8 @@ import 'package:tech/routes/routes.dart';
 class DrawerWidget extends StatelessWidget {
   final bool? isProfile;
   final bool? isMyCourse;
-  const DrawerWidget({super.key, this.isMyCourse, this.isProfile});
+  final String? profileCaller;
+  const DrawerWidget({super.key, this.isMyCourse, this.isProfile, this.profileCaller});
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +39,8 @@ class DrawerWidget extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(context);
               if(isProfile == null) {
-                controller.profile != null 
-                ? await controller.getProfile().then((value) => Get.toNamed(AppRoutes.profile),)
+                controller.profile == null 
+                ? await controller.getProfile(profileCaller ?? "drawer").then((value) => Get.toNamed(AppRoutes.profile),)
                 : Get.toNamed(AppRoutes.profile);
               }
             },
