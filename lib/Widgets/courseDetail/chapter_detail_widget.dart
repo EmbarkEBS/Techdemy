@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
-import 'package:tech/Screens/coursedetails_page.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/controllers/course_controller.dart';
 
@@ -35,7 +34,7 @@ class ChapterDetailWidget extends StatelessWidget {
               trailing: TextButton(
                 style: TextButton.styleFrom(),
                 onPressed: () async {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => QuizScreen(question: quizQuestions, ),));
+                  Get.off(QuizScreen(chapterId: chapterlist.chapter_id));
                 },
                 child: const Text(
                   'Quiz',

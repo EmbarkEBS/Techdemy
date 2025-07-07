@@ -19,20 +19,27 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   void initState() {
     super.initState();
     listenForCode();
+    SmsAutoFill().getAppSignature.then((value) {
+      debugPrint("😊 App Signature: $value");
+    });
   }
 
   @override
-  void codeUpdated() {
+  void codeUpdated() async {
+    if (!mounted) return;
     setState(() {
       _otpController.text = code!;
+      _code = code!;
     });
-    // TODO verify the OTP and navigate to home screen
+    final controller = Get.find<AuthController>();
+    await controller.checkOtp(_code);
   }
 
   @override
   void dispose() {
-    super.dispose();
     SmsAutoFill().unregisterListener();
+    _otpController.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,19 +80,15 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                     currentCode: _code,
                     onCodeChanged: (code) async {
                       if (code!.length == 4) {
-                        _code = code;
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      }
-                      // TODO: Verfiy OTP with backend
-                      try {
-                        // await controller.verifyOtp(_code);
-                      } catch (e) {
-                        // print("Error occured: $e");
+                        setState(() {
+                          _code = code;
+                        });
                       }
                     },
                   ),
                   const SizedBox(height: 20,),
                   GetBuilder<AuthController>(
+                    id: "verifyOtp",
                     builder: (ctr) {
                       return FilledButton(
                         style: FilledButton.styleFrom(
@@ -98,10 +101,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           minimumSize: const Size(double.infinity, 50)
                         ),
                         onPressed: () async {
-                          Navigator.pushNamedAndRemoveUntil(context, '/homepage', (route) => false,);
-                        //  if (!_formkey_2.currentState!.validate()) {
-                        //     await controller.verifyOtp(_code);
-                        //  }
+                          await controller.checkOtp(_otpController.text);
                         },
                         child: ctr.isVerifying
                         ? const SizedBox(
@@ -120,7 +120,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                   const SizedBox(height: 10,),
                   TextButton(
                     onPressed: () async {
-                      await controller.resendOtp();
+                      await controller.resendOtp("8838955205");
                     },
                     child: const Text("Resend OTP",),
                   )
@@ -132,7 +132,4 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
       )
     );
   }
-  
- 
-
 }

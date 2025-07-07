@@ -116,9 +116,17 @@ class AuthController extends GetxController {
     await _apiService.getDeviceId() ?? "";
   }
 
+  Future<void> checkOtp(String otp) async {
+    isVerifying = true;
+    update(["verifyOtp"]);
+    await _apiService.checkOtp(otp);
+    isVerifying = false;
+    update(["verifyOtp"]);
+  }
+
   // Resend OTP
-  Future<void> resendOtp() async {
-    await _apiService.resendOtp();
+  Future<void> resendOtp(String mobileNo) async {
+    await _apiService.sendOTP(mobileNo);
   }
   
   void logout() => _apiService.logout();

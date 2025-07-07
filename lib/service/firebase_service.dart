@@ -1,17 +1,17 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class FirebaseService {
+  final _storage = const FlutterSecureStorage();
    Future<void> getFCMToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     // Initialize the firebase messaging automatically once the app is opened
     FirebaseMessaging.instance.setAutoInitEnabled(true);
     // This will access the token even if changes and store it in the preferences
     // for android devices
     FirebaseMessaging.instance.onTokenRefresh.listen((token) async{
-        await prefs.setString("fcm_token", token);
-        String key = prefs.getString("fcm_token") ?? "";
+        await _storage.write(key: "fcmToken", value: token);
+        String key = await _storage.read(key: "fcmToken") ?? "";
         debugPrint("FCM Token: $key");
     },).onError((error, stackTrace){
       debugPrint("error: $error");
@@ -20,8 +20,8 @@ class FirebaseService {
     // Get the token for the first time
     await FirebaseMessaging.instance.getToken().then((token) async{
       if (token != null) {
-        await prefs.setString("fcm_token", token);
-        String key = prefs.getString("fcm_token") ?? "";
+        await _storage.write(key: "fcmToken", value: token);
+        String key = await _storage.read(key: "fcmToken") ?? "";
         debugPrint("FCM Token: $key");
       }
     },);

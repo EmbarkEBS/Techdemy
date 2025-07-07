@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationService {
-  
+  final _storage = const FlutterSecureStorage();
   Future<void> notificationPermission() async {
     await Permission.notification.request();
     await Permission.sms.request();
@@ -15,13 +16,12 @@ class NotificationService {
   }
 
   Future<String> apphash() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(prefs.getString("app_hash") == null){
+    if(!await _storage.containsKey(key: "appHash") ){
       String? hash = await SmsAutoFill().getAppSignature;
-      await prefs.setString("app_hash", hash);
+      await _storage.write(key: "appHash", value: hash);
       return hash;
     } else {
-      return prefs.getString("app_hash")!;
+      return await _storage.read(key: "appHash") ?? "";
     }
   }
  
@@ -32,18 +32,15 @@ class NotificationService {
   }
 
   Future<void> storeOtp(String otp) async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-   await prefs.setString("last_otp", otp);
+   await _storage.write(key: "lastOtp", value:otp);
   }
 
   Future<void> clearOTP() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove("last_otp");
+    await _storage.delete(key: "lastOtp");
   }
 
   Future<String?> getLastOtp() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("last_otp");
+    return await _storage.read(key: "lastOtp") ?? "";
   }
 
   // TODO: Check the code API once credits are restored and call this in login button
@@ -59,12 +56,12 @@ class NotificationService {
       String url = "http://instantalerts.in/api/smsapi?key=$key&route=2&sender=INSTNE&number=$receiver&templateid=$templateId&sms=$sms";
       final response = await http.post(Uri.parse(url),);
       if (response.statusCode == 200) {
-        print("OTP sent successfully from $receiver");
+        debugPrint("OTP sent successfully from $receiver");
       } else {
-        print("Failed to send OTP: ${response.statusCode}");
+        debugPrint("Failed to send OTP: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error sending OTP: $e");
+      debugPrint("Error sending OTP: $e");
     }
   }
 }

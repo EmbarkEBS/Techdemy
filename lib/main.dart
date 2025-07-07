@@ -8,6 +8,7 @@ import 'package:tech/routes/routes.dart';
 import 'package:tech/service/api_service.dart';
 import 'package:tech/service/firebase_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +16,9 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await firebaseMessageInit();
   WebViewPlatform.instance;
-  final _apiService = ApiService();
-  bool isLoggedIn = await _apiService.checkLoggedIn();
+  HttpOverrides.global = MyHttpOverrides();
+  final apiService = ApiService();
+  bool isLoggedIn = await apiService.checkLoggedIn();
   runApp(MyApp(isLoggedIn: isLoggedIn,));
 }
 
@@ -32,8 +34,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      initialRoute: AppRoutes.onBoarding,
-      // initialRoute: isLoggedIn ? AppRoutes.homepage : AppRoutes.onBoarding,
+      // initialRoute: AppRoutes.onBoarding,
+      initialRoute: isLoggedIn ? AppRoutes.homepage : AppRoutes.onBoarding,
       getPages: AppScreens.screens,
       debugShowCheckedModeBanner: false,
       initialBinding: InitialBindings(),
@@ -47,5 +49,16 @@ class MyApp extends StatelessWidget {
         )
       ),
     );
+  }
+}
+
+
+
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }

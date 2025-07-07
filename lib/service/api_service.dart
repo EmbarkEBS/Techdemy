@@ -9,7 +9,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tech/Helpers/encrypter.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
@@ -40,6 +39,7 @@ class ApiService {
     final Map<String, String> data = {
       "login_data": mobile
     };
+    debugPrint("Decrypted data :${ encryption(json.encode(data))}");
     try {
       final response = await http.post(Uri.parse(url),
         body: {
@@ -51,15 +51,17 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("login response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setInt("user_id", result["user_id"]);
-        sp.setString("login_data", mobile);
-        _storage.write(key: "${getDeviceId()}_${sp.getInt("user_id")}", value: true.toString());
-        Get.showSnackbar(GetSnackBar(message: result["message"], duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        Future.wait([
+          _storage.write(key: "userId", value: result["user_id"].toString()),
+          _storage.write(key: "mobileNo", value: mobile)
+        ]);
+        _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        await sendOTP(mobile);
         Get.offNamed(AppRoutes.verification);
         return {"message": result["message"], "status": "success"};
       } else {
-        Get.showSnackbar(GetSnackBar(message: result["message"], duration: Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message": result["message"], "status": "error"};
       }
     } on TimeoutException catch (_) {
@@ -72,10 +74,11 @@ class ApiService {
   }
 
   Future<bool> checkLoggedIn() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String value = await _storage.read(key: "${getDeviceId()}_${sp.getInt("user_id")}") ?? "";
+    String value = await _storage.read(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}") ?? "";
+    log("Logged in user : ${await getDeviceId()}_${await _storage.read(key: "userId")}");
     if(value.isNotEmpty) {
       bool check = bool.tryParse(value) ?? false;
+      log("Value of logged in user $check");
       return check;
     }
     return false;
@@ -83,29 +86,37 @@ class ApiService {
   
   /// Send OTP using instant alerts
   Future<void> sendOTP(String mobile) async {
+    int otp = await generateOTP();
+    String endpoint =  "https://sms.embarkinteractive.com/api/smsapi",
+    key = "4263dd9a2485fe38217a8f4da1c546e5",
+    sender = "INSTNE", templateid = "1407175160893343027",
+    sms = Uri.encodeComponent("<#> $otp is your Techdemy OTP.\n NDeYICHXQsQ");
     try{
-      int otp = await generateOTP();
-      // TODO: Change them with techdemy API key, templateId, sender and sms
-      String endpoint =  "https://sms.embarkinteractive.com/api/smsapi",
-      key = "d6c8a9db43d8789803f77ab74c02ab9d", // TODO : add key here
-      sender = "INSTNE", templateid = "1407175039545567178", 
-      sms = "<#> $otp is your Techdemy OTP. NDeYICHXQsQ" ;
       String url = "$endpoint?key=$key&route=2&sender=$sender&number=$mobile&templateid=$templateid&sms=$sms";
-      final response = await http.post(Uri.parse(url));
+      final response = await http.get(Uri.parse(url));
+      log("OTP send response log: ${response.body}");
       if (response.statusCode == 200) {
-
+        // await SmsAutoFill().listenForCode();
+        await _storage.write(key: "otp", value: otp.toString());
       } else {
-        
+        await _storage.write(key: "otp", value: "");
       }
     } catch(e) {
       log("Error sending OTP:", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
 
+  // Verify the OTP in local
+  Future<void> checkOtp(String otp) async {
+    String correct = await _storage.read(key: "otp") ?? "";
+    if(correct.isNotEmpty && correct == otp) {
+      _storage.write(key: "${await getDeviceId()}_${_storage.read(key: "userId")}", value: "true");
+      Get.offNamed(AppRoutes.homepage);
+    }
+  }
 
   Future<int> generateOTP() async {
     int otp = 1000 + (9999 - 1000) * (DateTime.now().millisecondsSinceEpoch % 1000) ~/ 1000;
-    // await storeOtp(otp.toString());
     return otp;
   }
 
@@ -123,12 +134,12 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Registration response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setInt("user_id", result["user_id"]);
-        sp.setString("login_data", registerData["phone_no"]);
-        Future.delayed(const Duration(seconds: 2), () {
-          Get.offNamed(AppRoutes.login);
-        });
+        Future.wait([
+          _storage.write(key: "userId", value: result["user_id"]),
+          _storage.write(key: "mobileNo", value: result["phone_no"]),
+          sendOTP(registerData["phone_no"])
+        ]);
+        Get.offNamed(AppRoutes.verification);
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message": result["message"], "status": "success"};
       } else if (result["status"] == "email_exist") {
@@ -149,15 +160,13 @@ class ApiService {
 
   // Otp verfication
   Future<void> otpVerify(String otp) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    var userId = sp.containsKey("user_id") ? sp.getInt("user_id") : 0;
+    var userId = await _storage.containsKey(key: "userId") ? _storage.read(key: "userId") : 0;
     var url = 'https://techdemy.in/connect/api/verifyotp';
-    var loginData = sp.getString("login_data");
-    // var email = sp.getString("email");
+    var mobileNo = await _storage.read(key: "mobileNo");
     final Map<String, String> data = {
-      "login_data": loginData.toString(),
+      "login_data": mobileNo.toString(),
       "otp": otp,
-      "user_id": userId!.toString()
+      "user_id": userId.toString()
     };
     try {
       final response = await http.post(Uri.parse(url),
@@ -175,11 +184,6 @@ class ApiService {
       } else {
           Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
       } 
-      // else {
-      //   Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
-      //   String message = "Please Check your Internet Connection And data statusCode - 3 ${response.statusCode.toString()}";
-      //   Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: message, duration: const Duration(seconds: 1)));
-      // }
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
@@ -191,12 +195,11 @@ class ApiService {
 
   // Resend OTP
   Future<void> resendOtp() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    var loginData = sp.getString("login_data");
+    var mobileNo = await _storage.read(key: "mobileNo");
     try {
       var url = 'https://techdemy.in/connect/api/resendotp';
       final Map<String, String> data = {
-        "login_data": loginData.toString()
+        "login_data": mobileNo.toString()
       };
       final response = await http.post(Uri.parse(url),
         body: json.encode({"data": encryption(json.encode(data))}),
@@ -243,9 +246,11 @@ class ApiService {
     var url = 'https://techdemy.in/connect/api/coursedetail';
     // SharedPreferences sp = await SharedPreferences.getInstance();
     var data = {"course_id": courseId};
+    final encodedData = json.encode(data);
+    final encryptedData = encryption(encodedData);
     var response = await http.post(
       Uri.parse(url),
-      body: json.encode({"data": encryption(json.encode(data))}),
+      body: {"data" : encryptedData},
     );
     log("Course detail Response log: ${response.body}");
     if (response.statusCode == 200) {
@@ -261,9 +266,8 @@ class ApiService {
   /// Enroll course
   Future<void> enrollCourse(String courseId) async {
     var url = 'https://techdemy.in/connect/api/userenrollment';
-    SharedPreferences sp = await SharedPreferences.getInstance();
     final Map<String, String> data = {
-      "user_id": sp.getInt("user_id").toString(),
+      "user_id": await _storage.read(key: "userId") ?? "",
       "course_id": courseId,
     };
     try {
@@ -302,31 +306,24 @@ class ApiService {
 
   // Get user Profile
   Future<ProfileModel?> getProfile(String caller) async {
-    try {
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      var url = 'https://techdemy.in/connect/api/userprofile';
-      final Map<String, String> data = {
-        "user_id": sp.getInt("user_id").toString()
-      };
-      Map<String, String> dat = {
-        "data": encryption(json.encode(data))
-      };
-      final response = await http.post(Uri.parse(url),
-        body: json.encode(dat),).timeout(const Duration(seconds:20)
-      ); 
-      String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
-      Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
-      log("Profile details log: $result", name: caller);
-      if (response.statusCode == 200 && result["status"] == "success") {
-        return ProfileModel.fromJson(result["results"]);
-      } else {
-        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
-      }
-      return null;
-    } on TimeoutException catch (_) {
-      Get.back();
-    } on Exception catch (e) {
-      log("My profile exception", error: e.toString(), stackTrace: StackTrace.current);
+    var url = 'https://techdemy.in/connect/api/userprofile';
+    final Map<String, String> data = {
+      "user_id": await _storage.read(key: "userId") ?? ""
+    };
+    String encodedData = json.encode(data);
+    final encryptedData = encryption(encodedData);
+    log("encryption data of profile $encryptedData");
+    final response = await http.post(Uri.parse(url),
+      body: {"data": encryptedData}).timeout(const Duration(seconds:20)
+    ); 
+    log("Profile: ${response.body.toString()}");
+    String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+    Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
+    log("Profile details log: $result", name: caller);
+    if (response.statusCode == 200 && result["status"] == "success") {
+      return ProfileModel.fromJson(result["results"]);
+    } else {
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
     }
     return null;
   }
@@ -347,9 +344,10 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decrptedData) as Map<String, dynamic>;
       log("Update profile response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setInt("user_id", int.parse(data["user_id"]));
-        sp.setString("login_data", data["phone_no"]);
+         Future.wait([
+          _storage.write(key: "userId", value: result["user_id"].toString()),
+          _storage.write(key: "mobileNo", value: result["phone_no"])
+        ]);
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       } else {
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
@@ -364,9 +362,8 @@ class ApiService {
   // My courses
   Future<List<MyCoursesList>> getMyCourses() async {
     var url = 'https://techdemy.in/connect/api/mycourse';
-    SharedPreferences sp = await SharedPreferences.getInstance();
     final Map<String, String> data = {
-      "user_id": sp.getInt("user_id").toString()
+      "user_id": await _storage.read(key: "userId") ?? ""
     };
     Map<String, String> dat = {"data": encryption(json.encode(data))};
     var response = await http.post(
@@ -375,6 +372,7 @@ class ApiService {
     );
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
+    log("message $decrptedData");
     try {
       log('My courses log:$jsonData');
       var jsonArray = jsonData['results'];
@@ -469,14 +467,24 @@ class ApiService {
   }
 
   // Quiz List
-  Future<List<QuizQuestion>> quizList(String courseId, String chapterId) async {
+  Future<List<QuizQuestion>> quizList(int chapterId) async {
     Map<String, dynamic> userData = {
-      "course_id": courseId,
       'chapter_id': chapterId
     };
-    // final jsonData = json.encode(userData);
-    // String url = 'https://techdemy.in/connect/api/quizlist';
-    // TODO: implement the API call and return original list
+    final jsonData = json.encode({"data" : userData});
+    final encryptedData = encryption(jsonData);
+    String url = 'https://techdemy.in/connect/api/quizlist';
+     var response = await http.post(
+      Uri.parse(url),
+      body: encryptedData,
+    );
+    String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+    List<Map<String, dynamic>> result = json.decode(decryptedData);
+    log("Quiz list response log: $result");
+    if (response.statusCode == 200) {
+      List<QuizQuestion> questions = result.map((quiz) => QuizQuestion.fromJson(quiz),).toList();
+      return questions;
+    }
     return [];
   }
 

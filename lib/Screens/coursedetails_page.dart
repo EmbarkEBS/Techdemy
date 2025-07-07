@@ -1,7 +1,6 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tech/Models/quiz_model.dart';
 import 'package:tech/Widgets/courseDetail/chapter_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/course_detail_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
@@ -167,66 +166,3 @@ class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-
-final List<QuizQuestion> quizQuestions = [
-  QuizQuestion(
-    id: 1,
-    question: "What is the capital of France?",
-    options: ["Paris", "London", "Rome"],
-    correctAnswerIndex: 0,
-  ),
-  QuizQuestion(
-    id: 2,
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter"],
-    correctAnswerIndex: 1,
-  ),
-  QuizQuestion(
-    id: 3,
-    question: "Who wrote 'Hamlet'?",
-    options: ["Shakespeare", "Tolkien", "Dickens"],
-    correctAnswerIndex: 0,
-  ),
-  QuizQuestion(
-    id: 4,
-    question: "What is the boiling point of water?",
-    options: ["90°C", "100°C", "110°C", "120°C"],
-    correctAnswerIndex: 1,
-  ),
-  QuizQuestion(
-    id: 5,
-    question: "What is 5 + 7?",
-    options: ["10", "11", "12", "13"],
-    correctAnswerIndex: 2,
-  ),
-  QuizQuestion(
-    id: 6,
-    question: "What color do you get when you mix red and white?",
-    options: ["Pink", "Purple", "Orange"],
-    correctAnswerIndex: 0,
-  ),
-  QuizQuestion(
-    id: 7,
-    question: "Which ocean is the largest?",
-    options: ["Atlantic", "Pacific", "Indian"],
-    correctAnswerIndex: 1,
-  ),
-  QuizQuestion(
-    id: 8,
-    question: "Who painted the Mona Lisa?",
-    options: ["Michelangelo", "Leonardo da Vinci", "Raphael"],
-    correctAnswerIndex: 1,
-  ),
-  QuizQuestion(
-    id: 9,
-    question: "How many continents are there?",
-    options: ["5", "6", "7"],
-    correctAnswerIndex: 2,
-  ),
-  QuizQuestion(
-    id: 10,
-    question: "Which gas do plants absorb?",
-    options: ["Oxygen", "Carbon Dioxide", "Nitrogen"],
-    correctAnswerIndex: 1,
-  ),
-];

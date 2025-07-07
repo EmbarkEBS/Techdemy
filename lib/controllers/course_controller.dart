@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/Models/mycourses_model.dart';
+import 'package:tech/Models/quiz_model.dart';
 import 'package:tech/service/api_service.dart';
 
 class CourseController extends GetxController{
@@ -14,15 +15,10 @@ class CourseController extends GetxController{
   final random = Random();
   bool descTextShowFlag = true;
   Map<String, bool> isEnrolling = <String, bool>{};
-  
+
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
   String selectedCategory = 'All';
   
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  // }
 
   void selectDesc(bool value) {
     descTextShowFlag = value;
@@ -56,7 +52,7 @@ class CourseController extends GetxController{
     await _apiService.downloadFile(url, fileName);
   }
 
-  // Future<void> getProfile() async => await _apiService.getProfile();
+  Future<List<QuizQuestion>> quizList(int chapterId) async => await _apiService.quizList(chapterId);
 
   Future<List<MyCoursesList>> getMyCourses() async => await _apiService.getMyCourses();
 

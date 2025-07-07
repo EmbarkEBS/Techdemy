@@ -1,33 +1,41 @@
 class QuizQuestion {
   final int id;
+  final int chapterId;
   final String question;
+  final String quizType;
   final List<String> options;
   final int correctAnswerIndex;
-
   QuizQuestion({
     required this.id,
+    required this.chapterId,
     required this.question,
+    required this.quizType,
     required this.options,
     required this.correctAnswerIndex,
   });
 
   /// Factory constructor to create from JSON
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
+    List<String> options = List.generate(4, (index) => json["option_${String.fromCharCode(97 + index)}"],);
     return QuizQuestion(
-      id: json["question_id"] ?? 0,
-      question: json['question'] as String,
-      options: List<String>.from(json['options']),
-      correctAnswerIndex: json['correctAnswerIndex'] as int,
+      id: json["quiz_id"] ?? 0,
+      chapterId: json["chapter_id"] ?? 0,
+      question: (json['question'] ?? "").toString() ,
+      quizType: (json['quiz_type'] ?? "").toString(),
+      options: options,
+      correctAnswerIndex: json['correct_answer'],
     );
   }
 
   /// Optional: toJson if you want to convert it back
   Map<String, dynamic> toJson() {
     return {
-      'id' : id,
+      'quiz_id' : id,
+      'chapter_id': chapterId,
       'question': question,
+      'quiz_type': quizType,
       'options': options,
-      'correctAnswerIndex': correctAnswerIndex,
+      'correct_answer': correctAnswerIndex,
     };
   }
 }

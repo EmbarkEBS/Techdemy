@@ -1,19 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tech/Helpers/encrypter.dart';
 import 'package:tech/Models/quiz_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
-  final List<QuizQuestion> question;
-  final Duration duration;
-
-  const QuizScreen({
-    super.key,
-    required this.question,
-    this.duration = const Duration(seconds: 30),
-  });
+  final int chapterId;
+  const QuizScreen({super.key, required this.chapterId});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -27,9 +23,10 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    _startTimer(widget.duration.inSeconds);
+    // _startTimer(widget.duration.inSeconds);
   }
 
+  // TODO: Start timer once the API is called in the future builder
   void _startTimer(int seconds) {
     _remainingSeconds = seconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -158,8 +155,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final questions = widget.question;
-
+    // final questions = widget.question;
+    final controller = Get.find<CourseController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Quiz"),
@@ -175,44 +172,57 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemBuilder: (context, index) {
-          final q = questions[index];
-          return  Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "${index+1}) ${q.question}",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 5,),
-             ...List.generate(q.options.length, (optionIndex) {
-                return RadioListTile<int>(
-                  dense: true,
-                  title: Text(q.options[optionIndex]),
-                  value: optionIndex,  // Always a valid int
-                  groupValue: _selectedAnswers[q.id], // Can be null
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedAnswers[q.id] = value!;
-                    });
-                  },
-                );
-              }),
-            ],
+      body: FutureBuilder(
+        future: controller.quizList(widget.chapterId),
+        builder: (context, snapshot) {
+          if(snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+          List<QuizQuestion> questions = snapshot.data ?? [];
+          return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemBuilder: (context, index) {
+              final q = questions[index];
+              return  Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${index+1}) ${q.question}",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 5,),
+                 ...List.generate(q.options.length, (optionIndex) {
+                    return RadioListTile<int>(
+                      dense: true,
+                      title: Text(q.options[optionIndex]),
+                      value: optionIndex,  // Always a valid int
+                      groupValue: _selectedAnswers[q.id], // Can be null
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAnswers[q.id] = value!;
+                        });
+                      },
+                    );
+                  }),
+                ],
+              );
+            }, 
+            separatorBuilder: (context, index) {
+              return const SizedBox(
+                width: double.infinity,
+                child: Divider(
+                  color: Colors.black45,
+                  thickness: 1,
+                ),
+              );
+            }, 
+            itemCount: questions.length
           );
-        }, 
-        separatorBuilder: (context, index) {
-          return const SizedBox(
-            width: double.infinity,
-            child: Divider(
-              color: Colors.black45,
-              thickness: 1,
-            ),
-          );
-        }, 
-        itemCount: questions.length
+        }
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       persistentFooterAlignment: AlignmentDirectional.centerStart,
