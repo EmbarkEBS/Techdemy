@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
                     Image(
                       height: size.height * 0.2,
                       image: const AssetImage(
-                        "assets/images/Techdemy_logo1.png",
+                        "assets/images/techdemy_logo.png",
                       )
                     ),
                     const Text(

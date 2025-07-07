@@ -24,7 +24,7 @@ class DrawerWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
               child: Image.asset(
-                "assets/images/Techdemy-logo-onboarding.png",
+                "assets/images/onboarding_logo.png",
                 width: 50,
                 height: 50,
                 fit: BoxFit.fitHeight,

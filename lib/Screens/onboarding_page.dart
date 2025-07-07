@@ -19,7 +19,7 @@ class OnboardingPage extends StatelessWidget {
               const Image(
                 width: 280,
                 height: 300,
-                image: AssetImage("assets/images/Techdemy-logo-onboarding.png",)
+                image: AssetImage("assets/images/onboarding_logo.png",)
               ),
               const SizedBox(height: 100,),
               const Text(

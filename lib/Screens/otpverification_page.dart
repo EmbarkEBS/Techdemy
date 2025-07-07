@@ -61,7 +61,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                     //width: 180,
                     //height: 230,
                     height: size.height * 0.2,
-                    image: const AssetImage("assets/images/Techdemy_logo1.png",)
+                    image: const AssetImage("assets/images/techdemy_logo.png",)
                   ),
                   const SizedBox(height: 30,),
                   const Text(
