@@ -51,7 +51,7 @@ class AppScreens {
     ),
     GetPage(
       name: AppRoutes.quiz, 
-      page: () => const QuizScreen(chapterId: 0,),
+      page: () => const QuizScreen(chapterId: 0, questions: [],),
       binding: CourseBinding(),
     ),
     GetPage(

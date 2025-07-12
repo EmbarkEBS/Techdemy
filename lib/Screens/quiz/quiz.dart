@@ -9,7 +9,8 @@ import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
   final int chapterId;
-  const QuizScreen({super.key, required this.chapterId});
+  final List<QuizQuestion> questions;
+  const QuizScreen({super.key, required this.chapterId, required this.questions});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -172,57 +173,44 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: controller.quizList(widget.chapterId),
-        builder: (context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-          List<QuizQuestion> questions = snapshot.data ?? [];
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemBuilder: (context, index) {
-              final q = questions[index];
-              return  Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${index+1}) ${q.question}",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 5,),
-                 ...List.generate(q.options.length, (optionIndex) {
-                    return RadioListTile<int>(
-                      dense: true,
-                      title: Text(q.options[optionIndex]),
-                      value: optionIndex,  // Always a valid int
-                      groupValue: _selectedAnswers[q.id], // Can be null
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedAnswers[q.id] = value!;
-                        });
-                      },
-                    );
-                  }),
-                ],
-              );
-            }, 
-            separatorBuilder: (context, index) {
-              return const SizedBox(
-                width: double.infinity,
-                child: Divider(
-                  color: Colors.black45,
-                  thickness: 1,
-                ),
-              );
-            }, 
-            itemCount: questions.length
+      body: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemBuilder: (context, index) {
+          final q = widget.questions[index];
+          return  Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${index+1}) ${q.question}",
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 5,),
+              ...List.generate(q.options.length, (optionIndex) {
+                return RadioListTile<int>(
+                  dense: true,
+                  title: Text(q.options[optionIndex]),
+                  value: optionIndex,  // Always a valid int
+                  groupValue: _selectedAnswers[q.id], // Can be null
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedAnswers[q.id] = value!;
+                    });
+                  },
+                );
+              }),
+            ],
           );
-        }
+        }, 
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            width: double.infinity,
+            child: Divider(
+              color: Colors.black45,
+              thickness: 1,
+            ),
+          );
+        }, 
+        itemCount: widget.questions.length
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       persistentFooterAlignment: AlignmentDirectional.centerStart,

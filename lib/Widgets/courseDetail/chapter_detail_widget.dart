@@ -34,7 +34,9 @@ class ChapterDetailWidget extends StatelessWidget {
               trailing: TextButton(
                 style: TextButton.styleFrom(),
                 onPressed: () async {
-                  Get.off(QuizScreen(chapterId: chapterlist.chapter_id));
+                  await controller.quizList(chapterlist.chapter_id).then((value) {
+                    Get.to(() => QuizScreen(chapterId: chapterlist.chapter_id, questions: value,));
+                  },);
                 },
                 child: const Text(
                   'Quiz',

@@ -471,16 +471,19 @@ class ApiService {
     Map<String, dynamic> userData = {
       'chapter_id': chapterId
     };
-    final jsonData = json.encode({"data" : userData});
-    final encryptedData = encryption(jsonData);
+    final jsonData = json.encode(userData);
+    final encryptedData = encryption(jsonData);;
     String url = 'https://techdemy.in/connect/api/quizlist';
      var response = await http.post(
       Uri.parse(url),
-      body: encryptedData,
+      body: {
+        "data": encryptedData
+      },
     );
     String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
-    List<Map<String, dynamic>> result = json.decode(decryptedData);
-    log("Quiz list response log: $result");
+    Map<String, dynamic> decodedResponse = json.decode(decryptedData);
+    log("Quiz list response log: $decodedResponse");
+    final result = decodedResponse["results"] as List<dynamic>;
     if (response.statusCode == 200) {
       List<QuizQuestion> questions = result.map((quiz) => QuizQuestion.fromJson(quiz),).toList();
       return questions;

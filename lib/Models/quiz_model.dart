@@ -4,7 +4,7 @@ class QuizQuestion {
   final String question;
   final String quizType;
   final List<String> options;
-  final int correctAnswerIndex;
+  final String correctAnswerIndex;
   QuizQuestion({
     required this.id,
     required this.chapterId,
@@ -19,7 +19,7 @@ class QuizQuestion {
     List<String> options = List.generate(4, (index) => json["option_${String.fromCharCode(97 + index)}"],);
     return QuizQuestion(
       id: json["quiz_id"] ?? 0,
-      chapterId: json["chapter_id"] ?? 0,
+      chapterId: int.tryParse(json["chapter_id"]) ?? 0,
       question: (json['question'] ?? "").toString() ,
       quizType: (json['quiz_type'] ?? "").toString(),
       options: options,
