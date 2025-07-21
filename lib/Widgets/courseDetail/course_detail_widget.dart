@@ -42,6 +42,7 @@ class CourseDetailWidget extends StatelessWidget {
                 ],
             ]
           ),
+          const SizedBox(height: 8,),
           Text(
             controller.courseDetail!.courseDetailPart.description.toString(),
             maxLines: controller.descTextShowFlag ? 2 : 15,
@@ -58,94 +59,51 @@ class CourseDetailWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20,),
-          const Row(
-            children: [
-              Icon(Icons.menu_book_sharp),
-              SizedBox(width: 10,),
-              Text("Lessons")
-            ],
-          ),
-          const Row(
-            children: [
-              Icon(Icons.timelapse),
-              SizedBox(width: 10,),
-              Text("Duration")
-            ],
-          ),
-          const Row(
-            children: [
-              Icon(Icons.translate),
-              SizedBox(width: 10,),
-              Text("English")
-            ],
-          ),
-          const Row(
-            children: [
-              Icon(Icons.badge),
-              SizedBox(width: 10,),
-              Text("Certification")
-            ],
-          ),
-          Row(
-            children: [
-              const Icon(Icons.picture_as_pdf),
-              const SizedBox(width: 10,),
-              const Text("Course Material"),
-              const Spacer(),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  surfaceTintColor: Colors.transparent,
-                  disabledBackgroundColor: Colors.transparent,
-                  disabledForegroundColor:Colors.transparent
-                ),
-                onPressed: () async {
-                  await controller.downloadFile(controller.courseDetail!.courseDetailPart.courseMaterial, controller.courseDetail!.courseDetailPart.name);
-                },
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.download,
-                      size: 16,
-                      color: Colors.blue,
-                    ),
-                    SizedBox(width: 3,),
-                    Text(
-                      'Download',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold
-                      )
-                    ),
-                  ],
-                )
+          _detailTile(icon: Icons.menu_book_sharp, title: "Lessons",),
+          _detailTile(icon: Icons.timelapse, title: "Duration",),
+          _detailTile(icon: Icons.translate, title: "English",),
+          _detailTile(icon: Icons.badge, title: "Certification",),
+          _detailTile(
+            icon: Icons.picture_as_pdf, 
+            title: "Course material", 
+            trailing: IconButton(
+              onPressed: () async {
+                await controller.downloadFile(controller.courseDetail!.courseDetailPart.courseMaterial, controller.courseDetail!.courseDetailPart.name);
+              },
+              icon: const Icon(
+                Icons.download,
+                size: 16,
+                color: Colors.blue,
               )
-            ],
+            )
           ),
-          Row(
-            children: [
-              const Icon(Icons.comment_sharp),
-              const SizedBox(width: 10,),
-              const Text("Try code"),
-              const Spacer(),
-              IconButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CodeEditorPage(),)),
-                icon: const Icon(
-                  Icons.code,
-                  size: 16,
-                  color: Colors.blue,
-                ),
-              )
-            ],
+          _detailTile(
+            icon: Icons.comment_sharp, 
+            title: "Try code", 
+            trailing:  IconButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CodeEditorPage(),)),
+              icon: const Icon(
+                Icons.code,
+                size: 16,
+                color: Colors.blue,
+              ),
+            )
           ),
         ],
       ),
       //),
+    );
+  }
+
+  Widget _detailTile({required IconData icon, required String title, Widget? trailing}) {
+    return ListTile(
+      onTap: (){},
+      minTileHeight: 20,
+      contentPadding: EdgeInsets.zero,
+      dense: true,
+      title: Text(title),
+      leading: Icon(icon),
+      trailing: trailing
     );
   }
 }

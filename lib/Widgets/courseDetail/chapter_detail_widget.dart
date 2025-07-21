@@ -21,6 +21,8 @@ class ChapterDetailWidget extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius:BorderRadius.circular(10.0)),
             color: Colors.yellow.shade100,
             child: ExpansionTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
+              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
               leading: const Icon(
                 Icons.check,
                 color: Colors.blue,
@@ -48,37 +50,34 @@ class ChapterDetailWidget extends StatelessWidget {
               ),
               children:  chapterlist.topicData.isEmpty
               ? [
-                const ListTile(
-                    title: Text(
-                      'No topics for this chapter',
+                const Center(
+                    child: Text(
+                      'No topics found for this chapter',
                       style: TextStyle(color: Colors.red),
                     ),
-                  )
+                  ),
                 ]
               : [
                 for (var topics in chapterlist.topicData.toString().trim().split("-")) 
                 ...[
-                  GestureDetector(
-                    onTap: () {
-                    },
-                    child: ListTile(
-                      dense: true,
-                      tileColor: Colors.white,
-                      contentPadding: const EdgeInsets.all(20),
-                      title: Text(
-                        topics,
-                        style: const TextStyle(color: Colors.blue),
+                  ListTile(
+                    dense: true,
+                    onTap: () {},
+                    tileColor: Colors.white,
+                    contentPadding: const EdgeInsets.all(20),
+                    title: Text(
+                      topics,
+                      style: const TextStyle(color: Colors.blue),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                      },
+                      icon: const Icon(
+                        Icons.download,
+                        size: 16,
+                        color: Colors.blue,
                       ),
-                      trailing: IconButton(
-                        onPressed: () {
-                        },
-                        icon: const Icon(
-                          Icons.download,
-                          size: 16,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ) 
+                    ),
                   ),
                 ]
               ],
