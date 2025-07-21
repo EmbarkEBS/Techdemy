@@ -9,8 +9,9 @@ import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
   final int chapterId;
+  final int timer;
   final List<QuizQuestion> questions;
-  const QuizScreen({super.key, required this.chapterId, required this.questions});
+  const QuizScreen({super.key, required this.chapterId, required this.questions, required this.timer});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -24,7 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    // _startTimer(widget.duration.inSeconds);
+    _startTimer(widget.timer);
   }
 
   // TODO: Start timer once the API is called in the future builder

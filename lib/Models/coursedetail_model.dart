@@ -63,17 +63,20 @@ class ChapterDataPart {
   final int chapter_id;
   final String chapter_name;
   final String topic_data;
+  final int timer;
 
   ChapterDataPart({
     required this.chapter_id,
     required this.chapter_name,
     required this.topic_data,
+    required this.timer,
   });
   factory ChapterDataPart.fromJson(Map<String, dynamic> json) {
     return ChapterDataPart(
-      chapter_id: json['chapter_id'],
-      chapter_name: json['chapter_name'],
-      topic_data: json['topic_data'],
+      chapter_id: json['chapter_id'] ?? 0,
+      chapter_name: json['chapter_name'] ?? "",
+      topic_data: json['topic_data'] ?? "",
+      timer: json["timer"] ?? 30
     );
   }
 }
