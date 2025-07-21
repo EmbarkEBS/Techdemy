@@ -44,6 +44,7 @@ class ChapterDetailWidget extends StatelessWidget {
                   'Quiz',
                   style: TextStyle(
                     fontSize: 14,
+                    color: Colors.black,
                     fontWeight: FontWeight.w600
                   ),
                 ),

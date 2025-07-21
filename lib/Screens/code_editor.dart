@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class CodeEditorPage extends StatefulWidget {
   const CodeEditorPage({super.key});
@@ -16,24 +14,11 @@ class _CodeEditorPageState extends State<CodeEditorPage> {
   @override
   void initState() {
     super.initState();
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
-    } else {
-      params = const PlatformWebViewControllerCreationParams();
-    }
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    final WebViewController controller = WebViewController.fromPlatformCreationParams(params);
     controller
       ..loadRequest(Uri.parse('https://www.jdoodle.com/execute-dart-online'))
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
-    if (controller.platform is AndroidWebViewController) {
-      AndroidWebViewController.enableDebugging(true);
-      (controller.platform as AndroidWebViewController)
-          .setMediaPlaybackRequiresUserGesture(false);
-    }
+  
     // #enddocregion platform_features
 
     _controller = controller;
