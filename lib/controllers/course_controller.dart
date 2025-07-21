@@ -4,7 +4,6 @@ import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
-import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/Models/quiz_model.dart';
 import 'package:tech/service/api_service.dart';
 

@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tech/Helpers/encrypter.dart';
 import 'package:tech/Models/quiz_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
   final int chapterId;
@@ -157,8 +155,6 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final questions = widget.question;
-    final controller = Get.find<CourseController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Quiz"),

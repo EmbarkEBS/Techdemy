@@ -450,7 +450,7 @@ class ApiService {
       'chapter_id': chapterId
     };
     final jsonData = json.encode(userData);
-    final encryptedData = encryption(jsonData);;
+    final encryptedData = encryption(jsonData);
     String url = 'https://techdemy.in/connect/api/quizlist';
      var response = await http.post(
       Uri.parse(url),
@@ -468,6 +468,41 @@ class ApiService {
     }
     return [];
   }
+
+  // Submit Quiz
+  
+  Future<bool> submitQuestions(Map<int, int?> selectedAnswers) async {
+    final formattedAnswers = selectedAnswers.entries.map((entry) => {
+      'question_id': entry.key,
+      'selected_option_index': entry.value,
+    }).toList();
+
+    const url = 'https://techdemy.in/connect/api/submitquiz';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({"data": encryption(json.encode(formattedAnswers))}),
+      );
+
+      if (response.statusCode == 200) {
+        String decryptedData = decryption(response.body);
+        Map<String, dynamic> result = json.decode(
+          decryptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '')
+        );
+
+        String message = result['message'] ?? 'Quiz Submitted Successfully';
+        if('Quiz Submitted Successfully' == message) return true;
+        // Show result popup at center
+        return true;
+      } else {
+       return false;
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
 
   // Logout
   void logout() => Get.offAllNamed(AppRoutes.login);
