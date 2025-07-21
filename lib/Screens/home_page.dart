@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
                   CourseList courselist = courses[index];
                   if (controller.selectedCategory == 'All' || controller.selectedCategory == courselist.name) {
                     return ListTile(
-                      onTap: () async => await controller.getCoursesDetail(courselist.course_id.toString()).then((value) {
+                      onTap: () async => await controller.getCoursesDetail(courselist.courseId.toString()).then((value) {
                         Get.toNamed(AppRoutes.courseDetail);
                       },),
                       leading: Container(
@@ -67,11 +67,11 @@ class HomePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 10,),
                           GetBuilder<CourseController>(
-                            id: 'enroll_${courselist.course_id.toString()}',
+                            id: 'enroll_${courselist.courseId.toString()}',
                             builder: (ctr2) {
                               return FilledButton(
                                 onPressed: () async {
-                                  await ctr2.enrollCourse(courselist.course_id.toString()).then((value) {
+                                  await ctr2.enrollCourse(courselist.courseId.toString()).then((value) {
                                     Get.toNamed(AppRoutes.mycourses);
                                   },);
                                 },
@@ -79,8 +79,8 @@ class HomePage extends StatelessWidget {
                                   backgroundColor: Colors.black87,
                                   minimumSize: const Size(double.infinity, 40)
                                 ),
-                                child: ctr2.isEnrolling[courselist.course_id.toString()] != null 
-                                  && ctr2.isEnrolling[courselist.course_id.toString()]!
+                                child: ctr2.isEnrolling[courselist.courseId.toString()] != null 
+                                  && ctr2.isEnrolling[courselist.courseId.toString()]!
                                 ? const SizedBox(
                                     height: 24,
                                     width: 24,
@@ -103,12 +103,12 @@ class HomePage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      subtitle: courselist.tag_data.isEmpty
+                      subtitle: courselist.tagData.isEmpty
                       ? const SizedBox()
                       : Wrap(
                         spacing: 5.0,
                         children: [
-                          for (var tag in courselist.tag_data.toString().trim().split("-")) 
+                          for (var tag in courselist.tagData.toString().trim().split("-")) 
                             ...[
                             Chip(
                               label: Text(

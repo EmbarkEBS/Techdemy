@@ -365,45 +365,23 @@ class ApiService {
     final Map<String, String> data = {
       "user_id": await _storage.read(key: "userId") ?? ""
     };
-    Map<String, String> dat = {"data": encryption(json.encode(data))};
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
     var response = await http.post(
       Uri.parse(url),
-      body: json.encode(dat),
+      body: {"data": encryptedData},
     );
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
-    log("message $decrptedData");
     try {
-      log('My courses log:$jsonData');
-      var jsonArray = jsonData['results'];
+      var jsonArray = jsonData['results'] as List<dynamic>;
       if (response.statusCode == 200) {
-        List<MyCoursesList> courses = [];
-        //List<TagData> tag=[];
-        for (var courselist in jsonArray) {
-          MyCoursesList cList = MyCoursesList(
-            course_id: courselist['course_id'],
-            name: courselist['name'],
-            description: courselist['description'],
-            price: courselist['price'],
-            duration: courselist['duration'],
-            image: courselist['image'],
-            tag_data: courselist['tag_data'],
-            enroll_id: courselist['enroll_id'],
-            percentage: courselist['percentage'],
-            course_status: courselist['course_status'],
-            certificate_file: courselist['certificate_file']
-          );
-          var coursestatus = courselist['course_status'];
-          if (coursestatus == "OnGoing") {
-          }
-          courses.add(cList);
-        }
+        log('My courses log:$jsonData');
+        List<MyCoursesList> courses = jsonArray.map((e) => MyCoursesList.fromJson(e),).toList();
         return courses;
       } else {
         return [];
       }
-    } on TimeoutException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Please Check your Internet Connection And data", snackPosition: SnackPosition.TOP,  duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       log("My courses exception", error: e.toString(), stackTrace: StackTrace.current);
     }

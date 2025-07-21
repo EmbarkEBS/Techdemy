@@ -71,7 +71,7 @@ class CourseDetailsScreen extends StatelessWidget {
                           const SizedBox(height: 5,),
                           FilledButton(
                             onPressed: () async {
-                              await controller.enrollCourse(controller.courseDetail!.courseDetailPart.course_id.toString());
+                              await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
                             },
                             style: FilledButton.styleFrom(
                               backgroundColor: Colors.black87,

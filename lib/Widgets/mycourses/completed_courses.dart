@@ -15,7 +15,7 @@ class CompletedCourses extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<MyCoursesList> courses = snapshot.data!;
-          bool haveCompletedCourses = courses.any((course) => course.course_status == "Completed");
+          bool haveCompletedCourses = courses.any((course) => course.courseStatus == "Completed");
           return !haveCompletedCourses
           ? const Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -23,18 +23,17 @@ class CompletedCourses extends StatelessWidget {
                 Center(child: Text("No Course Completed Yet")),
               ],
             )
-          : ListView.builder(
-            //scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: courses.length,
-            itemBuilder: (BuildContext context, int index) {
-              MyCoursesList courselist = courses[index];
-              if (courselist.course_status == "Completed") {
-                return Card(
-                  child: ListTile(
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              shrinkWrap: true,
+              itemCount: courses.length,
+              itemBuilder: (BuildContext context, int index) {
+                MyCoursesList courselist = courses[index];
+                if (courselist.courseStatus == "Completed") {
+                  return ListTile(
+                    onTap: () {},
                     leading: Container(
                       alignment: Alignment.center,
-                      //padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
                       height: 150,
                       width: 70,
                       child: Image(
@@ -45,8 +44,8 @@ class CompletedCourses extends StatelessWidget {
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 10,
                       children: [
-                        const SizedBox(height: 12,),
                         Text(
                           courselist.name,
                           style: const TextStyle(
@@ -54,7 +53,6 @@ class CompletedCourses extends StatelessWidget {
                             fontWeight: FontWeight.bold
                           ),
                         ),
-                        const SizedBox(height: 10,),
                         Text(
                           courselist.description,
                           maxLines: 3,
@@ -64,10 +62,9 @@ class CompletedCourses extends StatelessWidget {
                             fontWeight: FontWeight.w600
                           ),
                         ),
-                        const SizedBox(height: 10,),
                         FilledButton(
                           onPressed: () async {
-                            controller.downloadFile(courselist.certificate_file, courselist.name,);
+                            controller.downloadFile(courselist.certificateFile, courselist.name,);
                           },
                           style: FilledButton.styleFrom(
                               backgroundColor:Colors.black87,
@@ -80,13 +77,12 @@ class CompletedCourses extends StatelessWidget {
                             ),
                           child: const Text('Download Certificate'),
                         ),
-                        const SizedBox(height: 10,),
                         LinearPercentIndicator(
-                          width: 195.0,
-                          lineHeight: 14.0,
-                          percent: double.parse(courselist.percentage.toString()) / 100,
+                          // width: 195.0,
+                          lineHeight: 20.0,
+                          percent: double.parse(courselist.percentage) / 100,
                           center: Text(
-                            "${courselist.percentage.toString()}%",
+                            "${courselist.percentage}%",
                             style: const TextStyle(fontSize: 12.0),
                           ),
                           //trailing: Icon(Icons.thumb_up, color: Colors.green,),
@@ -94,13 +90,13 @@ class CompletedCourses extends StatelessWidget {
                           backgroundColor: Colors.grey,
                           progressColor: Colors.green,
                         ),
-                        const SizedBox(height: 10,),
+                        const SizedBox(height: 2,),
                       ]
                     ),
                     subtitle: Wrap(
                       spacing: 5.0,
                       children: [
-                        for (var tag in courselist.tag_data.toString().trim().split("-")) 
+                        for (var tag in courselist.tagData.toString().trim().split("-")) 
                         ...[
                           Chip(
                             label: Text(
@@ -124,15 +120,19 @@ class CompletedCourses extends StatelessWidget {
                             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                           )
                         ],
-                        const SizedBox(width: 5,),
                       ],
                     ),
-                  )
-                );
-              }
-              return const SizedBox();
-            },
-          );
+                  );
+                }
+                return const SizedBox();
+              },
+              separatorBuilder: (context, index) {
+                  return const Divider(
+                    thickness: 1,
+                    color: Colors.black26,
+                  );
+                },
+            );
         }  else if (snapshot.hasError) {
           return Text('${snapshot.error}');
         }

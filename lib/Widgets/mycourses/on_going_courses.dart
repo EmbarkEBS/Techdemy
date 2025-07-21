@@ -15,7 +15,7 @@ class OnGoingCourses extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<MyCoursesList> courses = snapshot.data!;
-          bool haveCompletedCourses = courses.any((course) => course.course_status == "OnGoing");
+          bool haveCompletedCourses = courses.any((course) => course.courseStatus == "OnGoing");
           return !haveCompletedCourses
           ? const Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -30,12 +30,11 @@ class OnGoingCourses extends StatelessWidget {
               itemCount: courses.length,
               itemBuilder:(BuildContext context, int index) {
                 MyCoursesList courselist = courses[index];
-                if (courselist.course_status == "OnGoing") {
+                if (courselist.courseStatus == "OnGoing") {
                   return ListTile(
-                    // onTap: () => Navigator.pushNamed(context, "/"),
+                    onTap: () {},
                     leading: Container(
                       alignment: Alignment.center,
-                      //padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
                       height: 150,
                       width: 70,
                       child: Image(
@@ -44,10 +43,10 @@ class OnGoingCourses extends StatelessWidget {
                       )
                     ),
                     title: Column(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 12,),
                         Text(
                           courselist.name,
                           style: const TextStyle(
@@ -55,7 +54,6 @@ class OnGoingCourses extends StatelessWidget {
                             fontWeight: FontWeight.bold
                           ),
                         ),
-                        const SizedBox(height: 10,),
                         Text(
                           courselist.description,
                           maxLines: 3,
@@ -65,15 +63,12 @@ class OnGoingCourses extends StatelessWidget {
                             fontWeight:FontWeight.w600
                           ),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
                         LinearPercentIndicator(
-                          width: 195.0,
-                          lineHeight: 14.0,
-                          percent: double.parse(courselist.percentage.toString()) / 100,
+                          // width: 195.0,
+                          lineHeight: 20.0,
+                          percent: double.parse(courselist.percentage) / 100,
                           center: Text(
-                            "${courselist.percentage.toString()}%",
+                            "${courselist.percentage}%",
                             style: const TextStyle(fontSize: 12.0),
                           ),
                           //trailing: Icon(Icons.thumb_down, color: Colors.red,),
@@ -81,14 +76,14 @@ class OnGoingCourses extends StatelessWidget {
                           backgroundColor:Colors.grey,
                           progressColor: Colors.blue,
                         ),
-                        const SizedBox(height: 10,),
+                        const SizedBox(height: 2,),
                       ]
                     ),
                     subtitle: Wrap(
                       spacing: 5.0,
                       children: [
-                        if(courselist.tag_data.isNotEmpty)
-                          for (var tag in courselist.tag_data.toString().trim().split("-")) 
+                        if(courselist.tagData.isNotEmpty)
+                          for (var tag in courselist.tagData.toString().trim().split("-")) 
                           ...[
                             Chip(
                               label: Text(

@@ -17,8 +17,8 @@ class CourseDetailWidget extends StatelessWidget {
           Wrap(
             spacing: 5.0, 
             children: [
-              if(controller.courseDetail!.courseDetailPart.tag_data.isNotEmpty)
-                for (var tag in controller.courseDetail!.courseDetailPart.tag_data.toString().trim().split("-")) 
+              if(controller.courseDetail!.courseDetailPart.tagData.isNotEmpty)
+                for (var tag in controller.courseDetail!.courseDetailPart.tagData.toString().trim().split("-")) 
                 ...[
                   Chip(
                     label: Text(

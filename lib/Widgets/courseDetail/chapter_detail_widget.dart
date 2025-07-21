@@ -26,7 +26,7 @@ class ChapterDetailWidget extends StatelessWidget {
                 color: Colors.blue,
               ),
               title: Text(
-                chapterlist.chapter_name,
+                chapterlist.chapterName,
                 style: const TextStyle(
                   color: Colors.black
                 ),
@@ -34,8 +34,8 @@ class ChapterDetailWidget extends StatelessWidget {
               trailing: TextButton(
                 style: TextButton.styleFrom(),
                 onPressed: () async {
-                  await controller.quizList(chapterlist.chapter_id).then((value) {
-                    Get.to(() => QuizScreen(chapterId: chapterlist.chapter_id, questions: value, timer: chapterlist.timer,));
+                  await controller.quizList(chapterlist.chapterId).then((value) {
+                    Get.to(() => QuizScreen(chapterId: chapterlist.chapterId, questions: value, timer: chapterlist.timer,));
                   },);
                 },
                 child: const Text(
@@ -46,7 +46,7 @@ class ChapterDetailWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              children:  chapterlist.topic_data.isEmpty
+              children:  chapterlist.topicData.isEmpty
               ? [
                 const ListTile(
                     title: Text(
@@ -56,7 +56,7 @@ class ChapterDetailWidget extends StatelessWidget {
                   )
                 ]
               : [
-                for (var topics in chapterlist.topic_data.toString().trim().split("-")) 
+                for (var topics in chapterlist.topicData.toString().trim().split("-")) 
                 ...[
                   GestureDetector(
                     onTap: () {

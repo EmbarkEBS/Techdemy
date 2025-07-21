@@ -26,14 +26,14 @@ class MyCoursesPage extends StatelessWidget {
         ],
       ),
       drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ButtonsTabBar(
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ButtonsTabBar(
                 unselectedBackgroundColor: Colors.transparent,
                 unselectedLabelStyle: const TextStyle(color: Colors.blue),
                 labelStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
@@ -54,16 +54,16 @@ class MyCoursesPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const Expanded(
-                child: TabBarView(
-                  children: <Widget>[
-                    OnGoingCourses(),
-                    CompletedCourses()
-                  ],
-                ),
+            ),
+            const Expanded(
+              child: TabBarView(
+                children: <Widget>[
+                  OnGoingCourses(),
+                  CompletedCourses()
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
