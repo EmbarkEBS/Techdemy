@@ -332,12 +332,11 @@ class ApiService {
   Future<void> updateProfile(Map<String, dynamic> data) async {
     var url = 'https://techdemy.in/connect/api/updateprofile';
     try {
-      Map<String, String> dat = {
-        "data": encryption(json.encode(data))
-      };
+      String encodedData = json.encode(data);
+      String encryptedData = encryption(encodedData);
       final response = await http.post(
         Uri.parse(url),
-        body: json.encode(dat),
+        body: {"data": encryptedData},
         ).timeout(const Duration(seconds:20)
       );
       String decrptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
