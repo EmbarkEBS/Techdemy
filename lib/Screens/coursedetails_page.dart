@@ -38,6 +38,11 @@ class CourseDetailsScreen extends StatelessWidget {
                         width: 100,
                         image: NetworkImage(controller.courseDetail!.courseDetailPart.image),
                         fit: BoxFit.fill,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(Icons.error),
+                          );
+                        },
                       ),
                     ),
                   ),

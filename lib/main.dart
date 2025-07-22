@@ -11,11 +11,12 @@ import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final apiService = ApiService();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await firebaseMessageInit();
+  await apiService.logActivity();
   WebViewPlatform.instance;
   HttpOverrides.global = MyHttpOverrides();
-  final apiService = ApiService();
   bool isLoggedIn = await apiService.checkLoggedIn();
   runApp(MyApp(isLoggedIn: isLoggedIn,));
 }
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialBinding: InitialBindings(),
       theme: ThemeData(
+        useMaterial3: true,
         filledButtonTheme: FilledButtonThemeData(
           style: ButtonStyle(
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(
@@ -49,9 +51,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class MyHttpOverrides extends HttpOverrides {
   @override

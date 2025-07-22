@@ -69,7 +69,7 @@ class ChapterDataPart {
       chapterId: json['chapter_id'] ?? 0,
       chapterName: json['chapter_name'] ?? "",
       topicData: json['topic_data'] ?? "",
-      timer: json["timer"] ?? 30
+      timer: int.tryParse(json["quiz_time"]) ?? 10
     );
   }
 }

@@ -470,13 +470,12 @@ class ApiService {
   }
 
   // Submit Quiz
-  
   Future<bool> submitQuestions(Map<int, int?> selectedAnswers) async {
     final formattedAnswers = selectedAnswers.entries.map((entry) => {
       'question_id': entry.key,
       'selected_option_index': entry.value,
     }).toList();
-
+// user_id, course_id, chapter_id, no_of_questions,correct_answers,incorrect_answers,no_of_attempts,score,percentage
     const url = 'https://techdemy.in/connect/api/submitquiz';
 
     try {
@@ -503,6 +502,31 @@ class ApiService {
     }
   }
 
+  // Login activity
+  Future<void> logActivity() async {
+    var url = 'https://techdemy.in/connect/api/logactivity';
+    String userId = await _storage.read(key: "userId") ?? "";
+    String deviceId = await getDeviceId() ?? "";
+    final Map<String, String> data = {
+      "user_id": userId,
+      "device_id": deviceId
+    };
+    String encodedData = json.encode(data);
+    final encryptedData = encryption(encodedData);
+    log("Encryption of log in activity: $encryptedData");
+    final response = await http.post(Uri.parse(url),
+      body: {"data": encryptedData}).timeout(const Duration(seconds:20)
+    );
+    String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+    Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
+    log("Response of login: $result", );
+    if (response.statusCode == 200 && result["status"] == "success") {
+      log("Logged in user $userId at $deviceId", time: DateTime.now());
+    } else {
+      log("Logged in not success $userId at $deviceId", time: DateTime.now());
+    }
+  }
+  
 
   // Logout
   void logout() => Get.offAllNamed(AppRoutes.login);

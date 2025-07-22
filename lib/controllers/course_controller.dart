@@ -51,6 +51,8 @@ class CourseController extends GetxController{
     await _apiService.downloadFile(url, fileName);
   }
 
+  Future<void> logActivity() async => await _apiService.logActivity();
+
   Future<List<QuizQuestion>> quizList(int chapterId) async => await _apiService.quizList(chapterId);
 
   Future<void> logout() async => _apiService.logout();
