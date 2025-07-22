@@ -470,26 +470,22 @@ class ApiService {
   }
 
   // Submit Quiz
-  Future<bool> submitQuestions(Map<int, int?> selectedAnswers) async {
-    final formattedAnswers = selectedAnswers.entries.map((entry) => {
-      'question_id': entry.key,
-      'selected_option_index': entry.value,
-    }).toList();
-// user_id, course_id, chapter_id, no_of_questions,correct_answers,incorrect_answers,no_of_attempts,score,percentage
-    const url = 'https://techdemy.in/connect/api/submitquiz';
-
+  Future<bool> submitQuestions(Map<String, dynamic> submitQuestionData) async {
+    String userId = await _storage.read(key: "userId") ?? "";
+    submitQuestionData["user_id"] = userId;
+    const url = 'https://techdemy.in/connect/api/quizsubmit';
     try {
+      String encodedData = json.encode(submitQuestionData);
+      String encryptedData = encryption(encodedData);
       final response = await http.post(
         Uri.parse(url),
-        body: json.encode({"data": encryption(json.encode(formattedAnswers))}),
+        body: json.encode({"data": encryptedData}),
       );
-
       if (response.statusCode == 200) {
         String decryptedData = decryption(response.body);
         Map<String, dynamic> result = json.decode(
           decryptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '')
         );
-
         String message = result['message'] ?? 'Quiz Submitted Successfully';
         if('Quiz Submitted Successfully' == message) return true;
         // Show result popup at center

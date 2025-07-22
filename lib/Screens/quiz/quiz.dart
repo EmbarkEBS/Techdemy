@@ -1,15 +1,20 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:tech/Helpers/encrypter.dart';
+import 'package:get/get.dart';
 import 'package:tech/Models/quiz_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
   final int chapterId;
   final int timer;
+  final int courseId;
   final List<QuizQuestion> questions;
-  const QuizScreen({super.key, required this.chapterId, required this.questions, required this.timer});
+  const QuizScreen({
+    super.key, 
+    required this.chapterId, 
+    required this.questions, required this.timer,
+    required this.courseId,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -19,6 +24,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Timer? _timer;
   int _remainingSeconds = 0;
   final Map<int, int?> _selectedAnswers = {}; // question.id -> selectedOptionIndex
+  final Map<String, int> _correctAnswers = {"count": 0};
 
   @override
   void initState() {
@@ -26,7 +32,6 @@ class _QuizScreenState extends State<QuizScreen> {
     _startTimer(widget.timer);
   }
 
-  // TODO: Start timer once the API is called in the future builder
   void _startTimer(int seconds) {
     _remainingSeconds = seconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -77,73 +82,20 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _submitQuestions() async {
-    final formattedAnswers = _selectedAnswers.entries.map((entry) => {
-      'question_id': entry.key,
-      'selected_option_index': entry.value,
-    }).toList();
-
-    const url = 'https://techdemy.in/connect/api/submitquiz';
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: json.encode({"data": encryption(json.encode(formattedAnswers))}),
-        headers: {
-          "Accept": "application/json",
-          'Content-Type': 'application/json; charset=utf-8'
-        },
-      );
-
-      if (response.statusCode == 200) {
-        String decryptedData = decryption(response.body);
-        Map<String, dynamic> result = json.decode(
-          decryptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '')
-        );
-
-        String message = result['message'] ?? 'Quiz Submitted Successfully';
-
-        // Show result popup at center
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => AlertDialog(
-              title: const Text("Time Over"),
-              content: Text(message),
-            ),
-          );
-
-          // Wait 3 seconds and auto-close
-          await Future.delayed(const Duration(seconds: 3));
-
-          if (context.mounted) {
-            Navigator.pop(context); // Close dialog
-            Navigator.pop(context); // Go back
-          }
-        }
-      } else {
-        _showError("Submission failed. Please try again.");
-      }
-    } catch (e) {
-      _showError("An error occurred: $e");
-    }
-  }
-
-  void _showError(String message) {
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
+    int n = widget.questions.length;
+    int correctAnswers = _correctAnswers["count"]!;
+    Map<String, dynamic> data = {
+      "course_id": widget.courseId,
+      "chapter_id": widget.chapterId,
+      "no_of_questions": n,
+      "correct_answers": correctAnswers,
+      "incorrect_answers": n - correctAnswers,
+      "no_of_attempts": 1,
+      "score": correctAnswers,
+      "percentage":  n > 0 ? (correctAnswers / n) * 100 : 0.0
+    };
+    final controller = Get.find<CourseController>();
+    await controller.submitQuiz(data);
   }
 
 
@@ -191,6 +143,16 @@ class _QuizScreenState extends State<QuizScreen> {
                   onChanged: (value) {
                     setState(() {
                       _selectedAnswers[q.id] = value!;
+
+                      // Recalculate correct answers
+                      int correct = 0;
+                      for (var question in widget.questions) {
+                          final selected = _selectedAnswers[question.id];
+                          if (selected != null && selected + 1 == question.correctAnswerIndex) {
+                            correct++;
+                          }
+                        }
+                      _correctAnswers["count"] = correct;
                     });
                   },
                 );
@@ -217,7 +179,7 @@ class _QuizScreenState extends State<QuizScreen> {
         child: FloatingActionButton(
           backgroundColor: Colors.black87,
           
-          onPressed: _selectedAnswers.isNotEmpty ? _submit : null,
+          onPressed: () => _selectedAnswers.isNotEmpty ? _submit : null,
           child: const Text(
             "Submit",
             style: TextStyle(

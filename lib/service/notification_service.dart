@@ -43,7 +43,6 @@ class NotificationService {
     return await _storage.read(key: "lastOtp") ?? "";
   }
 
-  // TODO: Check the code API once credits are restored and call this in login button
   Future<void> twilioOTPSender(String mobile) async {
     try {
       await SmsAutoFill().listenForCode();

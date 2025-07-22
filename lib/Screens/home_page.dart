@@ -51,10 +51,10 @@ class _HomePageState extends State<HomePage> {
                     CourseList courselist = courses[index];
                     if (controller.selectedCategory == 'All' || controller.selectedCategory == courselist.name) {
                       return ListTile(
-                        onTap: () async => await controller.logActivity(),
-                        // onTap: () async => await controller.getCoursesDetail(courselist.courseId.toString()).then((value) {
-                        //   Get.toNamed(AppRoutes.courseDetail);
-                        // },),
+                        // onTap: () async => await controller.logActivity(),
+                        onTap: () async => await controller.getCoursesDetail(courselist.courseId.toString()).then((value) {
+                          Get.toNamed(AppRoutes.courseDetail);
+                        },),
                         leading: Container(
                           alignment: Alignment.center,
                           height: 100,

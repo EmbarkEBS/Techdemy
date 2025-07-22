@@ -55,5 +55,7 @@ class CourseController extends GetxController{
 
   Future<List<QuizQuestion>> quizList(int chapterId) async => await _apiService.quizList(chapterId);
 
+  Future<void> submitQuiz(Map<String, dynamic> data) async => await _apiService.submitQuestions(data);
+
   Future<void> logout() async => _apiService.logout();
 }

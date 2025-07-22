@@ -4,7 +4,7 @@ class QuizQuestion {
   final String question;
   final String quizType;
   final List<String> options;
-  final String correctAnswerIndex;
+  final int correctAnswerIndex;
   QuizQuestion({
     required this.id,
     required this.chapterId,
@@ -23,7 +23,7 @@ class QuizQuestion {
       question: (json['question'] ?? "").toString() ,
       quizType: (json['quiz_type'] ?? "").toString(),
       options: options,
-      correctAnswerIndex: json['correct_answer'],
+      correctAnswerIndex: int.tryParse(json['correct_answer']) ?? 0,
     );
   }
 
