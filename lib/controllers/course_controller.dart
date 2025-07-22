@@ -14,6 +14,7 @@ class CourseController extends GetxController{
   final random = Random();
   bool descTextShowFlag = true;
   Map<String, bool> isEnrolling = <String, bool>{};
+  Map<int, bool> loadingQuiz = {};
 
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
   String selectedCategory = 'All';
@@ -53,7 +54,19 @@ class CourseController extends GetxController{
 
   Future<void> logActivity() async => await _apiService.logActivity();
 
-  Future<List<QuizQuestion>> quizList(int chapterId) async => await _apiService.quizList(chapterId);
+  Future<List<QuizQuestion>> quizList(int chapterId) async {
+    try {
+      loadingQuiz[chapterId] = true;
+      update();
+      return await _apiService.quizList(chapterId);
+    } catch (e) {
+      dev.log("Quiz list loading issue");
+    } finally {
+      loadingQuiz[chapterId] = false;
+      update();
+    }
+    return [];
+  }
 
   Future<void> submitQuiz(Map<String, dynamic> data) async => await _apiService.submitQuestions(data);
 

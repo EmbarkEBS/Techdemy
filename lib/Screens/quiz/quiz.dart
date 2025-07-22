@@ -21,6 +21,7 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  bool _isLoading = false;
   Timer? _timer;
   int _remainingSeconds = 0;
   final Map<int, int?> _selectedAnswers = {}; // question.id -> selectedOptionIndex
@@ -82,20 +83,31 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _submitQuestions() async {
-    int n = widget.questions.length;
-    int correctAnswers = _correctAnswers["count"]!;
-    Map<String, dynamic> data = {
-      "course_id": widget.courseId,
-      "chapter_id": widget.chapterId,
-      "no_of_questions": n,
-      "correct_answers": correctAnswers,
-      "incorrect_answers": n - correctAnswers,
-      "no_of_attempts": 1,
-      "score": correctAnswers,
-      "percentage":  n > 0 ? (correctAnswers / n) * 100 : 0.0
-    };
-    final controller = Get.find<CourseController>();
-    await controller.submitQuiz(data);
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      int n = widget.questions.length;
+      int correctAnswers = _correctAnswers["count"]!;
+      Map<String, dynamic> data = {
+        "course_id": widget.courseId,
+        "chapter_id": widget.chapterId,
+        "no_of_questions": n,
+        "correct_answers": correctAnswers,
+        "incorrect_answers": n - correctAnswers,
+        "no_of_attempts": 1,
+        "score": correctAnswers,
+        "percentage":  n > 0 ? (correctAnswers / n) * 100 : 0.0
+      };
+      final controller = Get.find<CourseController>();
+      await controller.submitQuiz(data);
+    } catch (e) {
+      debugPrint("Something went wrong on submit ${e.toString()}");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
 
@@ -180,7 +192,15 @@ class _QuizScreenState extends State<QuizScreen> {
           backgroundColor: Colors.black87,
           
           onPressed: () => _selectedAnswers.isNotEmpty ? _submit : null,
-          child: const Text(
+          child: _isLoading 
+          ? const Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : const Text(
             "Submit",
             style: TextStyle(
               fontSize: 15,

@@ -45,7 +45,15 @@ class ChapterDetailWidget extends StatelessWidget {
                     ));
                   },);
                 },
-                child: const Text(
+                child: controller.loadingQuiz[chapterlist.chapterId] ?? false
+                ? const Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : const Text(
                   'Quiz',
                   style: TextStyle(
                     fontSize: 14,
