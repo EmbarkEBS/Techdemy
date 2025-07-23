@@ -321,11 +321,12 @@ class ApiService {
         return ProfileModel.fromJson(result["results"]);
       } else {
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
+        return null;
       }
-      return null;
     } on Exception catch (e) {
       log("Something went wrong : ", error: e.toString());
     }
+    return null;
   }
   
   // update profile
