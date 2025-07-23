@@ -52,7 +52,6 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _submit() {
-    print("time active ${_timer?.isActive}");
     if (_timer?.isActive ?? false) _timer?.cancel();
     _showResult(autoSubmitted: false);
   }
@@ -62,7 +61,6 @@ class _QuizScreenState extends State<QuizScreen> {
     final message = autoSubmitted
         ? "Time's up!"
         : "Well done";
-    print("Auto submit $autoSubmitted");
     if(!autoSubmitted) {
       await _submitQuestions();
     } else {
@@ -102,7 +100,6 @@ class _QuizScreenState extends State<QuizScreen> {
         "score": correctAnswers,
         "percentage":  n > 0 ? (correctAnswers / n) * 100 : 0.0
       };
-      print("Question data $data");
       final controller = Get.find<CourseController>();
       await controller.submitQuiz(data);
     } catch (e) {
@@ -197,7 +194,6 @@ class _QuizScreenState extends State<QuizScreen> {
           
           onPressed: () {
             if(_selectedAnswers.isNotEmpty) {
-              print("Not empty");
               _submit();
             }
             // _selectedAnswers.isNotEmpty ? _submit : null;

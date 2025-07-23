@@ -108,8 +108,7 @@ class ProfileController extends GetxController{
   }
 
   Future<void> updateProfile() async {
-    print(profile != null);
-      // try {
+      try {
         final updateData  = {
         "user_id": profile!.id,
         "name": namecontroller.text,
@@ -126,15 +125,14 @@ class ProfileController extends GetxController{
       isEditing = true;
       update(["updating"]);
       await _apiService.updateProfile(updateData).then((value) async {
-        print("Updated");
         await getProfile("Update profile API");
       },);
-    // } catch (e) {
-    //   debugPrint("Something wrong in edit API. ${e.toString()}", wrapWidth: 1064);
-    // } finally {
+    } catch (e) {
+      debugPrint("Something wrong in edit API. ${e.toString()}", wrapWidth: 1064);
+    } finally {
       isEditing = false;
       update(["updating"]);
-    // }
+    }
   }
 
   Future<void> downloadFile(String url, String fileName) => _apiService.downloadFile(url, fileName);
