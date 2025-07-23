@@ -55,7 +55,7 @@ class OnboardingPage extends StatelessWidget {
                       ),
                       minimumSize: const Size(130, 45)
                     ),
-                    onPressed: () async => Get.toNamed(AppRoutes.login),
+                    onPressed: () async => Get.offNamed(AppRoutes.login),
                     child: const Text(
                       'LOGIN',
                       style: TextStyle(color: Colors.black),
@@ -71,7 +71,7 @@ class OnboardingPage extends StatelessWidget {
                       ),
                       minimumSize: const Size(130, 45)
                     ),
-                    onPressed: () => Get.toNamed(AppRoutes.signup),
+                    onPressed: () => Get.offNamed(AppRoutes.signup),
                     child: const Text(
                       'SIGNUP',
                       style: TextStyle(color: Colors.white),

@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/Models/profile_model.dart';
 import 'package:tech/Models/quiz_model.dart';
+import 'package:tech/Screens/quiz/quiz_result_screen.dart';
 import 'package:tech/routes/routes.dart';
 
 class ApiService {
@@ -51,11 +52,9 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("login response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        Future.wait([
-          _storage.write(key: "userId", value: result["user_id"].toString()),
-          _storage.write(key: "mobileNo", value: mobile)
-        ]);
-        _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
+        await _storage.write(key: "userId", value: result["user_id"].toString());
+        await _storage.write(key: "mobileNo", value: mobile);
+        await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         await sendOTP(mobile);
         Get.offNamed(AppRoutes.verification);
@@ -134,11 +133,9 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Registration response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        Future.wait([
-          _storage.write(key: "userId", value: result["user_id"]),
-          _storage.write(key: "mobileNo", value: result["phone_no"]),
-          sendOTP(registerData["phone_no"])
-        ]);
+        await _storage.write(key: "userId", value: result["user_id"]);
+        await _storage.write(key: "mobileNo", value: result["phone_no"]);
+        await sendOTP(registerData["phone_no"]);
         Get.offNamed(AppRoutes.verification);
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         return {"message": result["message"], "status": "success"};
@@ -306,32 +303,36 @@ class ApiService {
 
   // Get user Profile
   Future<ProfileModel?> getProfile(String caller) async {
-    var url = 'https://techdemy.in/connect/api/userprofile';
-    final Map<String, String> data = {
-      "user_id": await _storage.read(key: "userId") ?? ""
-    };
-    String encodedData = json.encode(data);
-    final encryptedData = encryption(encodedData);
-    log("encryption data of profile $encryptedData");
-    final response = await http.post(Uri.parse(url),
-      body: {"data": encryptedData}).timeout(const Duration(seconds:20)
-    ); 
-    log("Profile: ${response.body.toString()}");
-    String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
-    Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
-    log("Profile details log: $result", name: caller);
-    if (response.statusCode == 200 && result["status"] == "success") {
-      return ProfileModel.fromJson(result["results"]);
-    } else {
-      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
+    try {
+      var url = 'https://techdemy.in/connect/api/userprofile';
+      final Map<String, String> data = {
+        "user_id": await _storage.read(key: "userId") ?? ""
+      };
+      String encodedData = json.encode(data);
+      final encryptedData = encryption(encodedData);
+      log("encryption data of profile $data");
+      final response = await http.post(Uri.parse(url),
+        body: {"data": encryptedData}).timeout(const Duration(seconds:20)
+      );
+      String decryptedResponse = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      Map<String, dynamic> result = jsonDecode(decryptedResponse);
+      log("Profile details log: $result", name: caller);
+      if (response.statusCode == 200 && result["status"] == "success") {
+        return ProfileModel.fromJson(result["results"]);
+      } else {
+        Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
+      }
+      return null;
+    } on Exception catch (e) {
+      log("Something went wrong : ", error: e.toString());
     }
-    return null;
   }
   
   // update profile
   Future<void> updateProfile(Map<String, dynamic> data) async {
     var url = 'https://techdemy.in/connect/api/updateprofile';
     try {
+      data["user_id"] = await _storage.read(key: "userId") ?? ""; 
       String encodedData = json.encode(data);
       String encryptedData = encryption(encodedData);
       final response = await http.post(
@@ -343,10 +344,6 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decrptedData) as Map<String, dynamic>;
       log("Update profile response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-         Future.wait([
-          _storage.write(key: "userId", value: result["user_id"].toString()),
-          _storage.write(key: "mobileNo", value: result["phone_no"])
-        ]);
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1)));
       } else {
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message:  result["message"], duration: const Duration(seconds: 1)));
@@ -469,28 +466,23 @@ class ApiService {
   }
 
   // Submit Quiz
-  Future<bool> submitQuestions(Map<String, dynamic> submitQuestionData) async {
-    String userId = await _storage.read(key: "userId") ?? "";
-    submitQuestionData["user_id"] = userId;
-    const url = 'https://techdemy.in/connect/api/quizsubmit';
+  Future<void> submitQuestions(Map<String, dynamic> submitQuestionData) async {
     try {
+      String userId = await _storage.read(key: "userId") ?? "";
+      submitQuestionData["user_id"] = userId;
+      const url = 'https://techdemy.in/connect/api/quizsubmit';
       String encodedData = json.encode(submitQuestionData);
       String encryptedData = encryption(encodedData);
       final response = await http.post(
         Uri.parse(url),
-        body: json.encode({"data": encryptedData}),
+        body: {"data": encryptedData},
       );
-      if (response.statusCode == 200) {
-        String decryptedData = decryption(response.body);
-        Map<String, dynamic> result = json.decode(
-          decryptedData.replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '')
-        );
-        String message = result['message'] ?? 'Quiz Submitted Successfully';
-        if('Quiz Submitted Successfully' == message) return true;
-        // Show result popup at center
-        return true;
+      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      Map<String, dynamic> result = json.decode(decryptedData);
+      if (response.statusCode == 200 && result["status"] == "success") {
+        log("Quiz submitted $decryptedData");
+        Get.off(() => QuizResultScreen(total: submitQuestionData["no_of_questions"], correct: submitQuestionData["correct_answers"]));
       } else {
-       return false;
       }
     } catch (e) {
       throw Exception(e);

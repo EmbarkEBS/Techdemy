@@ -52,34 +52,37 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _submit() {
+    print("time active ${_timer?.isActive}");
     if (_timer?.isActive ?? false) _timer?.cancel();
     _showResult(autoSubmitted: false);
   }
 
-  void _showResult({required bool autoSubmitted}) {
+  Future<void> _showResult({required bool autoSubmitted}) async {
     // final isCorrect = _selectedIndex == widget.question.correctAnswerIndex;
     final message = autoSubmitted
         ? "Time's up!"
         : "Well done";
-
-    !autoSubmitted
-    ? _submitQuestions
-    : showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(autoSubmitted ? "Time Over!" : "Result"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back
-            },
-            child: const Text("Back"),
-          )
-        ],
-      ),
-    );
+    print("Auto submit $autoSubmitted");
+    if(!autoSubmitted) {
+      await _submitQuestions();
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(autoSubmitted ? "Time Over!" : "Result"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back
+              },
+              child: const Text("Back"),
+            )
+          ],
+        ),
+      );
+    } 
   }
 
   Future<void> _submitQuestions() async {
@@ -99,6 +102,7 @@ class _QuizScreenState extends State<QuizScreen> {
         "score": correctAnswers,
         "percentage":  n > 0 ? (correctAnswers / n) * 100 : 0.0
       };
+      print("Question data $data");
       final controller = Get.find<CourseController>();
       await controller.submitQuiz(data);
     } catch (e) {
@@ -191,7 +195,13 @@ class _QuizScreenState extends State<QuizScreen> {
         child: FloatingActionButton(
           backgroundColor: Colors.black87,
           
-          onPressed: () => _selectedAnswers.isNotEmpty ? _submit : null,
+          onPressed: () {
+            if(_selectedAnswers.isNotEmpty) {
+              print("Not empty");
+              _submit();
+            }
+            // _selectedAnswers.isNotEmpty ? _submit : null;
+          },
           child: _isLoading 
           ? const Center(
               child: SizedBox(

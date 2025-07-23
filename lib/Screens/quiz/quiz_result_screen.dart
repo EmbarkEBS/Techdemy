@@ -7,11 +7,21 @@ class QuizResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Icon(Icons.done, size: 124, color: Colors.green,),
-        Text("$correct in $total are correct answers", style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w600),)
-      ],
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.done, size: 124, color: Colors.green,),
+          Text(
+            "$correct in $total are correct answers", 
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 48, 
+              fontWeight: FontWeight.w600
+            ),
+          )
+        ],
+      ),
     );
   }
 }
