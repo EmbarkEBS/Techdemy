@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tech/controllers/auth_controller.dart';
 import 'package:tech/controllers/profile_controller.dart';
 import 'package:tech/routes/routes.dart';
 

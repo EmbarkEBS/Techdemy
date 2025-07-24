@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:tech/Helpers/validator.dart';
 import 'package:tech/controllers/auth_controller.dart';
 import 'package:tech/routes/routes.dart';
