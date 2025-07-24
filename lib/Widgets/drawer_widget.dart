@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tech/controllers/auth_controller.dart';
 import 'package:tech/controllers/profile_controller.dart';
 import 'package:tech/routes/routes.dart';
 
@@ -76,6 +77,7 @@ class DrawerWidget extends StatelessWidget {
           //   ),
           //   label: const Text('Logout', style: TextStyle(color: Colors.black)),
           //   onPressed: () async {
+          //     Get.lazyPut(() => AuthController(),);
           //     Get.find<AuthController>().logout();
           //   },
           // ),

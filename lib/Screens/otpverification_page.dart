@@ -4,7 +4,8 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:tech/controllers/auth_controller.dart';
 
 class OTPVerificationPage extends StatefulWidget {
-  const OTPVerificationPage({super.key});
+  final String? mobileNumber;
+  const OTPVerificationPage({super.key, this.mobileNumber});
 
   @override
   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
@@ -120,7 +121,9 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                   const SizedBox(height: 10,),
                   TextButton(
                     onPressed: () async {
-                      await controller.resendOtp("8838955205");
+                      final args = Get.arguments as Map<String, String>;
+                      // await controller.verifyUser();
+                      await controller.resendOtp(args["mobileNumber"] ?? "");
                     },
                     child: const Text("Resend OTP",),
                   )

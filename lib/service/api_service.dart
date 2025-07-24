@@ -54,10 +54,9 @@ class ApiService {
       if (response.statusCode == 200 && result["status"] == "success") {
         await _storage.write(key: "userId", value: result["user_id"].toString());
         await _storage.write(key: "mobileNo", value: mobile);
-        await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         await sendOTP(mobile);
-        Get.offNamed(AppRoutes.verification);
+        Get.offNamed(AppRoutes.verification, arguments: {"mobileNumber": mobile});
         return {"message": result["message"], "status": "success"};
       } else {
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
@@ -87,13 +86,13 @@ class ApiService {
   Future<void> sendOTP(String mobile) async {
     int otp = await generateOTP();
     String endpoint =  "https://sms.embarkinteractive.com/api/smsapi",
-    key = "4263dd9a2485fe38217a8f4da1c546e5",
+    key = "43d8000e89c7cf43bb5f35b048b71fe1",
     sender = "INSTNE", templateid = "1407175160893343027",
-    sms = Uri.encodeComponent("<#> $otp is your Techdemy OTP.\n NDeYICHXQsQ");
+    sms = ("<#> $otp is your Techdemy OTP.\n NDeYICHXQsQ");
     try{
       String url = "$endpoint?key=$key&route=2&sender=$sender&number=$mobile&templateid=$templateid&sms=$sms";
       final response = await http.get(Uri.parse(url));
-      log("OTP send response log: ${response.body}");
+      log("OTP send response log: ${response.body}", name: url);
       if (response.statusCode == 200) {
         // await SmsAutoFill().listenForCode();
         await _storage.write(key: "otp", value: otp.toString());
@@ -108,9 +107,11 @@ class ApiService {
   // Verify the OTP in local
   Future<void> checkOtp(String otp) async {
     String correct = await _storage.read(key: "otp") ?? "";
+    String verified = await _storage.read(key: "${await getDeviceId()}_${_storage.read(key: "userId")}") ?? "";
     if(correct.isNotEmpty && correct == otp) {
-      _storage.write(key: "${await getDeviceId()}_${_storage.read(key: "userId")}", value: "true");
-      Get.offNamed(AppRoutes.homepage);
+      if(verified != "true") {
+        await verifyUser();
+      }
     }
   }
 
@@ -156,28 +157,29 @@ class ApiService {
   }
 
   // Otp verfication
-  Future<void> otpVerify(String otp) async {
+  Future<void> verifyUser() async {
     var userId = await _storage.containsKey(key: "userId") ? _storage.read(key: "userId") : 0;
-    var url = 'https://techdemy.in/connect/api/verifyotp';
-    var mobileNo = await _storage.read(key: "mobileNo");
+    var url = 'https://techdemy.in/connect/api/verifyuser';
+    String deviceId = await getDeviceId() ?? "";
     final Map<String, String> data = {
-      "login_data": mobileNo.toString(),
-      "otp": otp,
+      "device_id": deviceId,
       "user_id": userId.toString()
     };
-    try {
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
+    try {                                                                  
       final response = await http.post(Uri.parse(url),
-        body: json.encode({"data": encryption(json.encode(data))}),
+        body:{"data": encryptedData},
         encoding: Encoding.getByName('utf-8'),).timeout(const Duration(seconds: 20)
       );
+      log("Verify user response log ${response.body}");
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
-      log("Verify otp response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
+        await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
           Get.offNamed(AppRoutes.homepage);
-        },);  
-        // May use this if something went wrong if (result["status"] == "expired")
+        },);
       } else {
           Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
       } 

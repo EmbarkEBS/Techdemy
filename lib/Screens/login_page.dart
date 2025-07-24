@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:tech/Helpers/validator.dart';
 import 'package:tech/controllers/auth_controller.dart';
+import 'package:tech/routes/routes.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -120,8 +121,8 @@ class LoginPage extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                controller.notificationService.notificationPermission();
-                                Navigator.pushReplacementNamed(context, '/signup');
+                                // controller.notificationService.notificationPermission();
+                                Get.offNamed(AppRoutes.login);
                               },
                               child: const Text(
                                 "Signup",

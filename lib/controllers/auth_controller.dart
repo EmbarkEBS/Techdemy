@@ -99,17 +99,17 @@ class AuthController extends GetxController {
   }
   
   // OtP verify
-  Future<void> verifyOtp(String otp) async {
-    try {
-      isVerifying = true;
-      update(["verifying"]);
-      await _apiService.otpVerify(otp);
-    } catch (e) {
-      log("Something wrong in OTP", error: e.toString(), stackTrace: StackTrace.current);
-    } finally {
-      isVerifying = false;
-      update(["verifying"]);
-    }
+  Future<void> verifyUser() async {
+    // try {
+      // isVerifying = true;
+      // update(["verifying"]);
+      await _apiService.verifyUser();
+    // } catch (e) {
+    //   log("Something wrong in OTP", error: e.toString(), stackTrace: StackTrace.current);
+    // } finally {
+    //   isVerifying = false;
+    //   update(["verifying"]);
+    // }
   }
   
   Future<void> deviceID() async {
@@ -130,6 +130,7 @@ class AuthController extends GetxController {
   }
   
   void logout() => _apiService.logout();
+
   @override
   void dispose() {
     super.dispose();
