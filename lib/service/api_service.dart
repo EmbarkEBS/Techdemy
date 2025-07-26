@@ -85,10 +85,10 @@ class ApiService {
   /// Send OTP using instant alerts
   Future<void> sendOTP(String mobile) async {
     int otp = await generateOTP();
-    String endpoint =  "https://sms.embarkinteractive.com/api/smsapi",
+    String endpoint =  "http://sms.embarkinteractive.com/api/smsapi",
     key = "43d8000e89c7cf43bb5f35b048b71fe1",
     sender = "INSTNE", templateid = "1407175160893343027",
-    sms = ("<#> $otp is your Techdemy OTP.\n NDeYICHXQsQ");
+    sms = ("$otp is your Techdemy OTP. NDeYICHXQsQ");
     try{
       String url = "$endpoint?key=$key&route=2&sender=$sender&number=$mobile&templateid=$templateid&sms=$sms";
       final response = await http.get(Uri.parse(url));
@@ -158,7 +158,7 @@ class ApiService {
 
   // Otp verfication
   Future<void> verifyUser() async {
-    var userId = await _storage.containsKey(key: "userId") ? _storage.read(key: "userId") : 0;
+    var userId = await _storage.containsKey(key: "userId") ? await _storage.read(key: "userId") : 0;
     var url = 'https://techdemy.in/connect/api/verifyuser';
     String deviceId = await getDeviceId() ?? "";
     final Map<String, String> data = {
@@ -172,9 +172,9 @@ class ApiService {
         body:{"data": encryptedData},
         encoding: Encoding.getByName('utf-8'),).timeout(const Duration(seconds: 20)
       );
-      log("Verify user response log ${response.body}");
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Verify user response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
         await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
