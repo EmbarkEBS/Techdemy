@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:tech/controllers/auth_controller.dart';
+import 'package:tech/routes/routes.dart';
 
 import '../Helpers/validator.dart';
 
@@ -46,10 +48,12 @@ class SignUpPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20,),
                   Form(
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     key: controller.registerFormKey,
                     child: Column(
                       children: [
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           controller: controller.registerNamecontroller,
                           validator: (value) => FieldValidator.validateFullname(value!),
                           decoration: const InputDecoration(
@@ -61,6 +65,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           controller: controller.registerEmailcontroller,
                           validator: (value) => FieldValidator.validateEmail(value!),
                           decoration: const InputDecoration(
@@ -71,6 +76,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           controller: controller.registerMobilecontroller,
                           keyboardType: TextInputType.number,
                           validator: (value) =>FieldValidator.validateMobile(value!),
@@ -109,6 +115,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           controller: controller.registerAddresscontroller,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -118,7 +125,6 @@ class SignUpPage extends StatelessWidget {
                           },
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.fingerprint),
-                            //labelText: 'Email',
                             hintText: 'Address',
                             border: OutlineInputBorder(),
                           ),
@@ -152,6 +158,7 @@ class SignUpPage extends StatelessWidget {
                             spacing: 10,
                             children: [
                               TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: controller.registerCollegecontroller,
                                 validator: (value) => FieldValidator.validateCollegeName(value!),
                                 decoration: const InputDecoration(
@@ -162,6 +169,7 @@ class SignUpPage extends StatelessWidget {
                                 ),
                               ),
                               TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: controller.registerDepartmentcontroller,
                                 validator: (value) => FieldValidator.validateDepartment(value!),
                                 decoration: const InputDecoration(
@@ -274,7 +282,7 @@ class SignUpPage extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             TextButton(
-                              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                              onPressed: () => Get.offNamed(AppRoutes.login),
                               child: const Text(
                                 "Login",
                                 textAlign: TextAlign.start,

@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       // initialRoute: AppRoutes.onBoarding,
-      initialRoute: isLoggedIn ? AppRoutes.homepage : AppRoutes.onBoarding,
+      initialRoute: isLoggedIn ? AppRoutes.bottom : AppRoutes.onBoarding,
       getPages: AppScreens.screens,
       debugShowCheckedModeBanner: false,
       initialBinding: InitialBindings(),

@@ -10,7 +10,9 @@ class OnGoingCourses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ProfileController>();
-    return FutureBuilder<List<MyCoursesList>>(
+    return controller.mycourses.isNotEmpty
+    ? _loadOnGoingCourses(controller.mycourses)
+    : FutureBuilder<List<MyCoursesList>>(
       future: controller.getMyCourses(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -23,103 +25,7 @@ class OnGoingCourses extends StatelessWidget {
                 Center(child: Text("No on-going courses found")),
               ],
             )
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              //scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: courses.length,
-              itemBuilder:(BuildContext context, int index) {
-                MyCoursesList courselist = courses[index];
-                if (courselist.courseStatus == "OnGoing") {
-                  return ListTile(
-                    onTap: () {},
-                    leading: Container(
-                      alignment: Alignment.center,
-                      height: 150,
-                      width: 70,
-                      child: Image(
-                        image: NetworkImage(courselist.image),
-                        fit: BoxFit.fill,
-                      )
-                    ),
-                    title: Column(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          courselist.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                          ),
-                        ),
-                        Text(
-                          courselist.description,
-                          maxLines: 3,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            overflow: TextOverflow.ellipsis,
-                            fontWeight:FontWeight.w600
-                          ),
-                        ),
-                        LinearPercentIndicator(
-                          // width: 195.0,
-                          lineHeight: 20.0,
-                          percent: double.parse(courselist.percentage) / 100,
-                          center: Text(
-                            "${courselist.percentage}%",
-                            style: const TextStyle(fontSize: 12.0),
-                          ),
-                          //trailing: Icon(Icons.thumb_down, color: Colors.red,),
-                          barRadius: const Radius.circular(10),
-                          backgroundColor:Colors.grey,
-                          progressColor: Colors.blue,
-                        ),
-                        const SizedBox(height: 2,),
-                      ]
-                    ),
-                    subtitle: Wrap(
-                      spacing: 5.0,
-                      children: [
-                        if(courselist.tagData.isNotEmpty)
-                          for (var tag in courselist.tagData.toString().trim().split("-")) 
-                          ...[
-                            Chip(
-                              label: Text(
-                                tag,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.black,
-                                  fontWeight:FontWeight.bold
-                                ),
-                              ),
-                              shadowColor: Colors.black54,
-                              backgroundColor: Color.fromRGBO(
-                                controller.random.nextInt(256),
-                                controller.random.nextInt(256),
-                                controller.random.nextInt(256),
-                                controller.random.nextDouble()
-                              ),
-                              //elevation: 10,
-                              autofocus: true,
-                              visualDensity: const VisualDensity(horizontal: -4,vertical: -4),
-                            )
-                          ],
-                          const SizedBox(width: 5,),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
-              separatorBuilder: (context, index) {
-                return const Divider(
-                  thickness: 1,
-                  color: Colors.black26,
-                );
-              },
-            );
+          : _loadOnGoingCourses(courses);
         } else if (snapshot.hasError) {
           return Text('${snapshot.error}');
         }
@@ -127,6 +33,106 @@ class OnGoingCourses extends StatelessWidget {
           child: CircularProgressIndicator(),
         );
       }
+    );
+  } 
+  Widget _loadOnGoingCourses(List<MyCoursesList> courses) {
+    final controller = Get.find<ProfileController>();
+    return  ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      //scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      itemCount: courses.length,
+      itemBuilder:(BuildContext context, int index) {
+        MyCoursesList courselist = courses[index];
+        if (courselist.courseStatus == "OnGoing") {
+          return ListTile(
+            onTap: () {},
+            leading: Container(
+              alignment: Alignment.center,
+              height: 150,
+              width: 70,
+              child: Image(
+                image: NetworkImage(courselist.image),
+                fit: BoxFit.fill,
+              )
+            ),
+            title: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  courselist.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                Text(
+                  courselist.description,
+                  maxLines: 3,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    overflow: TextOverflow.ellipsis,
+                    fontWeight:FontWeight.w600
+                  ),
+                ),
+                LinearPercentIndicator(
+                  // width: 195.0,
+                  lineHeight: 20.0,
+                  percent: double.parse(courselist.percentage) / 100,
+                  center: Text(
+                    "${courselist.percentage}%",
+                    style: const TextStyle(fontSize: 12.0),
+                  ),
+                  //trailing: Icon(Icons.thumb_down, color: Colors.red,),
+                  barRadius: const Radius.circular(10),
+                  backgroundColor:Colors.grey,
+                  progressColor: Colors.blue,
+                ),
+                const SizedBox(height: 2,),
+              ]
+            ),
+            subtitle: Wrap(
+              spacing: 5.0,
+              children: [
+                if(courselist.tagData.isNotEmpty)
+                  for (var tag in courselist.tagData.toString().trim().split("-")) 
+                  ...[
+                    Chip(
+                      label: Text(
+                        tag,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.black,
+                          fontWeight:FontWeight.bold
+                        ),
+                      ),
+                      shadowColor: Colors.black54,
+                      backgroundColor: Color.fromRGBO(
+                        controller.random.nextInt(256),
+                        controller.random.nextInt(256),
+                        controller.random.nextInt(256),
+                        controller.random.nextDouble()
+                      ),
+                      //elevation: 10,
+                      autofocus: true,
+                      visualDensity: const VisualDensity(horizontal: -4,vertical: -4),
+                    )
+                  ],
+                  const SizedBox(width: 5,),
+              ],
+            ),
+          );
+        }
+        return const SizedBox();
+      },
+      separatorBuilder: (context, index) {
+        return const Divider(
+          thickness: 1,
+          color: Colors.black26,
+        );
+      },
     );
   }
 }

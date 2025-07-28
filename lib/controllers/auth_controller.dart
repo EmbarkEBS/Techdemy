@@ -89,7 +89,7 @@ class AuthController extends GetxController {
     isRegistering = true;
     update(["registering"]);
     registerMessage = await _apiService.register(registerData);
-    update();
+    update(["registering"]);
     } catch (e) {
       log("Registeration issue", error: e.toString(), stackTrace: StackTrace.current);
     } finally {

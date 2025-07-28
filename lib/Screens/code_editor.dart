@@ -10,18 +10,15 @@ class CodeEditorPage extends StatefulWidget {
 
 class _CodeEditorPageState extends State<CodeEditorPage> {
   late WebViewController _controller;
-  late final PlatformWebViewControllerCreationParams params;
   @override
   void initState() {
     super.initState();
-    final WebViewController controller = WebViewController.fromPlatformCreationParams(params);
-    controller
+    _controller = WebViewController()
       ..loadRequest(Uri.parse('https://www.jdoodle.com/execute-dart-online'))
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
   
     // #enddocregion platform_features
 
-    _controller = controller;
   }
 
   Future<bool> _exitApp(BuildContext context) async {

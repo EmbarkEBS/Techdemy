@@ -7,7 +7,8 @@ import 'package:tech/controllers/course_controller.dart';
 
 
 class CourseDetailsScreen extends StatelessWidget {
-  const CourseDetailsScreen({super.key});
+  final bool? isEnrolled;
+  const CourseDetailsScreen({super.key, required this.isEnrolled});
   
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class CourseDetailsScreen extends StatelessWidget {
         length: 2,
         child: controller.courseDetail != null
           ? NestedScrollView(
-              headerSliverBuilder:(BuildContext context, bool innerBoxIsScrolled) {
+              headerSliverBuilder:(context, innerBoxIsScrolled) {
                 return <Widget>[
                   SliverAppBar(
                     expandedHeight: 250.0,
@@ -51,7 +52,7 @@ class CourseDetailsScreen extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                       color: Colors.white,
                       //alignment: Alignment.center,
-                      height: 130,
+                      height: isEnrolled ?? false ? 100 : 130,
                       child: Column(
                         //padding: EdgeInsets.all(2),
                         //shrinkWrap: true,
@@ -73,23 +74,26 @@ class CourseDetailsScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500
                             ),
                           ),
-                          const SizedBox(height: 5,),
-                          FilledButton(
-                            onPressed: () async {
-                              await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
-                            },
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.black87,
-                              minimumSize: const Size(double.infinity, 40)
-                            ),
-                            child: const Text('Start now',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.yellow,
-                                fontWeight: FontWeight.bold
-                              )
-                            ),
-                          )
+                          // const SizedBox(height: 5,),
+                          isEnrolled ?? false
+                          ? const SizedBox()
+                          : FilledButton(
+                              onPressed: () async {
+                                await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.black87,
+                                minimumSize: const Size(double.infinity, 40)
+                              ),
+                              child: const Text(
+                                'Start now',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.yellow,
+                                  fontWeight: FontWeight.bold
+                                )
+                              ),
+                            )
                         ],
                       )
                     ),
@@ -131,10 +135,10 @@ class CourseDetailsScreen extends StatelessWidget {
                   ),
                 ];
               },
-              body: const TabBarView(
+              body: TabBarView(
                 children: [
-                  CourseDetailWidget(),
-                  ChapterDetailWidget()
+                  const CourseDetailWidget(),
+                  ChapterDetailWidget(isEnrolled: isEnrolled ?? false,)
                 ],
               ),
             )

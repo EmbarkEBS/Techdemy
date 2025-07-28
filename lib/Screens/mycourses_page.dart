@@ -1,31 +1,31 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
-import 'package:tech/Widgets/drawer_widget.dart';
+import 'package:get/get.dart';
 import 'package:tech/Widgets/mycourses/completed_courses.dart';
 import 'package:tech/Widgets/mycourses/on_going_courses.dart';
+import 'package:tech/controllers/profile_controller.dart';
 
 class MyCoursesPage extends StatelessWidget {
   const MyCoursesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Courses",),
         surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/homepage");
-            },
-            icon: const Icon(
-              Icons.home,
-              size: 30,
-            )
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async => await controller.getMyCourses(),
+        //     icon: const Icon(
+        //       Icons.refresh,
+        //       size: 30,
+        //     )
+        //   ),
+        // ],
       ),
-      drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
+      // drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
       body: DefaultTabController(
         length: 2,
         child: Column(

@@ -5,7 +5,8 @@ import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/controllers/course_controller.dart';
 
 class ChapterDetailWidget extends StatelessWidget {
-  const ChapterDetailWidget({super.key});
+  final bool isEnrolled;
+  const ChapterDetailWidget({super.key, required this.isEnrolled});
 
   @override
   Widget build(BuildContext context) {
@@ -33,35 +34,37 @@ class ChapterDetailWidget extends StatelessWidget {
                   color: Colors.black
                 ),
               ),
-              trailing: TextButton(
-                style: TextButton.styleFrom(),
-                onPressed: () async {
-                  await controller.quizList(chapterlist.chapterId).then((value) {
-                    Get.to(() => QuizScreen(
-                      chapterId: chapterlist.chapterId, 
-                      questions: value, 
-                      timer: chapterlist.timer, 
-                      courseId: controller.courseDetail!.courseDetailPart.courseId,
-                    ));
-                  },);
-                },
-                child: controller.loadingQuiz[chapterlist.chapterId] ?? false
-                ? const Center(
-                    child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(),
+              trailing: isEnrolled
+              ? TextButton(
+                  style: TextButton.styleFrom(),
+                  onPressed: () async {
+                    await controller.quizList(chapterlist.chapterId).then((value) {
+                      Get.to(() => QuizScreen(
+                        chapterId: chapterlist.chapterId, 
+                        questions: value, 
+                        timer: chapterlist.timer, 
+                        courseId: controller.courseDetail!.courseDetailPart.courseId,
+                      ));
+                    },);
+                  },
+                  child: controller.loadingQuiz[chapterlist.chapterId] ?? false
+                  ? const Center(
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : const Text(
+                    'Quiz',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600
                     ),
-                  )
-                : const Text(
-                  'Quiz',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600
                   ),
-                ),
-              ),
+                )
+              : const SizedBox(),
               children:  chapterlist.topicData.isEmpty
               ? [
                 const Center(

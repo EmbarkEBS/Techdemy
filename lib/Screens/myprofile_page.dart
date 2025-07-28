@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Helpers/validator.dart';
-import 'package:tech/Widgets/drawer_widget.dart';
+// import 'package:tech/Widgets/drawer_widget.dart';
 import 'package:tech/controllers/profile_controller.dart';
 
 class MyProfilePage extends StatelessWidget {
@@ -12,19 +12,20 @@ class MyProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Profile',),
         surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.home,
-              size: 30,
-              // color: Colors.white,
-            )
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () => Navigator.pop(context),
+        //     icon: const Icon(
+        //       Icons.home,
+        //       size: 30,
+        //       // color: Colors.white,
+        //     )
+        //   ),
+        // ],
       ),
-      drawer: const DrawerWidget(isProfile: true, profileCaller: "Profile screen",),
+      // drawer: const DrawerWidget(isProfile: true, profileCaller: "Profile screen",),
       body: GetBuilder<ProfileController>(
+        id: "profile",
         builder: (controller) {
           return SingleChildScrollView(
             child: Container(
@@ -33,28 +34,36 @@ class MyProfilePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Form(
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     key: controller.formKey,
                     child: Column(
                       children: [
                         TextFormField(
                           enabled: controller.isEnabled,
+                          textInputAction: TextInputAction.next,
                           controller: controller.namecontroller,
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.person_outline_rounded),
                             //labelText: 'Email',
                             hintText: 'Name',
+                            focusedBorder: OutlineInputBorder(),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                             border: OutlineInputBorder(),
                           ),
+                          validator: (value) => FieldValidator.validateFullname(value!),
                           // onChanged: (value) => name = value,
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.emailcontroller,
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.mail_outline),
                             //labelText: 'Email',
                             hintText: 'Email',
+                            focusedBorder: OutlineInputBorder(),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                             border: OutlineInputBorder(),
                           ),
                           // onChanged: (value) {
@@ -64,11 +73,14 @@ class MyProfilePage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.mobilecontroller,
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.phone_android),
                             //labelText: 'Email',
+                            focusedBorder: OutlineInputBorder(),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                             hintText: 'Mobile Number',
                             border: OutlineInputBorder(),
                           ),
@@ -80,9 +92,13 @@ class MyProfilePage extends StatelessWidget {
                         DropdownButtonFormField(
                           value: controller.gender,
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.person),
-                            border: controller.isEnabled 
-                            ? const OutlineInputBorder() : null
+                            prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                            border: InputBorder.none,
+                            focusedBorder: const OutlineInputBorder(),
+                            errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
+                            )
                           ),
                           items: controller.items1.map((String items) {
                             return DropdownMenuItem(
@@ -90,6 +106,12 @@ class MyProfilePage extends StatelessWidget {
                               child: Text(items),
                             );
                           }).toList(),
+                          validator: (value) {
+                            if (value == null || value == "Gender") {
+                              return 'Please select gender';
+                            }
+                            return null;
+                          },
                           onChanged: controller.isEnabled
                             ? (String? newValue) {
                                 controller.selectGender(newValue ?? controller.gender);
@@ -98,13 +120,15 @@ class MyProfilePage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         TextFormField(
+                          textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.addresscontroller,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.fingerprint),
+                          decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.fingerprint),
                             hintText: 'Address',
-                            border: controller.isEnabled 
-                            ? const OutlineInputBorder() : null,
+                            focusedBorder: OutlineInputBorder(),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
+                            border: OutlineInputBorder(),
                           ),
                           // onChanged: (value) {
                           //   address = value;
@@ -112,11 +136,15 @@ class MyProfilePage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10,),
                         DropdownButtonFormField<String>(
-                          hint: Text(controller.usercategory),
+                          hint: Text(controller.usercategory, style: TextStyle(color: controller.isEnabled ? Colors.black : Colors.black26),),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.person),
-                            border: controller.isEnabled 
-                            ? const OutlineInputBorder() : null,
+                            prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                            border: InputBorder.none,
+                            focusedBorder: const OutlineInputBorder(),
+                            errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
+                            )
                           ),
                           items: controller.items2.map((String items) {
                             return DropdownMenuItem(
@@ -131,12 +159,15 @@ class MyProfilePage extends StatelessWidget {
                           Column(
                             children: [
                               TextFormField(
+                                textInputAction: TextInputAction.next,
                                 enabled: controller.isEnabled,
                                 controller: controller.collegecontroller,
                                 decoration: const InputDecoration(
                                   prefixIcon: Icon(Icons.short_text),
                                   //labelText: 'Email',
                                   hintText: 'College Name',
+                                  focusedBorder:  OutlineInputBorder(),
+                                  errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                                   border: OutlineInputBorder(),
                                 ),
                                 // onChanged: (value) {
@@ -145,12 +176,15 @@ class MyProfilePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 10,),
                                 TextFormField(
+                                textInputAction: TextInputAction.next,
                                 enabled: controller.isEnabled,
                                 controller: controller.departmentcontroller,
                                 decoration: InputDecoration(
                                   prefixIcon: const Icon(Icons.book),
                                   //labelText: 'Email',
                                   hintText: 'Department',
+                                  focusedBorder: const OutlineInputBorder(),
+                                  errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                                   border: controller.isEnabled 
                                   ? const OutlineInputBorder() : null,
                                 ),
@@ -159,10 +193,20 @@ class MyProfilePage extends StatelessWidget {
                               DropdownButtonFormField(
                                 value: controller.studentyear,
                                 decoration: InputDecoration(
-                                  prefixIcon: const Icon(Icons.person),
-                                  border: controller.isEnabled 
-                                  ? const OutlineInputBorder() : null,
+                                  prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                                  border: InputBorder.none,
+                                  focusedBorder: const OutlineInputBorder(),
+                                  errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
+                                  )
                                 ),
+                                validator: (value) {
+                                  if (value == null || value == "Select Year") {
+                                    return 'Please select year';
+                                  }
+                                  return null;
+                                },
                                 items: controller.items3.map((String items) {
                                   return DropdownMenuItem(
                                     value: items,
@@ -181,9 +225,13 @@ class MyProfilePage extends StatelessWidget {
                           DropdownButtonFormField(
                             hint: Text(controller.experiencelevel),
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.person),
-                              border: controller.isEnabled 
-                              ? const OutlineInputBorder() : null,
+                              prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                              border: InputBorder.none,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
+                              ),
+                              focusedBorder: const OutlineInputBorder(),
+                              errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent))
                             ),
                             items: controller.items4.map((String items) {
                               return DropdownMenuItem(
@@ -191,6 +239,13 @@ class MyProfilePage extends StatelessWidget {
                                 child: Text(items),
                               );
                             }).toList(),
+                            validator: (value) {
+                              if (value == null ||
+                                  value == "Select Experience Level" || controller.experiencelevel == "Select Experience Level") {
+                                return 'Please select experience level';
+                              }
+                              return null;
+                            },
                             onChanged: controller.isEnabled
                               ? (String? newValue) {
                                   controller.selectExperience(newValue ?? controller.experiencelevel);

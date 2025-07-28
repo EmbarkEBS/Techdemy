@@ -15,6 +15,7 @@ class CourseController extends GetxController{
   bool descTextShowFlag = true;
   Map<String, bool> isEnrolling = <String, bool>{};
   Map<int, bool> loadingQuiz = {};
+  List<CourseList> courses = [];
 
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
   String selectedCategory = 'All';
@@ -25,8 +26,15 @@ class CourseController extends GetxController{
     update();
   }
 
+  Future<bool> checkEnroll(int courseId) async {
+    bool status = await _apiService.checkEnroll(courseId.toString());
+    return status;
+  }
+
   Future<List<CourseList>> getCoursesList() async {
-   return await _apiService.getCoursesList();
+   courses = await _apiService.getCoursesList();
+   update();
+   return courses;
   }
 
   Future<void> getCoursesDetail(String courseId) async {

@@ -47,6 +47,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 50,),
                     Form(
+                      autovalidateMode: AutovalidateMode.onUnfocus,
                       key: controller.loginFormKey,
                       child: Column(
                       children: [
@@ -119,10 +120,7 @@ class LoginPage extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             TextButton(
-                              onPressed: () {
-                                // controller.notificationService.notificationPermission();
-                                Get.offNamed(AppRoutes.login);
-                              },
+                              onPressed: () =>  Get.offNamed(AppRoutes.signup),
                               child: const Text(
                                 "Signup",
                                 textAlign: TextAlign.start,

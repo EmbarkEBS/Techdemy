@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:tech/controllers/auth_controller.dart';
 import 'package:tech/controllers/course_controller.dart';
+import 'package:tech/controllers/home_controller.dart';
 import 'package:tech/controllers/profile_controller.dart';
 
 class CourseBinding extends Bindings {
@@ -28,6 +29,7 @@ class ProfileBinding extends Bindings {
 class InitialBindings extends Bindings {
   @override
   void dependencies() {
+    Get.lazyPut(() => HomeController(), fenix: true);
     Get.lazyPut(() => ProfileController(), fenix: true);
     Get.lazyPut(() => CourseController(), fenix: true);
   }

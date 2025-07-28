@@ -18,6 +18,7 @@ class ProfileController extends GetxController{
   final TextEditingController collegecontroller = TextEditingController();
   final TextEditingController departmentcontroller = TextEditingController();
   bool isEditing = false;
+  List<MyCoursesList> mycourses = [];
   
   String gender = 'Gender';
   var items1 = [
@@ -104,7 +105,7 @@ class ProfileController extends GetxController{
     departmentcontroller.text = profile!.department;
     studentyear = profile!.studentyear;
     experiencelevel = profile!.experiencelevel;
-    update();
+    update(["profile"]);
   }
 
   Future<void> updateProfile() async {
@@ -137,5 +138,9 @@ class ProfileController extends GetxController{
 
   Future<void> downloadFile(String url, String fileName) => _apiService.downloadFile(url, fileName);
   
-  Future<List<MyCoursesList>> getMyCourses() async => await _apiService.getMyCourses();
+  Future<List<MyCoursesList>> getMyCourses() async {
+    mycourses = await _apiService.getMyCourses();
+    update();
+    return mycourses;
+  }
 }

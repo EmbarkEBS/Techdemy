@@ -134,7 +134,7 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Registration response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        await _storage.write(key: "userId", value: result["user_id"]);
+        await _storage.write(key: "userId", value: result["user_id"].toString());
         await _storage.write(key: "mobileNo", value: result["phone_no"]);
         await sendOTP(registerData["phone_no"]);
         Get.offNamed(AppRoutes.verification);
@@ -178,7 +178,7 @@ class ApiService {
       if (response.statusCode == 200 && result["status"] == "success") {
         await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
-          Get.offNamed(AppRoutes.homepage);
+          Get.offNamed(AppRoutes.bottom);
         },);
       } else {
           Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
@@ -265,16 +265,17 @@ class ApiService {
   /// Enroll course
   Future<void> enrollCourse(String courseId) async {
     var url = 'https://techdemy.in/connect/api/userenrollment';
+    String userId =  await _storage.read(key: "userId") ?? "";
     final Map<String, String> data = {
-      "user_id": await _storage.read(key: "userId") ?? "",
+      "user_id": userId,
       "course_id": courseId,
     };
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
     try {
       final response = await http.post(
         Uri.parse(url),
-        body: json.encode({
-          "data": encryption(json.encode(data))
-        }),
+        body: {"data": encryptedData},
         ).timeout(const Duration(seconds: 20)
       );
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
@@ -282,25 +283,36 @@ class ApiService {
       log("Enroll course response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
         debugPrint("result$result");
-        Get.showSnackbar(GetSnackBar(
-          snackPosition: SnackPosition.TOP, 
-          message: result["message"], 
-          duration: const Duration(seconds: 1)
-        ));
-        // 
-      } else {
+        await _storage.write(key: "${userId}_$courseId", value: true.toString());
         Get.showSnackbar(GetSnackBar(
           snackPosition: SnackPosition.TOP, 
           message: result["message"], 
           duration: const Duration(seconds: 1)
         ));
         Get.toNamed(AppRoutes.mycourses);
+      } else {
+        Get.showSnackbar(GetSnackBar(
+          snackPosition: SnackPosition.TOP, 
+          message: result["message"], 
+          duration: const Duration(seconds: 1)
+        ));
+        // Get.toNamed(AppRoutes.mycourses);
       }
     } on TimeoutException catch (_) {
       Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
     } on Exception catch (e) {
       log("Enroll courses exception", error: e.toString(), stackTrace: StackTrace.current);
     }
+  }
+
+  // Check enroll
+  Future<bool> checkEnroll(String courseId) async {
+    String userId =  await _storage.read(key: "userId") ?? "";
+    String? status =  await _storage.read(key: "${userId}_$courseId");
+    if(status != null && status.isNotEmpty) {
+      return status == "true";
+    }
+    return false;
   }
 
   // Get user Profile
@@ -361,8 +373,9 @@ class ApiService {
   // My courses
   Future<List<MyCoursesList>> getMyCourses() async {
     var url = 'https://techdemy.in/connect/api/mycourse';
+    String userId = await _storage.read(key: "userId") ?? "";
     final Map<String, String> data = {
-      "user_id": await _storage.read(key: "userId") ?? ""
+      "user_id": userId
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
@@ -377,6 +390,7 @@ class ApiService {
       if (response.statusCode == 200) {
         log('My courses log:$jsonData');
         List<MyCoursesList> courses = jsonArray.map((e) => MyCoursesList.fromJson(e),).toList();
+        Future.wait(courses.map((e) async => await _storage.write(key: "${userId}_${e.courseId}", value: true.toString()),));
         return courses;
       } else {
         return [];
