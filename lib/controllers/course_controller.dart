@@ -16,6 +16,7 @@ class CourseController extends GetxController{
   Map<String, bool> isEnrolling = <String, bool>{};
   Map<int, bool> loadingQuiz = {};
   List<CourseList> courses = [];
+  var quizSubmitted = <String, RxBool>{}.obs;
 
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
   String selectedCategory = 'All';
@@ -76,7 +77,17 @@ class CourseController extends GetxController{
     return [];
   }
 
-  Future<void> submitQuiz(Map<String, dynamic> data) async => await _apiService.submitQuestions(data);
+  Future<void> quizResult(int chapterId) async => await _apiService.quizResult(chapterId.toString());
+
+
+  Future<void> checkQuiz(String chapterId) async {
+    bool value = await _apiService.checkResult(chapterId);
+    quizSubmitted[chapterId] = RxBool(value);
+  }
+
+  Future<void> submitQuiz(Map<String, dynamic> data) async {
+     await _apiService.submitQuestions(data).then((value) async => await checkQuiz(data["chapter_id"].toString()),);
+  }
 
   Future<void> logout() async => _apiService.logout();
 }

@@ -1,16 +1,16 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+// import 'package:get/get.dart';
 import 'package:tech/Widgets/mycourses/completed_courses.dart';
 import 'package:tech/Widgets/mycourses/on_going_courses.dart';
-import 'package:tech/controllers/profile_controller.dart';
+// import 'package:tech/controllers/profile_controller.dart';
 
 class MyCoursesPage extends StatelessWidget {
   const MyCoursesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ProfileController>();
+    // final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Courses",),

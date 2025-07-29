@@ -34,11 +34,13 @@ class MyProfilePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Form(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    // autovalidateMode: controller.profile != null ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
                     key: controller.formKey,
                     child: Column(
                       children: [
+                        // User name
                         TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           enabled: controller.isEnabled,
                           textInputAction: TextInputAction.next,
                           controller: controller.namecontroller,
@@ -54,7 +56,9 @@ class MyProfilePage extends StatelessWidget {
                           // onChanged: (value) => name = value,
                         ),
                         const SizedBox(height: 10,),
+                        // User email
                         TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.emailcontroller,
@@ -72,7 +76,9 @@ class MyProfilePage extends StatelessWidget {
                           validator: (value) => FieldValidator.validateEmail(value ?? ""),
                         ),
                         const SizedBox(height: 10,),
+                        // User mobile number
                         TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.mobilecontroller,
@@ -89,7 +95,9 @@ class MyProfilePage extends StatelessWidget {
                           // },
                         ),
                         const SizedBox(height: 10,),
+                        // User gender
                         DropdownButtonFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           value: controller.gender,
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
@@ -119,7 +127,9 @@ class MyProfilePage extends StatelessWidget {
                             : null
                         ),
                         const SizedBox(height: 10,),
+                        // User address
                         TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           textInputAction: TextInputAction.next,
                           enabled: controller.isEnabled,
                           controller: controller.addresscontroller,
@@ -135,7 +145,9 @@ class MyProfilePage extends StatelessWidget {
                           // },
                         ),
                         const SizedBox(height: 10,),
+                        // user type
                         DropdownButtonFormField<String>(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: Text(controller.usercategory, style: TextStyle(color: controller.isEnabled ? Colors.black : Colors.black26),),
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
@@ -154,11 +166,13 @@ class MyProfilePage extends StatelessWidget {
                           }).toList(),
                           onChanged:null
                         ),
+                        // If user is student
                         const SizedBox(height: 10,),
                         if (controller.usercategory == controller.items2[1])
                           Column(
                             children: [
                               TextFormField(
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 textInputAction: TextInputAction.next,
                                 enabled: controller.isEnabled,
                                 controller: controller.collegecontroller,
@@ -178,6 +192,7 @@ class MyProfilePage extends StatelessWidget {
                                 TextFormField(
                                 textInputAction: TextInputAction.next,
                                 enabled: controller.isEnabled,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 controller: controller.departmentcontroller,
                                 decoration: InputDecoration(
                                   prefixIcon: const Icon(Icons.book),
@@ -192,6 +207,7 @@ class MyProfilePage extends StatelessWidget {
                               const SizedBox(height: 10,),
                               DropdownButtonFormField(
                                 value: controller.studentyear,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: InputDecoration(
                                   prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
                                   border: InputBorder.none,
@@ -222,7 +238,9 @@ class MyProfilePage extends StatelessWidget {
                             ],
                           ),
                         if (controller.usercategory == controller.items2[2])
+                        // user if experience candidate
                           DropdownButtonFormField(
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             hint: Text(controller.experiencelevel),
                             decoration: InputDecoration(
                               prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),

@@ -17,10 +17,12 @@ class BottomWidget extends StatelessWidget {
               return NavigationBar(
                 height: kToolbarHeight - 6,
                 onDestinationSelected: (value) async {
-                  if(controller.currentIndex == 2 && profileController.profile == null) {
-                    await profileController.getProfile("home");
-                  }
                   controller.changeIndex(value);
+                  if(controller.currentIndex == 2 && profileController.profile == null) {
+                    Future.wait([
+                      profileController.getProfile("home")
+                    ]);
+                  }
                 },
                 selectedIndex: controller.currentIndex,
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,

@@ -135,7 +135,11 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ],
       ),
-      body: ListView.separated(
+      body: widget.questions.isEmpty
+      ? const Center(
+          child: Text("No quiz found for this course"),
+        )
+      : ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         itemBuilder: (context, index) {
           final q = widget.questions[index];
@@ -190,12 +194,12 @@ class _QuizScreenState extends State<QuizScreen> {
         SizedBox(
         width: double.infinity,
         child: FloatingActionButton(
-          backgroundColor: Colors.black87,
+          backgroundColor: widget.questions.length == _selectedAnswers.length ? Colors.black87 : Colors.black38,
           
           onPressed: () {
-            if(_selectedAnswers.isNotEmpty) {
+            if(widget.questions.length == _selectedAnswers.length && _selectedAnswers.isNotEmpty) {
               _submit();
-            }
+            } 
             // _selectedAnswers.isNotEmpty ? _submit : null;
           },
           child: _isLoading 
@@ -206,11 +210,11 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: CircularProgressIndicator(),
               ),
             )
-          : const Text(
+          : Text(
             "Submit",
             style: TextStyle(
               fontSize: 15,
-              color: Colors.yellow,
+              color: widget.questions.length == _selectedAnswers.length ?Colors.yellow : Colors.yellow.shade200,
               fontWeight: FontWeight.bold
             )
           ),

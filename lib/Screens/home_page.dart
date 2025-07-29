@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Screens/coursedetails_page.dart';
-import 'package:tech/Widgets/drawer_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
-import 'package:tech/routes/routes.dart';
 
 import '../Models/courselist_model.dart';
 

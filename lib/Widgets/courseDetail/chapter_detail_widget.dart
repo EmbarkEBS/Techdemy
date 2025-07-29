@@ -35,17 +35,23 @@ class ChapterDetailWidget extends StatelessWidget {
                 ),
               ),
               trailing: isEnrolled
-              ? TextButton(
+              ? Obx(() {
+                final submitted = controller.quizSubmitted[chapterlist.chapterId.toString()]?.value ?? false;
+                return TextButton(
                   style: TextButton.styleFrom(),
                   onPressed: () async {
-                    await controller.quizList(chapterlist.chapterId).then((value) {
-                      Get.to(() => QuizScreen(
-                        chapterId: chapterlist.chapterId, 
-                        questions: value, 
-                        timer: chapterlist.timer, 
-                        courseId: controller.courseDetail!.courseDetailPart.courseId,
-                      ));
-                    },);
+                    if(submitted) {
+                      await controller.quizResult(chapterlist.chapterId);
+                    } else {
+                      await controller.quizList(chapterlist.chapterId).then((value) {
+                        Get.to(() => QuizScreen(
+                          chapterId: chapterlist.chapterId, 
+                          questions: value, 
+                          timer: chapterlist.timer, 
+                          courseId: controller.courseDetail!.courseDetailPart.courseId,
+                        ));
+                      },);
+                    }
                   },
                   child: controller.loadingQuiz[chapterlist.chapterId] ?? false
                   ? const Center(
@@ -55,15 +61,16 @@ class ChapterDetailWidget extends StatelessWidget {
                         child: CircularProgressIndicator(),
                       ),
                     )
-                  : const Text(
-                    'Quiz',
-                    style: TextStyle(
+                  : Text(
+                    submitted ? 'View result' :'Quiz',
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                       fontWeight: FontWeight.w600
                     ),
                   ),
-                )
+                );
+              },)
               : const SizedBox(),
               children:  chapterlist.topicData.isEmpty
               ? [
