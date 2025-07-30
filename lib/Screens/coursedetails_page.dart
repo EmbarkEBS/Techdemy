@@ -23,129 +23,181 @@ class CourseDetailsScreen extends StatelessWidget {
       body: DefaultTabController(
         length: 2,
         child: controller.courseDetail != null
-          ? NestedScrollView(
-              headerSliverBuilder:(context, innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    expandedHeight: 250.0,
-                    floating: false,
-                    pinned: true,
-                    surfaceTintColor: Colors.transparent,
-                    snap: false,
-                    toolbarHeight: 0,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: Image(
-                        height: 100,
-                        width: 100,
-                        image: NetworkImage(controller.courseDetail!.courseDetailPart.image),
-                        fit: BoxFit.fill,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                            child: Icon(Icons.error),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                      color: Colors.white,
-                      //alignment: Alignment.center,
-                      height: isEnrolled ?? false ? 100 : 130,
-                      child: Column(
-                        //padding: EdgeInsets.all(2),
-                        //shrinkWrap: true,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 5,),
-                          Text(
-                            controller.courseDetail!.courseDetailPart.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20
-                            ),
-                          ),
-                          const SizedBox(height: 10,),
-                          Text(
-                            controller.courseDetail!.courseDetailPart.duration,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500
-                            ),
-                          ),
-                          // const SizedBox(height: 5,),
-                          isEnrolled ?? false
-                          ? const SizedBox()
-                          : FilledButton(
-                              onPressed: () async {
-                                await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
-                              },
-                              style: FilledButton.styleFrom(
-                                backgroundColor: Colors.black87,
-                                minimumSize: const Size(double.infinity, 40)
-                              ),
-                              child: const Text(
-                                'Start now',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.yellow,
-                                  fontWeight: FontWeight.bold
-                                )
-                              ),
-                            )
-                        ],
-                      )
-                    ),
-                  ),
-                  SliverPersistentHeader(
-                    delegate: MySliverPersistentHeaderDelegate(
-                      ButtonsTabBar(
-                        unselectedBackgroundColor: Colors.transparent,
-                        unselectedLabelStyle:const TextStyle(color: Colors.blue),
-                        labelStyle: const TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold
-                        ),
-                        backgroundColor: Colors.yellow,
-                        contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        tabs: const [
-                          Tab(
-                            child: Text(
-                              "Overview",
-                              style: TextStyle(
-                                fontSize: 16, 
-                                color: Colors.black
-                              ),
-                            ),
-                          ),
-                          Tab(
-                            child: Text(
-                              "Lessons",
-                              style: TextStyle(
-                                fontSize: 16, 
-                                color: Colors.black
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    pinned: true,
-                  ),
-                ];
-              },
-              body: TabBarView(
-                children: [
-                  const CourseDetailWidget(),
-                  ChapterDetailWidget(isEnrolled: isEnrolled ?? false,)
-                ],
+          ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Course image
+              Image(
+                width: double.infinity,
+                image: NetworkImage(controller.courseDetail!.courseDetailPart.image),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.error),
+                  );
+                },
               ),
-            )
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  controller.courseDetail!.courseDetailPart.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                  ),
+                                ),
+                                Text(
+                                  "₹${controller.courseDetail!.courseDetailPart.price}",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Colors.black38
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Row(
+                            spacing: 5,
+                            children: [
+                              const Icon(Icons.timelapse, color: Colors.black38, size: 14,),
+                              Text(
+                                controller.courseDetail!.courseDetailPart.duration,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black38,
+                                  fontWeight: FontWeight.w400
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10,),
+                      Wrap(
+                        spacing: 5.0, 
+                        children: [
+                          if(controller.courseDetail!.courseDetailPart.tagData.isNotEmpty)
+                            for (var tag in controller.courseDetail!.courseDetailPart.tagData.toString().trim().split("-")) 
+                            ...[
+                              Chip(
+                                label: Text(
+                                  tag,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                shadowColor: Colors.black54,
+                                backgroundColor: Color.fromRGBO(
+                                  controller.random.nextInt(256),
+                                  controller.random.nextInt(256),
+                                  controller.random.nextInt(256),
+                                  controller.random.nextDouble()
+                                ),
+                                autofocus: true,
+                                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                              )
+                            ],
+                        ]
+                      ),
+                      const SizedBox(height: 15,),
+                      SizedBox(
+                        height: kToolbarHeight - 16,
+                        child: TabBar(
+                          unselectedLabelStyle:const TextStyle(color: Colors.blue),
+                          labelStyle: const TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold
+                          ),
+                          dividerColor: Colors.transparent,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.yellow)
+                          ),
+                          tabs: const [
+                            Tab(
+                              child: Text(
+                                "Lessons",
+                                style: TextStyle(
+                                  fontSize: 16, 
+                                  color: Colors.black
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Text(
+                                "More",
+                                style: TextStyle(
+                                  fontSize: 16, 
+                                  color: Colors.black
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10,),
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: TabBarView(
+                    children: [
+                      ChapterDetailWidget(isEnrolled: isEnrolled ?? false,),
+                      const CourseDetailWidget(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )
           : const Center(
               child: CircularProgressIndicator(),
             )
           ),
+        persistentFooterButtons: isEnrolled ?? false 
+        ? null 
+        : [ 
+          FilledButton(
+            onPressed: () async {
+              await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.black87,
+              minimumSize: const Size(double.infinity, 40)
+            ),
+            child: const Text(
+              'Start now',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.yellow,
+                fontWeight: FontWeight.bold
+              )
+            ),
+          ),
+        ],
     );
   }
 }

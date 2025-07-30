@@ -10,38 +10,9 @@ class CourseDetailWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<CourseController>();
     return  SingleChildScrollView(
-      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 5.0, 
-            children: [
-              if(controller.courseDetail!.courseDetailPart.tagData.isNotEmpty)
-                for (var tag in controller.courseDetail!.courseDetailPart.tagData.toString().trim().split("-")) 
-                ...[
-                  Chip(
-                    label: Text(
-                      tag,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold
-                      ),
-                    ),
-                    shadowColor: Colors.black54,
-                    backgroundColor: Color.fromRGBO(
-                      controller.random.nextInt(256),
-                      controller.random.nextInt(256),
-                      controller.random.nextInt(256),
-                      controller.random.nextDouble()
-                    ),
-                    autofocus: true,
-                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                  )
-                ],
-            ]
-          ),
           const SizedBox(height: 8,),
           Text(
             controller.courseDetail!.courseDetailPart.description.toString(),
@@ -59,9 +30,13 @@ class CourseDetailWidget extends StatelessWidget {
               ],
             ),
           ),
-          _detailTile(icon: Icons.menu_book_sharp, title: "Lessons",),
-          _detailTile(icon: Icons.timelapse, title: "Duration",),
-          _detailTile(icon: Icons.translate, title: "English",),
+          _detailTile(
+            icon: Icons.menu_book_sharp, 
+            title: "Curiiculam", 
+            subtitle: "${controller.courseDetail!.chapters.length.toString()} lessons . ${controller.courseDetail!.courseDetailPart.duration}"
+          ),
+          // _detailTile(icon: Icons.timelapse, title: "Duration",),
+          _detailTile(icon: Icons.translate, title: "Language", subtitle: "English"),
           _detailTile(icon: Icons.badge, title: "Certification",),
           _detailTile(
             icon: Icons.picture_as_pdf, 
@@ -95,13 +70,15 @@ class CourseDetailWidget extends StatelessWidget {
     );
   }
 
-  Widget _detailTile({required IconData icon, required String title, Widget? trailing}) {
+  Widget _detailTile({required IconData icon, required String title, Widget? trailing, String? subtitle}) {
     return ListTile(
+      titleAlignment: ListTileTitleAlignment.center,
       onTap: (){},
       minTileHeight: 20,
       contentPadding: EdgeInsets.zero,
       dense: true,
       title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle) : null,
       leading: Icon(icon),
       trailing: trailing
     );

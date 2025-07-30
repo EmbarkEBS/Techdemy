@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
@@ -13,7 +14,6 @@ class ChapterDetailWidget extends StatelessWidget {
     final controller = Get.find<CourseController>();
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(10),
       child: ListView.builder(
         itemCount: controller.courseDetail!.chapters.length,
         itemBuilder:(BuildContext context, int index) {
@@ -22,88 +22,97 @@ class ChapterDetailWidget extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius:BorderRadius.circular(10.0)),
             color: Colors.yellow.shade100,
             child: ExpansionTile(
+              dense: true,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
               collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
-              leading: const Icon(
-                Icons.check,
-                color: Colors.blue,
-              ),
+              // leading: const Icon(
+              //   Icons.check,
+              //   color: Colors.blue,
+              // ),
               title: Text(
                 chapterlist.chapterName,
                 style: const TextStyle(
                   color: Colors.black
                 ),
               ),
-              trailing: isEnrolled
-              ? Obx(() {
-                final submitted = controller.quizSubmitted[chapterlist.chapterId.toString()]?.value ?? false;
-                return TextButton(
-                  style: TextButton.styleFrom(),
-                  onPressed: () async {
-                    if(submitted) {
-                      await controller.quizResult(chapterlist.chapterId);
-                    } else {
-                      await controller.quizList(chapterlist.chapterId).then((value) {
-                        Get.to(() => QuizScreen(
-                          chapterId: chapterlist.chapterId, 
-                          questions: value, 
-                          timer: chapterlist.timer, 
-                          courseId: controller.courseDetail!.courseDetailPart.courseId,
-                        ));
-                      },);
-                    }
-                  },
-                  child: controller.loadingQuiz[chapterlist.chapterId] ?? false
-                  ? const Center(
-                      child: SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : Text(
-                    submitted ? 'View result' :'Quiz',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600
-                    ),
-                  ),
-                );
-              },)
-              : const SizedBox(),
-              children:  chapterlist.topicData.isEmpty
-              ? [
-                const Center(
+             children: [
+                if (chapterlist.topicData.isEmpty)
+                  const Center(
                     child: Text(
                       'No topics found for this chapter',
                       style: TextStyle(color: Colors.red),
                     ),
-                  ),
-                ]
-              : [
-                for (var topics in chapterlist.topicData.toString().trim().split("-")) 
-                ...[
-                  ListTile(
-                    dense: true,
-                    onTap: () {},
-                    tileColor: Colors.white,
-                    contentPadding: const EdgeInsets.all(20),
-                    title: Text(
-                      topics,
-                      style: const TextStyle(color: Colors.blue),
-                    ),
-                    trailing: IconButton(
-                      onPressed: () {
-                      },
-                      icon: const Icon(
-                        Icons.download,
-                        size: 16,
-                        color: Colors.blue,
+                  )
+                else
+                  ...chapterlist.topicData
+                    .toString()
+                    .trim()
+                    .split("-")
+                    .map(
+                      (topics) => ListTile(
+                        dense: true,
+                        onTap: () {},
+                        tileColor: Colors.white,
+                        contentPadding: const EdgeInsets.all(20),
+                        title: Text(
+                          topics,
+                        ),
+                        subtitle: const Text("Contains topic file"),
+                        trailing: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.download,
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ]
+              isEnrolled
+                ? Obx(() {
+                  final submitted = controller.quizSubmitted[chapterlist.chapterId.toString()]?.value ?? false;
+                  return ListTile(
+                    dense: true,
+                    leading: const Icon(CupertinoIcons.bolt, size: 14,),
+                    trailing: controller.loadingQuiz[chapterlist.chapterId] ?? false
+                      ? const Center(
+                          child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : submitted
+                        ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 14,)
+                        : null,
+                    title: Text(
+                      submitted ? 'View result' :'Quiz',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600
+                      ),
+                    ),
+                    // TODO Add the number of quiz per chapter
+                    subtitle: const Text(
+                      "Quiz - 4 quiestions"
+                    ),
+                    onTap: () async {
+                      if(submitted) {
+                        await controller.quizResult(chapterlist.chapterId);
+                      } else {
+                        await controller.quizList(chapterlist.chapterId).then((value) {
+                          Get.to(() => QuizScreen(
+                            chapterId: chapterlist.chapterId, 
+                            questions: value, 
+                            timer: chapterlist.timer, 
+                            courseId: controller.courseDetail!.courseDetailPart.courseId,
+                          ));
+                        },);
+                      }
+                    },
+                  );
+                },)
+                : const SizedBox(),
               ],
             )
           );
