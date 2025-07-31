@@ -1,4 +1,3 @@
-import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 import 'package:tech/Widgets/mycourses/completed_courses.dart';
@@ -13,7 +12,7 @@ class MyCoursesPage extends StatelessWidget {
     // final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Courses",),
+        title: const Text("My Courses", style: TextStyle(fontSize: 18)),
         surfaceTintColor: Colors.transparent,
         // actions: [
         //   IconButton(
@@ -29,16 +28,24 @@ class MyCoursesPage extends StatelessWidget {
       body: DefaultTabController(
         length: 2,
         child: Column(
+          spacing: 15,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: ButtonsTabBar(
-                unselectedBackgroundColor: Colors.transparent,
-                unselectedLabelStyle: const TextStyle(color: Colors.blue),
-                labelStyle: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                backgroundColor: Colors.yellow,
-                contentPadding: const EdgeInsets.all(10),
+              child: TabBar(
+                unselectedLabelStyle:const TextStyle(color: Colors.blue),
+                  labelStyle: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold
+                  ),
+                  dividerColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    color: Colors.yellow,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.yellow)
+                  ),
                 tabs: const [
                   Tab(
                     child: Text(
@@ -67,30 +74,5 @@ class MyCoursesPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  MySliverPersistentHeaderDelegate(this._tabBar);
-
-  final ButtonsTabBar _tabBar;
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10,),
-      color: Colors.white,
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(MySliverPersistentHeaderDelegate oldDelegate) {
-    return false;
   }
 }

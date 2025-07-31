@@ -1,10 +1,13 @@
 import 'dart:math';
 import 'dart:developer' as dev;
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/Models/quiz_model.dart';
+import 'package:tech/controllers/home_controller.dart';
+import 'package:tech/controllers/profile_controller.dart';
 import 'package:tech/service/api_service.dart';
 
 class CourseController extends GetxController{
@@ -15,6 +18,7 @@ class CourseController extends GetxController{
   bool descTextShowFlag = true;
   Map<String, bool> isEnrolling = <String, bool>{};
   Map<int, bool> loadingQuiz = {};
+  final ScrollController scrollController = ScrollController();
   List<CourseList> courses = [];
   var quizSubmitted = <String, RxBool>{}.obs;
 
@@ -44,11 +48,13 @@ class CourseController extends GetxController{
   }
 
   Future<void> enrollCourse(String courseId) async {
+    isEnrolling[courseId] = true;
     try {
-      isEnrolling[courseId] = true;
       update(['enroll_$courseId']);
       await Future.delayed(const Duration(seconds: 2));
-      await _apiService.enrollCourse(courseId);
+      await _apiService.enrollCourse(courseId).then((value) {
+        Get.find<ProfileController>().getMyCourses();
+      },);
     } catch (e) {
       dev.log("Enroll course issue", error: e.toString(), stackTrace: StackTrace.current);
     } finally {

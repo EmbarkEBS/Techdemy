@@ -289,7 +289,7 @@ class ApiService {
           message: result["message"], 
           duration: const Duration(seconds: 1)
         ));
-        Get.toNamed(AppRoutes.mycourses);
+        // Get.toNamed(AppRoutes.mycourses);
       } else {
         Get.showSnackbar(GetSnackBar(
           snackPosition: SnackPosition.TOP, 

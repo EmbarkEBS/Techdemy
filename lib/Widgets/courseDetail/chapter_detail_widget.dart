@@ -15,6 +15,7 @@ class ChapterDetailWidget extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: ListView.builder(
+        // controller: scrollController,
         itemCount: controller.courseDetail!.chapters.length,
         itemBuilder:(BuildContext context, int index) {
           ChapterDataPart chapterlist = controller.courseDetail!.chapters[index];
@@ -51,18 +52,19 @@ class ChapterDetailWidget extends StatelessWidget {
                     .map(
                       (topics) => ListTile(
                         dense: true,
+                        leading: const Icon(Icons.menu_open_outlined, size: 16,),
                         onTap: () {},
-                        tileColor: Colors.white,
-                        contentPadding: const EdgeInsets.all(20),
-                        title: Text(
-                          topics,
-                        ),
+                        title: Text(topics),
                         subtitle: const Text("Contains topic file"),
-                        trailing: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.download,
-                            size: 16,
+                        trailing: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: Switch.adaptive(
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            value: false, 
+                            onChanged: (value) {
+                              
+                            },
                           ),
                         ),
                       ),
@@ -84,9 +86,10 @@ class ChapterDetailWidget extends StatelessWidget {
                       : submitted
                         ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 14,)
                         : null,
-                    title: Text(
-                      submitted ? 'View result' :'Quiz',
-                      style: const TextStyle(
+                    title: const Text(
+                      // submitted ? 'View result' :
+                      'Quiz',
+                      style: TextStyle(
                         fontSize: 14,
                         color: Colors.black,
                         fontWeight: FontWeight.w600
@@ -120,4 +123,5 @@ class ChapterDetailWidget extends StatelessWidget {
       )
     );
   }
+
 }

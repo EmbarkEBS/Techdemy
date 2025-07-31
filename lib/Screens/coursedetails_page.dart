@@ -1,15 +1,16 @@
-import 'package:buttons_tabbar/buttons_tabbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Widgets/courseDetail/chapter_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/course_detail_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
+import 'package:tech/controllers/home_controller.dart';
 
 
 class CourseDetailsScreen extends StatelessWidget {
   final bool? isEnrolled;
   const CourseDetailsScreen({super.key, required this.isEnrolled});
-  
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<CourseController>();
@@ -17,27 +18,46 @@ class CourseDetailsScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text("Course Details"),
+        title: Text(controller.courseDetail!.courseDetailPart.name),
         surfaceTintColor: Colors.transparent,
       ),
       body: DefaultTabController(
         length: 2,
         child: controller.courseDetail != null
-          ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Course image
-              Image(
-                width: double.infinity,
-                image: NetworkImage(controller.courseDetail!.courseDetailPart.image),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Icon(Icons.error),
-                  );
-                },
+          ? NestedScrollView(
+            controller: controller.scrollController,
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverAppBar(
+                expandedHeight: 200,
+                toolbarHeight: 200,
+                automaticallyImplyLeading: false,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: CachedNetworkImage(
+                    imageUrl: controller.courseDetail!.courseDetailPart.image,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(image: imageProvider)
+                        ),
+                      );
+                    },
+                    errorWidget: (context, url, error) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.error),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-              SingleChildScrollView(
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Column(
@@ -55,7 +75,9 @@ class CourseDetailsScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   controller.courseDetail!.courseDetailPart.name,
+                                  maxLines: 2,
                                   style: const TextStyle(
+                                    overflow: TextOverflow.ellipsis,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20
                                   ),
@@ -117,61 +139,62 @@ class CourseDetailsScreen extends StatelessWidget {
                         ]
                       ),
                       const SizedBox(height: 15,),
-                      SizedBox(
-                        height: kToolbarHeight - 16,
-                        child: TabBar(
-                          unselectedLabelStyle:const TextStyle(color: Colors.blue),
-                          labelStyle: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold
+                    ],
+                  ),
+                ),
+              ),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: MySliverPersistentHeaderDelegate(
+                  TabBar(
+                    // controller: _tabController,
+                    unselectedLabelStyle:const TextStyle(color: Colors.blue),
+                    labelStyle: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold
+                    ),
+                    dividerColor: Colors.transparent,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      color: Colors.yellow,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.yellow)
+                    ),
+                    tabs: const [
+                      Tab(
+                        child: Text(
+                          "Lessons",
+                          style: TextStyle(
+                            fontSize: 16, 
+                            color: Colors.black
                           ),
-                          dividerColor: Colors.transparent,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicator: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.yellow)
+                        ),
+                      ),
+                      Tab(
+                        child: Text(
+                          "More",
+                          style: TextStyle(
+                            fontSize: 16, 
+                            color: Colors.black
                           ),
-                          tabs: const [
-                            Tab(
-                              child: Text(
-                                "Lessons",
-                                style: TextStyle(
-                                  fontSize: 16, 
-                                  color: Colors.black
-                                ),
-                              ),
-                            ),
-                            Tab(
-                              child: Text(
-                                "More",
-                                style: TextStyle(
-                                  fontSize: 16, 
-                                  color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 10,),
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: TabBarView(
-                    children: [
-                      ChapterDetailWidget(isEnrolled: isEnrolled ?? false,),
-                      const CourseDetailWidget(),
-                    ],
-                  ),
-                ),
-              ),
+                         
             ],
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: TabBarView(
+                // controller: _tabController,
+                children: [
+                  ChapterDetailWidget(isEnrolled: isEnrolled ?? false,),
+                  const CourseDetailWidget(),
+                ],
+              ),
+            ),
           )
           : const Center(
               child: CircularProgressIndicator(),
@@ -180,32 +203,54 @@ class CourseDetailsScreen extends StatelessWidget {
         persistentFooterButtons: isEnrolled ?? false 
         ? null 
         : [ 
-          FilledButton(
-            onPressed: () async {
-              await controller.enrollCourse(controller.courseDetail!.courseDetailPart.courseId.toString());
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.black87,
-              minimumSize: const Size(double.infinity, 40)
-            ),
-            child: const Text(
-              'Start now',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.yellow,
-                fontWeight: FontWeight.bold
-              )
-            ),
+          GetBuilder<CourseController>(
+            id: "enroll_${controller.courseDetail!.courseDetailPart.courseId.toString()}",
+            builder: (btnctr) {
+              return FilledButton(
+                onPressed: () async {
+                  String courseId = btnctr.courseDetail!.courseDetailPart.courseId.toString();
+                  if(btnctr.isEnrolling[courseId] == null){
+                    await btnctr.enrollCourse(btnctr.courseDetail!.courseDetailPart.courseId.toString()).then((value) {
+                      Navigator.pop(context);
+                      Get.find<HomeController>().changeIndex(1);
+                    },);
+                  }
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.black87,
+                  minimumSize: const Size(double.infinity, 40)
+                ),
+                child: btnctr.isEnrolling[btnctr.courseDetail!.courseDetailPart.courseId.toString()] != null && !btnctr.isEnrolling[btnctr.courseDetail!.courseDetailPart.courseId.toString()]! 
+                ? const Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.black,
+                    ),
+                  ),
+                )
+                : const Text(
+                  'Start now',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.yellow,
+                    fontWeight: FontWeight.bold
+                  )
+                ),
+              );
+            }
           ),
         ],
     );
+  
   }
 }
 
 class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   MySliverPersistentHeaderDelegate(this._tabBar);
 
-  final ButtonsTabBar _tabBar;
+  final TabBar _tabBar;
 
   @override
   double get minExtent => _tabBar.preferredSize.height;

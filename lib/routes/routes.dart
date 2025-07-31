@@ -9,6 +9,7 @@ import 'package:tech/Screens/otpverification_page.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/Screens/signup_page.dart';
 import 'package:tech/Widgets/bottom_widget.dart';
+import 'package:tech/Widgets/edit_profile_widget.dart';
 import 'package:tech/bindings/bindings.dart';
 
 class AppRoutes {
@@ -22,6 +23,7 @@ class AppRoutes {
   static const quiz = "/quiz";
   static const profile = "/profile";
   static const bottom = "/bottom";
+  static const editProfile = "/editProfile";
 }
 
 class AppScreens {
@@ -73,6 +75,11 @@ class AppScreens {
     GetPage(
       name: AppRoutes.profile, 
       page: () => const MyProfilePage(),
+      binding: ProfileBinding()
+    ),
+    GetPage(
+      name: AppRoutes.editProfile, 
+      page: () => const EditProfileWidget(),
       binding: ProfileBinding()
     ),
   ];
