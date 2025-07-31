@@ -29,9 +29,8 @@ class CourseCardWidget extends StatelessWidget {
           width: 180,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
             children: [
-              const SizedBox(height: 0,),
+              const SizedBox(height: 10,),
               SizedBox(
                 height: 100,
                 child: ClipRRect(
@@ -61,14 +60,16 @@ class CourseCardWidget extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 10,),
                Text(
-                "${course.name} Testing second line",
+                course.name,
                 maxLines: 2,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold
                 ),
               ),
+              const SizedBox(height: 10,),
               Text(
                 course.description,
                 maxLines: 1,
@@ -76,6 +77,7 @@ class CourseCardWidget extends StatelessWidget {
                 textAlign: TextAlign.justify,
                 style: const TextStyle(
                   fontSize: 12,
+                  color: Colors.black38,
                   fontWeight: FontWeight.w400,
                 ),
               ),

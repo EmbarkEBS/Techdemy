@@ -140,8 +140,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         SizedBox(
-          height: 240,
+          height: 225,
           child: ListView.builder(
+            shrinkWrap: true,
             scrollDirection: Axis.horizontal,
             itemCount: courses.length,
             itemBuilder: (context, index) {

@@ -15,6 +15,7 @@ class BottomWidget extends StatelessWidget {
           bottomNavigationBar: GetBuilder<ProfileController>(
             builder: (profileController) {
               return NavigationBar(
+                indicatorColor: Colors.yellow.shade100,
                 height: kToolbarHeight - 6,
                 onDestinationSelected: (value) async {
                   controller.changeIndex(value);
