@@ -40,7 +40,6 @@ class CompletedCourses extends StatelessWidget {
   }
 
   Widget _loadCompletedCourses(List<MyCoursesList> courses) {
-    final controller = Get.find<ProfileController>();
     
     bool haveCompletedCourses = courses.any((course) => course.courseStatus == "Completed");
     return !haveCompletedCourses

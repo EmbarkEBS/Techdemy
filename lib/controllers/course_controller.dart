@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/Models/quiz_model.dart';
-import 'package:tech/controllers/home_controller.dart';
 import 'package:tech/controllers/profile_controller.dart';
 import 'package:tech/service/api_service.dart';
 
