@@ -9,6 +9,7 @@ import 'package:tech/Screens/otpverification_page.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/Screens/signup_page.dart';
 import 'package:tech/Widgets/bottom_widget.dart';
+import 'package:tech/Widgets/courseDetail/about_course_widget.dart';
 import 'package:tech/Widgets/edit_profile_widget.dart';
 import 'package:tech/bindings/bindings.dart';
 
@@ -24,6 +25,7 @@ class AppRoutes {
   static const profile = "/profile";
   static const bottom = "/bottom";
   static const editProfile = "/editProfile";
+  static const aboutCourse = "/aboutCourse";
 }
 
 class AppScreens {
@@ -69,8 +71,9 @@ class AppScreens {
     ),
     GetPage(
       name: AppRoutes.courseDetail, 
-      page: () => const CourseDetailsScreen(isEnrolled: null,),
-      binding: CourseBinding()
+      page: () => const CourseDetailsScreen(),
+      binding: CourseBinding(),
+      // arguments: {"isEnrolled": false, "title": "Course detail"}
     ),
     GetPage(
       name: AppRoutes.profile, 
@@ -82,5 +85,9 @@ class AppScreens {
       page: () => const EditProfileWidget(),
       binding: ProfileBinding()
     ),
+    GetPage(
+      name: AppRoutes.aboutCourse, 
+      page: () => const AboutCourseWidget(),
+    )
   ];
 }

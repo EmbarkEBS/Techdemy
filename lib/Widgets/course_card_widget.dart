@@ -2,8 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/courselist_model.dart';
-import 'package:tech/Screens/coursedetails_page.dart';
 import 'package:tech/controllers/course_controller.dart';
+import 'package:tech/routes/routes.dart';
 
 class CourseCardWidget extends StatelessWidget {
   final CourseList course;
@@ -16,7 +16,8 @@ class CourseCardWidget extends StatelessWidget {
       onTap: () async {
          await controller.getCoursesDetail(course.courseId.toString()).then((value) async {
           bool status = await controller.checkEnroll(course.courseId);
-          Get.to(() => CourseDetailsScreen(isEnrolled: status));
+          await controller.getCompletedChapters(course.courseId.toString());
+          Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
         },);
       },
       child: Card(

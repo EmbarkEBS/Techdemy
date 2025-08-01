@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tech/Models/completed_chapters_model.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/controllers/course_controller.dart';
@@ -15,7 +16,7 @@ class ChapterDetailWidget extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: ListView.builder(
-        // controller: scrollController,
+        shrinkWrap: true,
         itemCount: controller.courseDetail!.chapters.length,
         itemBuilder:(BuildContext context, int index) {
           ChapterDataPart chapterlist = controller.courseDetail!.chapters[index];
@@ -26,15 +27,23 @@ class ChapterDetailWidget extends StatelessWidget {
               dense: true,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
               collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
-              // leading: const Icon(
-              //   Icons.check,
-              //   color: Colors.blue,
-              // ),
-              title: Text(
-                chapterlist.chapterName,
-                style: const TextStyle(
-                  color: Colors.black
-                ),
+              title: Row(
+                // spacing: 8.0,
+                children: [
+                  controller.completedChapters.any((element) => element.id == chapterlist.chapterId)
+                  ? const Icon(
+                      Icons.check_circle_outline, 
+                      color: Colors.green,
+                      size: 18,
+                    )
+                  : const SizedBox(),
+                  Text(
+                    "  ${chapterlist.chapterName}",
+                    style: const TextStyle(
+                      color: Colors.black
+                    ),
+                  ),
+                ],
               ),
              children: [
                 if (chapterlist.topicData.isEmpty)
@@ -56,17 +65,18 @@ class ChapterDetailWidget extends StatelessWidget {
                         onTap: () {},
                         title: Text(topics),
                         subtitle: const Text("Contains topic file"),
-                        trailing: SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: Switch.adaptive(
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            value: false, 
-                            onChanged: (value) {
+                        // TODO: If any way to mark the topic as completed from user side enable this
+                        // trailing: SizedBox(
+                        //   height: 20,
+                        //   width: 20,
+                        //   child: Switch.adaptive(
+                        //     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        //     value: false, 
+                        //     onChanged: (value) {
                               
-                            },
-                          ),
-                        ),
+                        //     },
+                        //   ),
+                        // ),
                       ),
                     ),
               isEnrolled
@@ -95,9 +105,8 @@ class ChapterDetailWidget extends StatelessWidget {
                         fontWeight: FontWeight.w600
                       ),
                     ),
-                    // TODO Add the number of quiz per chapter
-                    subtitle: const Text(
-                      "Quiz - 4 quiestions"
+                    subtitle: Text(
+                      "Quiz - ${chapterlist.quizCount} quiestions"
                     ),
                     onTap: () async {
                       if(submitted) {

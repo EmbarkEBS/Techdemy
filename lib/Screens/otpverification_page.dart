@@ -71,6 +71,14 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                     style: TextStyle(fontSize: 16.0,),
                   ),
                   const SizedBox(height: 10,),
+                   PinFieldAutoFill(
+                    codeLength: 4,
+                    decoration: UnderlineDecoration(
+                      textStyle: const TextStyle(fontSize: 20, color: Colors.black),
+                      colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
+                    ),
+                    currentCode: _code,
+                  ),
                   const SizedBox(height: 20,),
                   GetBuilder<AuthController>(
                     id: "verifyOtp",

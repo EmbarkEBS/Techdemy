@@ -2,40 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Screens/code_editor.dart';
 import 'package:tech/controllers/course_controller.dart';
+import 'package:tech/routes/routes.dart';
 
 class CourseDetailWidget extends StatelessWidget {
   const CourseDetailWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: ScrollController(),
-      child: GetBuilder<CourseController>(
-        builder: (controller) {
-          return Column(
+    return GetBuilder<CourseController>(
+      builder: (controller) {
+        int topicsCount = controller.courseDetail!.chapters.fold(0, (previousValue, element) => previousValue + element.topicCount);
+        return SingleChildScrollView(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8,),
-              // Text(
-              //   controller.courseDetail!.courseDetailPart.description.toString(),
-              //   maxLines: controller.descTextShowFlag ? 2 : 15,
-              // ),
-              // InkWell(
-              //   onTap: () {
-              //     controller.selectDesc(!controller.descTextShowFlag);
-              //   },
-              //   child: Column(
-              //     children: <Widget>[
-              //       controller.descTextShowFlag
-              //         ? const Text("Show More",style: TextStyle(color: Colors.blue),)
-              //         : const Text("Show Less",style: TextStyle(color: Colors.blue))
-              //     ],
-              //   ),
-              // ),
               _detailTile(
                 icon: Icons.menu_book_sharp, 
                 title: "Curriculam", 
-                subtitle: "${controller.courseDetail!.chapters.length.toString()} lessons . ${controller.courseDetail!.courseDetailPart.duration}"
+                subtitle: "${controller.courseDetail!.chapters.length.toString()} lessons . $topicsCount topics . ${controller.courseDetail!.courseDetailPart.duration}"
               ),
               // _detailTile(icon: Icons.timelapse, title: "Duration",),
               _detailTile(icon: Icons.translate, title: "Language", subtitle: "English"),
@@ -66,18 +50,24 @@ class CourseDetailWidget extends StatelessWidget {
                   ),
                 )
               ),
-              _detailTile(icon: Icons.more_horiz, title: "About this course"),
+              _detailTile(icon: Icons.more_horiz, title: "About this course", onTap: () => Get.toNamed(AppRoutes.aboutCourse, arguments: controller.courseDetail!.courseDetailPart.description)),
             ],
-          );
-        }
-      ),
+          ),
+        );
+      }
     );
   }
 
-  Widget _detailTile({required IconData icon, required String title, Widget? trailing, String? subtitle}) {
+  Widget _detailTile({
+    required IconData icon, 
+    required String title, 
+    Widget? trailing,
+    String? subtitle,
+    VoidCallback? onTap
+  }) {
     return ListTile(
       titleAlignment: ListTileTitleAlignment.center,
-      onTap: (){},
+      onTap: onTap ?? () {},
       minTileHeight: 20,
       contentPadding: EdgeInsets.zero,
       // dense: true,

@@ -56,6 +56,9 @@ class ChapterDataPart {
   final int chapterId;
   final String chapterName;
   final String topicData;
+  final int quizLimit;
+  final int quizCount;
+  final int topicCount;
   final int timer;
 
   ChapterDataPart({
@@ -63,13 +66,19 @@ class ChapterDataPart {
     required this.chapterName,
     required this.topicData,
     required this.timer,
+    required this.quizLimit,
+    required this.quizCount,
+    required this.topicCount,
   });
   factory ChapterDataPart.fromJson(Map<String, dynamic> json) {
     return ChapterDataPart(
       chapterId: json['chapter_id'] ?? 0,
       chapterName: json['chapter_name'] ?? "",
       topicData: json['topic_data'] ?? "",
-      timer: int.tryParse(json["quiz_time"]) ?? 10
+      timer: int.tryParse(json["quiz_time"]) ?? 10,
+      quizLimit: int.tryParse(json["quiz_limit"] ?? "3") ?? 3,
+      quizCount: json["no_of_quiz"] ?? 0,
+      topicCount: json["no_of_topics"] ?? 0,
     );
   }
 }

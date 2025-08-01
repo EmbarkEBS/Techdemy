@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tech/Helpers/encrypter.dart';
+import 'package:tech/Models/completed_chapters_model.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:http/http.dart' as http;
@@ -251,12 +252,11 @@ class ApiService {
       Uri.parse(url),
       body: {"data" : encryptedData},
     );
-    log("Course detail Response log: ${response.body}");
     if (response.statusCode == 200) {
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       //Map<String,dynamic> result=json.decode(decryption(response.body.toString().trim()).split("}")[0]+"}") as Map<String,dynamic>;
       Map<String, dynamic> result = json.decode(decryptedData);
-      debugPrint("Course detail: $result");
+      log("Course detail response log: $result");
       return CourseDetail.fromJson(result);
     }
     return null;
@@ -313,6 +313,38 @@ class ApiService {
       return status == "true";
     }
     return false;
+  }
+
+  // Completed chapterlist for courses
+  Future<List<CompletedChaptersModel>> completedChaptersList(String courseId) async {
+    const url = 'https://techdemy.in/connect/api/completedchapterlist';
+    String userId = await _storage.read(key: "userId") ?? "";
+    final Map<String, String> data = {
+      "user_id": userId,
+      "course_id": courseId
+    };
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
+    final response = await http.post(
+      Uri.parse(url),
+      body: {"data": encryptedData},
+    );
+    String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
+    Map<String, dynamic> jsonData = json.decode(decrptedData);
+    
+    log('Completed chapters log : $jsonData');
+    try {
+      if (response.statusCode == 200 && jsonData["status"] == null) {
+        final jsonArray = jsonData['results'] as List<dynamic>;
+        List<CompletedChaptersModel> completedChapters = jsonArray.map((e) => CompletedChaptersModel.fromJson(e),).toList();
+        return completedChapters;
+      } else {
+        return [];
+      }
+    } on Exception catch (e) {
+      log("My courses exception", error: e.toString(), stackTrace: StackTrace.current);
+    }
+    return [];
   }
 
   // Get user Profile

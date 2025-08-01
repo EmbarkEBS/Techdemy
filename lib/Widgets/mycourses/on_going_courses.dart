@@ -57,87 +57,90 @@ class OnGoingCourses extends StatelessWidget {
       itemBuilder:(BuildContext context, int index) {
         MyCoursesList courselist = courses[index];
         if (courselist.courseStatus == "OnGoing") {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                spacing: 5,
-                children: [
-                  SizedBox(
-                    height: 70,
-                    width: 70,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: courselist.image,
-                        fit: BoxFit.cover,
-                        imageBuilder: (context, imageProvider) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover
-                              )
-                            ),
-                          );
-                        },
-                        errorWidget: (context, url, error) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200
-                            ),
-                            child: const Center(
-                              child: Icon(Icons.error),
-                            ),
-                          );
-                        }
-                      ),
-                    )
-                  ),
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width * 0.7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 5,
-                      children: [
-                        Text(
-                          courselist.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            overflow: TextOverflow.ellipsis,
-                            fontWeight: FontWeight.bold
-                          ),
+          return InkWell(
+            // onTap: () {},
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  spacing: 5,
+                  children: [
+                    SizedBox(
+                      height: 70,
+                      width: 70,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: courselist.image,
+                          fit: BoxFit.cover,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover
+                                )
+                              ),
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.error),
+                              ),
+                            );
+                          }
                         ),
-                        Text(
-                          courselist.description,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black26,
-                            overflow: TextOverflow.ellipsis
-                          ),
-                        ),
-                        LinearProgressIndicator(
-                          value: courselist.percentage.isEmpty 
-                            ? 0.0
-                            : double.parse(courselist.percentage) / 100,
-                          backgroundColor: Colors.grey,
-                          valueColor: const AlwaysStoppedAnimation(Colors.blue),
-                        )
-                      ],
+                      )
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10,),
-              Padding(
-                padding: EdgeInsets.only(left: MediaQuery.sizeOf(context).width * 0.225),
-                child: Text(
-                  "${courselist.percentage}% completed"
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width * 0.7,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 5,
+                        children: [
+                          Text(
+                            courselist.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                          Text(
+                            courselist.description,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.black26,
+                              overflow: TextOverflow.ellipsis
+                            ),
+                          ),
+                          LinearProgressIndicator(
+                            value: courselist.percentage.isEmpty 
+                              ? 0.0
+                              : double.parse(courselist.percentage) / 100,
+                            backgroundColor: Colors.grey,
+                            valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10,),
+                Padding(
+                  padding: EdgeInsets.only(left: MediaQuery.sizeOf(context).width * 0.225),
+                  child: Text(
+                    "${courselist.percentage}% completed"
+                  ),
+                ),
+              ],
+            ),
           );
         }
         return const SizedBox();

@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tech/Models/completed_chapters_model.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/Models/quiz_model.dart';
@@ -19,6 +20,7 @@ class CourseController extends GetxController{
   Map<int, bool> loadingQuiz = {};
   final ScrollController scrollController = ScrollController();
   List<CourseList> courses = [];
+  List<CompletedChaptersModel> completedChapters = [];
   var quizSubmitted = <String, RxBool>{}.obs;
 
   List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
@@ -35,6 +37,12 @@ class CourseController extends GetxController{
     return status;
   }
 
+  // Get completed course list
+  Future<void> getCompletedChapters(String courseId) async {
+    completedChapters = await _apiService.completedChaptersList(courseId);
+    update();
+  }
+
   Future<List<CourseList>> getCoursesList() async {
    courses = await _apiService.getCoursesList();
    update();
@@ -46,22 +54,25 @@ class CourseController extends GetxController{
     update();
   }
 
+  // Enroll course
   Future<void> enrollCourse(String courseId) async {
-    isEnrolling[courseId] = true;
     try {
-      update(['enroll_$courseId']);
       await Future.delayed(const Duration(seconds: 2));
       await _apiService.enrollCourse(courseId).then((value) {
         Get.find<ProfileController>().getMyCourses();
       },);
     } catch (e) {
       dev.log("Enroll course issue", error: e.toString(), stackTrace: StackTrace.current);
-    } finally {
-      isEnrolling[courseId] = false;
-      update(['enroll_$courseId']);
-    }
+    } 
   }
 
+  // load the button for enrolling course
+  void loadEnroll(String courseId, bool value) async {
+    isEnrolling[courseId] = value;
+    update(["enrollBtn"]);
+  }
+
+  // Download certificate file
   Future<void> downloadFile(String url, String fileName) async {
     await _apiService.downloadFile(url, fileName);
   }

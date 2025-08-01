@@ -9,20 +9,10 @@ class MyCoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Courses", style: TextStyle(fontSize: 18)),
         surfaceTintColor: Colors.transparent,
-        // actions: [
-        //   IconButton(
-        //     onPressed: () async => await controller.getMyCourses(),
-        //     icon: const Icon(
-        //       Icons.refresh,
-        //       size: 30,
-        //     )
-        //   ),
-        // ],
       ),
       // drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
       body: DefaultTabController(
