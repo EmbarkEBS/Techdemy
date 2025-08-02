@@ -455,7 +455,7 @@ class ApiService {
         Get.showSnackbar(GetSnackBar(
           message: "File already exists", 
           duration: const Duration(seconds: 3),
-          snackPosition: SnackPosition.TOP, 
+          snackPosition: SnackPosition.BOTTOM, 
           mainButton:  SnackBarAction(
             label: 'Open',
             onPressed: () {
@@ -482,7 +482,7 @@ class ApiService {
         GetSnackBar(
           message: 'File downloaded and saved to: ${file.path}',
           duration: const Duration(seconds: 1),
-          snackPosition: SnackPosition.TOP, 
+          snackPosition: SnackPosition.BOTTOM, 
           mainButton: SnackBarAction(
             label: 'Open',
             onPressed: () {

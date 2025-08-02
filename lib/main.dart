@@ -1,19 +1,19 @@
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:tech/bindings/bindings.dart';
-import 'package:tech/firebase_options.dart';
+// import 'package:tech/firebase_options.dart';
 import 'package:tech/routes/routes.dart';
 import 'package:tech/service/api_service.dart';
-import 'package:tech/service/firebase_service.dart';
+// import 'package:tech/service/firebase_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final apiService = ApiService();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await firebaseMessageInit();
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await firebaseMessageInit();
   await apiService.logActivity();
   WebViewPlatform.instance;
   HttpOverrides.global = MyHttpOverrides();
@@ -21,10 +21,10 @@ Future<void> main() async {
   runApp(MyApp(isLoggedIn: isLoggedIn,));
 }
 
-Future<void> firebaseMessageInit() async {
-  final FirebaseService firebaseService = FirebaseService();
-  await firebaseService.getFCMToken();
-}
+// Future<void> firebaseMessageInit() async {
+//   final FirebaseService firebaseService = FirebaseService();
+//   await firebaseService.getFCMToken();
+// }
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;

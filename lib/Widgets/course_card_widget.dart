@@ -83,7 +83,7 @@ class CourseCardWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                "₹${course.price}",
+                course.price != "Free" ? "₹${course.price}" : course.price,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -92,6 +92,86 @@ class CourseCardWidget extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+class CourseTileWidget extends StatelessWidget {
+  final CourseList course;
+  const CourseTileWidget({super.key, required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<CourseController>();
+    return ListTile(
+      onTap: () async {
+         await controller.getCoursesDetail(course.courseId.toString()).then((value) async {
+          bool status = await controller.checkEnroll(course.courseId);
+          await controller.getCompletedChapters(course.courseId.toString());
+          Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
+        },);
+      },
+      leading: SizedBox(
+        height: 70,
+        width: 70,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: CachedNetworkImage(
+            imageUrl: course.image,
+            fit: BoxFit.cover,
+            imageBuilder: (context, imageProvider) {
+              return Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover
+                  )
+                ),
+              );
+            },
+            errorWidget: (context, url, error) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200
+                ),
+                child: const Center(
+                  child: Icon(Icons.error),
+                ),
+              );
+            }
+          ),
+        ),
+      ),
+      title: Text(
+        course.name,
+        style: const TextStyle(
+          fontSize: 16,
+          overflow: TextOverflow.ellipsis,
+          fontWeight: FontWeight.bold
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            course.description,
+            maxLines: 2,
+            style: const TextStyle(
+              fontSize: 12,
+              overflow: TextOverflow.ellipsis,
+              color: Colors.black26
+            ),
+          ),
+          Text(
+            course.price != "Free" ? "₹${course.price}" : course.price,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

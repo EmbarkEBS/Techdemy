@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final searchController = SearchController();
+  final FocusNode _foucsNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<CourseController>();
@@ -35,15 +36,15 @@ class _HomePageState extends State<HomePage> {
           child: controller.courses.isNotEmpty
           ? GetBuilder<CourseController>(
               builder: (ctr) {
-                return _homeScreenLayout(ctr.courses);
+                return _homeScreenLayout(ctr.courses, context);
               }
             )
           : FutureBuilder<List<CourseList>>(
             future: controller.getCoursesList(),
-            builder: (context, snapshot) {
+            builder: (ctx, snapshot) {
               if (snapshot.hasData) {
                 List<CourseList> courses = snapshot.data!;
-                return _homeScreenLayout(courses);
+                return _homeScreenLayout(courses, context);
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
               }
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _homeScreenLayout(List<CourseList> courses) {
+  Widget _homeScreenLayout(List<CourseList> courses, BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -67,8 +68,15 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(8.0)
             ),
             searchController: searchController,
+            viewOnClose: () {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _foucsNode.unfocus();
+                FocusScope.of(context).unfocus();
+              });
+            },
             builder: (context, controller) {
               return SearchBar(
+                focusNode: _foucsNode,
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))),
                 elevation: const  WidgetStatePropertyAll(0),
                 controller: controller,
@@ -76,9 +84,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   // Opens the suggestions view
                   searchController.openView();
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    FocusScope.of(context).unfocus();
-                  });
+                  
                 },
                 onTapOutside: (event) {
                   // Remove focus on cancel/clear
@@ -105,16 +111,7 @@ class _HomePageState extends State<HomePage> {
               final results = courses.where((course) =>
                 course.name.toLowerCase().contains(query)).toList();
               return results.map((result) {
-                return ListTile(
-                  title: Text(result.name),
-                  onTap: () {
-                    setState(() {
-                      // selectedCity = result;
-                    });
-                    // Close the suggestions view
-                    searchController.closeView(result.name);
-                  },
-                );
+                return CourseTileWidget(course: result);
               }).toList();
             },
           ),

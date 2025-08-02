@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tech/Models/completed_chapters_model.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
 import 'package:tech/controllers/course_controller.dart';
