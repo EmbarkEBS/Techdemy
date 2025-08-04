@@ -173,7 +173,7 @@ class EditProfileWidget extends StatelessWidget {
                             // },
                           ),
                           const SizedBox(height: 10,),
-                            TextFormField(
+                          TextFormField(
                             textInputAction: TextInputAction.next,
                             enabled: controller.isEnabled,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -193,7 +193,7 @@ class EditProfileWidget extends StatelessWidget {
                             value: controller.studentyear,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                              prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black26,),
                               border: InputBorder.none,
                               focusedBorder: const OutlineInputBorder(),
                               errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
@@ -225,9 +225,9 @@ class EditProfileWidget extends StatelessWidget {
                     // user if experience candidate
                       DropdownButtonFormField(
                         autovalidateMode: AutovalidateMode.onUserInteraction,
-                        hint: Text(controller.experiencelevel),
+                        hint: Text(controller.experiencelevel, style: const TextStyle(color: Colors.black26),),
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
+                          prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black26,),
                           border: InputBorder.none,
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
@@ -255,11 +255,13 @@ class EditProfileWidget extends StatelessWidget {
                           : null
                       ),
                     const SizedBox(height: 10,),
+                    // Edit and cancel button
                     GetBuilder<ProfileController>(
                       builder: (ctr2) {
                         return Column(
                           spacing: 10,
                           children: [
+                            // Edit now button
                             FilledButton(
                               style: FilledButton.styleFrom(
                                 backgroundColor: Colors.black87,
@@ -296,6 +298,7 @@ class EditProfileWidget extends StatelessWidget {
                                 style: const TextStyle(color: Colors.yellow),
                               ),
                             ),
+                            // Cancel button
                             controller.isEnabled 
                               ? FilledButton(
                                 style: FilledButton.styleFrom(

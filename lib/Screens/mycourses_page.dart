@@ -15,28 +15,24 @@ class MyCoursesPage extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
       ),
       // drawer: const DrawerWidget(isMyCourse: true, profileCaller: "Courses screen",),
-      body: DefaultTabController(
+      body: const DefaultTabController(
         length: 2,
         child: Column(
           spacing: 15,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: TabBar(
-                unselectedLabelStyle:const TextStyle(color: Colors.blue),
-                  labelStyle: const TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold
-                  ),
-                  dividerColor: Colors.transparent,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: BoxDecoration(
-                    color: Colors.yellow,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.yellow)
-                  ),
-                tabs: const [
+                unselectedLabelStyle:TextStyle(color: Colors.blue),
+                labelStyle: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold
+                ),
+                dividerColor: Colors.transparent,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorColor: Colors.yellow,
+                tabs: [
                   Tab(
                     child: Text(
                       "OnGoing",
@@ -52,7 +48,7 @@ class MyCoursesPage extends StatelessWidget {
                 ],
               ),
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 children: <Widget>[
                   OnGoingCourses(),

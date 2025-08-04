@@ -106,12 +106,12 @@ class ApiService {
   }
 
   // Verify the OTP in local
-  Future<void> checkOtp(String otp) async {
+  Future<void> checkOtp(String otp, String mobile) async {
     String correct = await _storage.read(key: "otp") ?? "";
-    String verified = await _storage.read(key: "${await getDeviceId()}_${_storage.read(key: "userId")}") ?? "";
+    String verified = await _storage.read(key: "${mobile}_${_storage.read(key: "userId")}") ?? "";
     if(correct.isNotEmpty && correct == otp) {
       if(verified != "true") {
-        await verifyUser();
+        await verifyUser(mobile);
       }
     }
   }
@@ -158,13 +158,14 @@ class ApiService {
   }
 
   // Otp verfication
-  Future<void> verifyUser() async {
+  Future<void> verifyUser(String mobile) async {
     var userId = await _storage.containsKey(key: "userId") ? await _storage.read(key: "userId") : 0;
     var url = 'https://techdemy.in/connect/api/verifyuser';
     String deviceId = await getDeviceId() ?? "";
     final Map<String, String> data = {
       "device_id": deviceId,
-      "user_id": userId.toString()
+      "user_id": userId.toString(),
+      "mobile_no": mobile,
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
@@ -177,12 +178,12 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Verify user response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        await _storage.write(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}", value: true.toString());
+        await _storage.write(key: "${mobile}_${await _storage.read(key: "userId")}", value: true.toString());
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
           Get.offNamed(AppRoutes.bottom);
         },);
       } else {
-          Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
+        Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "OTP Expired click resend OTP", duration: Duration(seconds: 1)));
       } 
     } on TimeoutException catch (_) {
       Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));

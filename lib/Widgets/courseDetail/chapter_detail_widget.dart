@@ -15,117 +15,113 @@ class ChapterDetailWidget extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: ListView.builder(
-        shrinkWrap: true,
         itemCount: controller.courseDetail!.chapters.length,
         itemBuilder:(BuildContext context, int index) {
           ChapterDataPart chapterlist = controller.courseDetail!.chapters[index];
-          return Card(
-            shape: RoundedRectangleBorder(borderRadius:BorderRadius.circular(10.0)),
-            color: Colors.yellow.shade100,
-            child: ExpansionTile(
-              dense: true,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
-              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
-              title: Row(
-                // spacing: 8.0,
-                children: [
-                  controller.completedChapters.any((element) => element.id == chapterlist.chapterId)
-                  ? const Icon(
-                      Icons.check_circle_outline, 
-                      color: Colors.green,
-                      size: 18,
-                    )
-                  : const SizedBox(),
-                  Text(
-                    "  ${chapterlist.chapterName}",
-                    style: const TextStyle(
-                      color: Colors.black
+          return ExpansionTile(
+            dense: true,
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: BorderSide.none),
+            collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: BorderSide.none),
+            // leading: SizedBox(
+            //   width: 15,
+            //   child: Text("${index + 1}")),
+            title: Row(
+              // spacing: 8.0,
+              children: [
+                controller.completedChapters.any((element) => element.id == chapterlist.chapterId)
+                ? const Icon(
+                    Icons.check_circle_outline, 
+                    color: Colors.green,
+                    size: 18,
+                  )
+                : const SizedBox(),
+                Text(
+                  "${index + 1}    ${chapterlist.chapterName}",
+                  style: const TextStyle(
+                    color: Colors.black
+                  ),
+                ),
+              ],
+            ),
+           children: [
+              if (chapterlist.topicData.isEmpty)
+                const Center(
+                  child: Text(
+                    'No topics found for this chapter',
+                  ),
+                )
+              else
+                ...chapterlist.topicData
+                  .toString()
+                  .trim()
+                  .split("-")
+                  .map(
+                    (topics) => ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.menu_open_outlined, size: 16,),
+                      onTap: () {},
+                      title: Text(topics),
+                      subtitle: const Text("Contains topic file"),
+                      // trailing: SizedBox(
+                      //   height: 20,
+                      //   width: 20,
+                      //   child: Switch.adaptive(
+                      //     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      //     value: false, 
+                      //     onChanged: (value) {
+                            
+                      //     },
+                      //   ),
+                      // ),
                     ),
                   ),
-                ],
-              ),
-             children: [
-                if (chapterlist.topicData.isEmpty)
-                  const Center(
-                    child: Text(
-                      'No topics found for this chapter',
-                      style: TextStyle(color: Colors.red),
+            isEnrolled
+              ? Obx(() {
+                final submitted = controller.quizSubmitted[chapterlist.chapterId.toString()]?.value ?? false;
+                return ListTile(
+                  dense: true,
+                  leading: const Icon(CupertinoIcons.bolt, size: 14,),
+                  trailing: controller.loadingQuiz[chapterlist.chapterId] ?? false
+                    ? const Center(
+                        child: SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : submitted
+                      ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 14,)
+                      : null,
+                  title: const Text(
+                    // submitted ? 'View result' :
+                    'Quiz',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600
                     ),
-                  )
-                else
-                  ...chapterlist.topicData
-                    .toString()
-                    .trim()
-                    .split("-")
-                    .map(
-                      (topics) => ListTile(
-                        dense: true,
-                        leading: const Icon(Icons.menu_open_outlined, size: 16,),
-                        onTap: () {},
-                        title: Text(topics),
-                        subtitle: const Text("Contains topic file"),
-                        // TODO: If any way to mark the topic as completed from user side enable this
-                        // trailing: SizedBox(
-                        //   height: 20,
-                        //   width: 20,
-                        //   child: Switch.adaptive(
-                        //     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        //     value: false, 
-                        //     onChanged: (value) {
-                              
-                        //     },
-                        //   ),
-                        // ),
-                      ),
-                    ),
-              isEnrolled
-                ? Obx(() {
-                  final submitted = controller.quizSubmitted[chapterlist.chapterId.toString()]?.value ?? false;
-                  return ListTile(
-                    dense: true,
-                    leading: const Icon(CupertinoIcons.bolt, size: 14,),
-                    trailing: controller.loadingQuiz[chapterlist.chapterId] ?? false
-                      ? const Center(
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : submitted
-                        ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 14,)
-                        : null,
-                    title: const Text(
-                      // submitted ? 'View result' :
-                      'Quiz',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600
-                      ),
-                    ),
-                    subtitle: Text(
-                      "Quiz - ${chapterlist.quizCount} quiestions"
-                    ),
-                    onTap: () async {
-                      if(submitted) {
-                        await controller.quizResult(chapterlist.chapterId);
-                      } else {
-                        await controller.quizList(chapterlist.chapterId).then((value) {
-                          Get.to(() => QuizScreen(
-                            chapterId: chapterlist.chapterId, 
-                            questions: value, 
-                            timer: chapterlist.timer, 
-                            courseId: controller.courseDetail!.courseDetailPart.courseId,
-                          ));
-                        },);
-                      }
-                    },
-                  );
-                },)
-                : const SizedBox(),
-              ],
-            )
+                  ),
+                  subtitle: Text(
+                    "Quiz - ${chapterlist.quizCount} quiestions"
+                  ),
+                  onTap: () async {
+                    if(submitted) {
+                      await controller.quizResult(chapterlist.chapterId);
+                    } else {
+                      await controller.quizList(chapterlist.chapterId).then((value) {
+                        Get.to(() => QuizScreen(
+                          chapterId: chapterlist.chapterId, 
+                          questions: value, 
+                          timer: chapterlist.timer, 
+                          courseId: controller.courseDetail!.courseDetailPart.courseId,
+                        ));
+                      },);
+                    }
+                  },
+                );
+              },)
+              : const SizedBox(),
+            ],
           );
         },
       )

@@ -33,7 +33,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
       _code = code!;
     });
     final controller = Get.find<AuthController>();
-    await controller.checkOtp(_code);
+    await controller.checkOtp(_code, widget.mobileNumber!);
   }
 
   @override
@@ -94,7 +94,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           minimumSize: const Size(double.infinity, 50)
                         ),
                         onPressed: () async {
-                          await controller.checkOtp(_otpController.text);
+                          await controller.checkOtp(_otpController.text, widget.mobileNumber!);
                         },
                         child: ctr.isVerifying
                         ? const SizedBox(

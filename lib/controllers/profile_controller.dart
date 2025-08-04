@@ -19,6 +19,7 @@ class ProfileController extends GetxController{
   final TextEditingController departmentcontroller = TextEditingController();
   bool isEditing = false;
   List<MyCoursesList> mycourses = [];
+  bool emptyCourses = false;
   
   String gender = 'Gender';
   var items1 = [
@@ -140,7 +141,14 @@ class ProfileController extends GetxController{
   
   Future<List<MyCoursesList>> getMyCourses() async {
     mycourses = await _apiService.getMyCourses();
-    update();
-    return mycourses;
+    if (mycourses.isEmpty) {
+      emptyCourses = true;
+      update();
+      return [];
+    } else {
+      emptyCourses = false;
+      update();
+      return mycourses;
+    }
   }
 }

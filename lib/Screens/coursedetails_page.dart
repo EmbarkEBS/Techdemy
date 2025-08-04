@@ -59,17 +59,6 @@ class CourseDetailsScreen extends StatelessWidget {
                     child: NestedScrollView(
                       controller: controller.scrollController,
                       headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                        // SliverAppBar(
-                        //   // expandedHeight: 200,
-                        //   toolbarHeight: 200,
-                        //   backgroundColor: Colors.white,
-                        //   automaticallyImplyLeading: false,
-                        //   pinned: true,
-                        //   surfaceTintColor: Colors.white,
-                        //   flexibleSpace: FlexibleSpaceBar(
-                        //     background:
-                        //   ),
-                        // ),
                         SliverToBoxAdapter(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,21 +134,17 @@ class CourseDetailsScreen extends StatelessWidget {
                         SliverPersistentHeader(
                           pinned: true,
                           delegate: MySliverPersistentHeaderDelegate(
-                            TabBar(
-                              // controller: _tabController,
-                              unselectedLabelStyle:const TextStyle(color: Colors.blue),
-                              labelStyle: const TextStyle(
+                            const TabBar(
+                              isScrollable: true,
+                              indicatorSize: TabBarIndicatorSize.label,
+                              tabAlignment: TabAlignment.start,
+                              unselectedLabelStyle:TextStyle(color: Colors.blue),
+                              labelStyle: TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.bold
                               ),
-                              dividerColor: Colors.transparent,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              indicator: BoxDecoration(
-                                color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.yellow)
-                              ),
-                              tabs: const [
+                              indicatorColor: Colors.yellow,
+                              tabs: [
                                 Tab(
                                   child: Text(
                                     "Lessons",
@@ -266,7 +251,7 @@ class MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      //color: Colors.red,
+      height: kToolbarHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10,),
       color: Colors.white,
       child: _tabBar,

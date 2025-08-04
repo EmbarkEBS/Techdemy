@@ -19,20 +19,27 @@ class CompletedCourses extends StatelessWidget {
             ),
             child: controller.mycourses.isNotEmpty
             ? _loadCompletedCourses(courses: controller.mycourses)
-            : FutureBuilder<List<MyCoursesList>>(
-              future: controller.getMyCourses(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<MyCoursesList> courses = snapshot.data!;
-                  return _loadCompletedCourses(courses: courses,);
-                }  else if (snapshot.hasError) {
-                  return Text('${snapshot.error}');
+            : controller.emptyCourses
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(child: Text("No course completed yet")),
+                  ],
+                )
+              : FutureBuilder<List<MyCoursesList>>(
+                future: controller.getMyCourses(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<MyCoursesList> courses = snapshot.data!;
+                    return _loadCompletedCourses(courses: courses,);
+                  }  else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            ),
+              ),
           ),
         );
       }

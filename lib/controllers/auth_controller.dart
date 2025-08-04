@@ -98,28 +98,10 @@ class AuthController extends GetxController {
     }
   }
   
-  // OtP verify
-  Future<void> verifyUser() async {
-    // try {
-      // isVerifying = true;
-      // update(["verifying"]);
-      await _apiService.verifyUser();
-    // } catch (e) {
-    //   log("Something wrong in OTP", error: e.toString(), stackTrace: StackTrace.current);
-    // } finally {
-    //   isVerifying = false;
-    //   update(["verifying"]);
-    // }
-  }
-  
-  Future<void> deviceID() async {
-    await _apiService.getDeviceId() ?? "";
-  }
-
-  Future<void> checkOtp(String otp) async {
+  Future<void> checkOtp(String otp, String mobile) async {
     isVerifying = true;
     update(["verifyOtp"]);
-    await _apiService.checkOtp(otp);
+    await _apiService.checkOtp(otp, mobile);
     isVerifying = false;
     update(["verifyOtp"]);
   }

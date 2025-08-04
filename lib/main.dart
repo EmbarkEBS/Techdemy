@@ -5,26 +5,16 @@ import 'package:tech/bindings/bindings.dart';
 // import 'package:tech/firebase_options.dart';
 import 'package:tech/routes/routes.dart';
 import 'package:tech/service/api_service.dart';
-// import 'package:tech/service/firebase_service.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final apiService = ApiService();
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await firebaseMessageInit();
   await apiService.logActivity();
-  WebViewPlatform.instance;
   HttpOverrides.global = MyHttpOverrides();
   bool isLoggedIn = await apiService.checkLoggedIn();
   runApp(MyApp(isLoggedIn: isLoggedIn,));
 }
-
-// Future<void> firebaseMessageInit() async {
-//   final FirebaseService firebaseService = FirebaseService();
-//   await firebaseService.getFCMToken();
-// }
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;

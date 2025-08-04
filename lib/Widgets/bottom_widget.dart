@@ -15,7 +15,8 @@ class BottomWidget extends StatelessWidget {
           bottomNavigationBar: GetBuilder<ProfileController>(
             builder: (profileController) {
               return NavigationBar(
-                indicatorColor: Colors.yellow.shade100,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                indicatorColor: Colors.transparent,
                 height: kToolbarHeight - 6,
                 onDestinationSelected: (value) async {
                   controller.changeIndex(value);
@@ -27,17 +28,17 @@ class BottomWidget extends StatelessWidget {
                 },
                 selectedIndex: controller.currentIndex,
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-                destinations: const [
+                destinations: [
                   NavigationDestination(
-                    icon: Icon(Icons.home), 
+                    icon: Icon(controller.currentIndex == 0 ? Icons.home : Icons.home_outlined), 
                     label: ""
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.menu_book_sharp), 
+                    icon: Icon(controller.currentIndex == 1 ? Icons.play_circle : Icons.play_circle_outline), 
                     label: ""
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.account_circle_rounded), 
+                    icon: Icon(controller.currentIndex == 2 ? Icons.account_circle_rounded : Icons.account_circle_outlined), 
                     label: ""
                   ),
                 ]

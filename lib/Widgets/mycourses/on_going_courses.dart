@@ -19,28 +19,35 @@ class OnGoingCourses extends StatelessWidget {
             ),
             child: controller.mycourses.isNotEmpty
               ? _loadOnGoingCourses(controller.mycourses)
-              : FutureBuilder<List<MyCoursesList>>(
-                future: controller.getMyCourses(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<MyCoursesList> courses = snapshot.data!;
-                    bool haveCompletedCourses = courses.any((course) => course.courseStatus == "OnGoing");
-                    return !haveCompletedCourses
-                    ? const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Center(child: Text("No on-going courses found")),
-                        ],
-                      )
-                    : _loadOnGoingCourses(courses);
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
+              : controller.emptyCourses
+                ? const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(child: Text("No on-going courses found")),
+                    ],
+                  )
+                : FutureBuilder<List<MyCoursesList>>(
+                  future: controller.getMyCourses(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<MyCoursesList> courses = snapshot.data!;
+                      bool haveCompletedCourses = courses.any((course) => course.courseStatus == "OnGoing");
+                      return !haveCompletedCourses
+                      ? const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(child: Text("No on-going courses found")),
+                          ],
+                        )
+                      : _loadOnGoingCourses(courses);
+                    } else if (snapshot.hasError) {
+                      return Text('${snapshot.error}');
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              ),
+                ),
           ),
         );
       }
