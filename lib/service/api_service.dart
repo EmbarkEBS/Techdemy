@@ -57,7 +57,7 @@ class ApiService {
         await _storage.write(key: "mobileNo", value: mobile);
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
         await sendOTP(mobile);
-        Get.offNamed(AppRoutes.verification, arguments: {"mobileNumber": mobile});
+        Get.offNamed(AppRoutes.verification, arguments: mobile);
         return {"message": result["message"], "status": "success"};
       } else {
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
@@ -100,7 +100,9 @@ class ApiService {
       } else {
         await _storage.write(key: "otp", value: "");
       }
-    } catch(e) {
+    } on http.ClientException catch (_) {
+      Get.showSnackbar(const GetSnackBar(message: "Can't send otp try again later", duration: Duration(seconds: 3), snackPosition: SnackPosition.TOP,),);
+    } on Exception catch (e) {
       log("Error sending OTP:", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
@@ -138,8 +140,8 @@ class ApiService {
         await _storage.write(key: "userId", value: result["user_id"].toString());
         await _storage.write(key: "mobileNo", value: result["phone_no"]);
         await sendOTP(registerData["phone_no"]);
-        Get.offNamed(AppRoutes.verification);
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);
+        Get.offNamed(AppRoutes.verification, arguments: result["phone_no"]);
         return {"message": result["message"], "status": "success"};
       } else if (result["status"] == "email_exist") {
         Get.showSnackbar(GetSnackBar(message: result["message"], duration: const Duration(seconds: 1), snackPosition: SnackPosition.TOP,),);

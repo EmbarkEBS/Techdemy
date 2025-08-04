@@ -15,6 +15,7 @@ class AuthController extends GetxController {
   bool isLoggingIn = false;
   bool isRegistering = false;
   bool isVerifying = false;
+  bool isResending = false;
   // Register properties
   String gender = 'Gender';
   List<String> genders = ['Gender','Male','Female',];
@@ -108,7 +109,11 @@ class AuthController extends GetxController {
 
   // Resend OTP
   Future<void> resendOtp(String mobileNo) async {
+    isResending = true;
+    update(["resend"]);
     await _apiService.sendOTP(mobileNo);
+    isResending = false;
+    update(["resend"]);
   }
   
   void logout() => _apiService.logout();

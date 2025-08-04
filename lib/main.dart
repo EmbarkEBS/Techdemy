@@ -30,6 +30,11 @@ class MyApp extends StatelessWidget {
       initialBinding: InitialBindings(),
       theme: ThemeData(
         useMaterial3: true,
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: Colors.yellow,
+          circularTrackColor: Colors.black,
+          trackGap: 3.0
+        ),
         filledButtonTheme: FilledButtonThemeData(
           style: ButtonStyle(
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(

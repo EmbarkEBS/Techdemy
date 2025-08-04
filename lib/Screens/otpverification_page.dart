@@ -47,6 +47,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
     final size = MediaQuery.of(context).size;
+    final mobile = Get.arguments;
     return Scaffold(
       body: SingleChildScrollView(
         child: SafeArea(
@@ -94,7 +95,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           minimumSize: const Size(double.infinity, 50)
                         ),
                         onPressed: () async {
-                          await controller.checkOtp(_otpController.text, widget.mobileNumber!);
+                          await controller.checkOtp(_otpController.text, mobile ?? "");
                         },
                         child: ctr.isVerifying
                         ? const SizedBox(
@@ -111,13 +112,23 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                     }
                   ),
                   const SizedBox(height: 10,),
-                  TextButton(
-                    onPressed: () async {
-                      final args = Get.arguments as Map<String, String>;
-                      // await controller.verifyUser();
-                      await controller.resendOtp(args["mobileNumber"] ?? "");
-                    },
-                    child: const Text("Resend OTP",),
+                  GetBuilder<AuthController>(
+                    id: "resend",
+                    builder: (btncontroller) {
+                      return btncontroller.isResending
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(),
+                        )
+                      : TextButton(
+                        onPressed:() async {
+                          // await controller.verifyUser();
+                          await btncontroller.resendOtp(mobile ?? "");
+                        },
+                        child: const Text("Resend OTP", style: TextStyle(color: Colors.black),),
+                      );
+                    }
                   )
                 ],
               ),
