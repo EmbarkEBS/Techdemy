@@ -14,7 +14,6 @@ class OTPVerificationPage extends StatefulWidget {
 class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAutoFill{
 
   final _formkey_2 = GlobalKey<FormState>();
-  String _code = "";
   final TextEditingController _otpController = TextEditingController();
   @override
   void initState() {
@@ -30,11 +29,10 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
     // if (!mounted) return;
     setState(() {
       _otpController.text = code!;
-      _code = code!;
     });
     final controller = Get.find<AuthController>();
     final mobile = Get.arguments;
-    await controller.checkOtp(_code, mobile);
+    await controller.checkOtp(code!, mobile);
   }
 
   @override
@@ -46,7 +44,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
 
   @override
   Widget build(BuildContext context) {
-    // final controller = Get.find<AuthController>();
     final size = MediaQuery.of(context).size;
     final mobile = Get.arguments;
     return Scaffold(
@@ -56,37 +53,44 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
             padding: const EdgeInsets.all(30.0),
             child: Form(
               key: _formkey_2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(height: 20,),
-                  Image(
-                    //width: 180,
-                    //height: 230,
-                    height: size.height * 0.2,
-                    image: const AssetImage("assets/images/techdemy_logo.png",)
-                  ),
-                  const SizedBox(height: 30,),
-                  const Text(
-                    "Enter the verification code sent to your Mobile number",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16.0,),
-                  ),
-                  const SizedBox(height: 10,),
-                   PinFieldAutoFill(
-                    codeLength: 4,
-                    decoration: UnderlineDecoration(
-                      textStyle: const TextStyle(fontSize: 20, color: Colors.black),
-                      colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
-                    ),
-                    controller: _otpController,
-                    // currentCode: _code,
-                  ),
-                  const SizedBox(height: 20,),
-                  GetBuilder<AuthController>(
-                    id: "verifyOtp",
-                    builder: (ctr) {
-                      return FilledButton(
+              child: GetBuilder<AuthController>(
+                id: "verifyOtp",
+                builder: (ctr) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const SizedBox(height: 20,),
+                      Image(
+                        //width: 180,
+                        //height: 230,
+                        height: size.height * 0.2,
+                        image: const AssetImage("assets/images/techdemy_logo.png",)
+                      ),
+                      const SizedBox(height: 30,),
+                      const Text(
+                        "Enter the verification code sent to your Mobile number",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16.0,),
+                      ),
+                      const SizedBox(height: 10,),
+                       PinFieldAutoFill(
+                        codeLength: 4,
+                        decoration: UnderlineDecoration(
+                          textStyle: const TextStyle(fontSize: 20, color: Colors.black),
+                          colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
+                        ),
+                        controller: _otpController,
+                        onCodeChanged: (p0) async {
+                          setState(() {
+                            _otpController.text = code!;
+                          });
+                          final mobile = Get.arguments;
+                          await ctr.checkOtp(code!, mobile);
+                        },
+                        // currentCode: _code,
+                      ),
+                      const SizedBox(height: 20,),
+                       FilledButton(
                         style: FilledButton.styleFrom(
                           backgroundColor: Colors.black87,
                           elevation: 0,
@@ -97,7 +101,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           minimumSize: const Size(double.infinity, 50)
                         ),
                         onPressed: () async {
-                          print("🔁 Verifying state: ${ctr.isVerifying}");
                           await ctr.checkOtp(_otpController.text, mobile ?? "");
                         },
                         child: ctr.isVerifying
@@ -111,29 +114,29 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                             ),
                           )
                         : const Text('Verify OTP', style: TextStyle(color: Colors.yellow)),
-                      );
-                    }
-                  ),
-                  const SizedBox(height: 10,),
-                  GetBuilder<AuthController>(
-                    id: "resend",
-                    builder: (btncontroller) {
-                      return btncontroller.isResending
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(),
-                        )
-                      : TextButton(
-                        onPressed:() async {
-                          // await controller.verifyUser();
-                          await btncontroller.resendOtp(mobile ?? "");
-                        },
-                        child: const Text("Resend OTP", style: TextStyle(color: Colors.black),),
-                      );
-                    }
-                  )
-                ],
+                      ),
+                      const SizedBox(height: 10,),
+                      GetBuilder<AuthController>(
+                        id: "resend",
+                        builder: (btncontroller) {
+                          return btncontroller.isResending
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(),
+                            )
+                          : TextButton(
+                            onPressed:() async {
+                              // await controller.verifyUser();
+                              await btncontroller.resendOtp(mobile ?? "");
+                            },
+                            child: const Text("Resend OTP", style: TextStyle(color: Colors.black),),
+                          );
+                        }
+                      )
+                    ],
+                  );
+                }
               ),
             )
           ),
