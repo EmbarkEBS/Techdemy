@@ -13,12 +13,13 @@ class OTPVerificationPage extends StatefulWidget {
 
 class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAutoFill{
 
+  String _code = "";
   final _formkey_2 = GlobalKey<FormState>();
   final TextEditingController _otpController = TextEditingController();
   @override
   void initState() {
     super.initState();
-    listenForCode();
+    // listenForCode();
     // SmsAutoFill().getAppSignature.then((value) {
     //   debugPrint("😊 App Signature: $value");
     // });
@@ -27,12 +28,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   @override
   void codeUpdated() async {
     // if (!mounted) return;
-    setState(() {
-      _otpController.text = code!;
-    });
-    final controller = Get.find<AuthController>();
-    final mobile = Get.arguments;
-    await controller.checkOtp(code!, mobile);
+    // setState(() {
+    //   _otpController.text = code!;
+    // });
+    // final controller = Get.find<AuthController>();
+    // final mobile = Get.arguments;
+    // await controller.checkOtp(code!, mobile);
   }
 
   @override
@@ -79,14 +80,22 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           textStyle: const TextStyle(fontSize: 20, color: Colors.black),
                           colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
                         ),
+                        currentCode: _code,
                         controller: _otpController,
                         onCodeChanged: (p0) async {
-                          setState(() {
-                            _otpController.text = code!;
-                          });
-                          final mobile = Get.arguments;
-                          await ctr.checkOtp(code!, mobile);
-                        },
+                           if (code != null && code!.length == 4 && _code.isEmpty) {
+                            setState(() {
+                              _code = code!;
+                            });
+                            final controller = Get.find<AuthController>();
+                            final mobile = Get.arguments;
+                            await controller.checkOtp(_code, mobile);
+                          } else {
+                            setState(() {
+                              _code = _otpController.text;
+                            });
+                          }
+                        }, 
                         // currentCode: _code,
                       ),
                       const SizedBox(height: 20,),
