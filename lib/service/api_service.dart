@@ -119,6 +119,8 @@ class ApiService {
       if(verified != "true") {
         await verifyUser(mobile);
       }
+    } else {
+      Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message:  "Enter the correct OTP", duration: Duration(seconds: 1)));
     }
 
   }

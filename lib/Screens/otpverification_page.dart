@@ -20,14 +20,14 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   void initState() {
     super.initState();
     listenForCode();
-    SmsAutoFill().getAppSignature.then((value) {
-      debugPrint("😊 App Signature: $value");
-    });
+    // SmsAutoFill().getAppSignature.then((value) {
+    //   debugPrint("😊 App Signature: $value");
+    // });
   }
 
   @override
   void codeUpdated() async {
-    if (!mounted) return;
+    // if (!mounted) return;
     setState(() {
       _otpController.text = code!;
       _code = code!;
@@ -46,7 +46,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<AuthController>();
+    // final controller = Get.find<AuthController>();
     final size = MediaQuery.of(context).size;
     final mobile = Get.arguments;
     return Scaffold(
@@ -79,7 +79,8 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                       textStyle: const TextStyle(fontSize: 20, color: Colors.black),
                       colorBuilder: FixedColorBuilder(Colors.black.withValues(alpha: 0.3)),
                     ),
-                    currentCode: _code,
+                    controller: _otpController,
+                    // currentCode: _code,
                   ),
                   const SizedBox(height: 20,),
                   GetBuilder<AuthController>(
@@ -96,7 +97,8 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                           minimumSize: const Size(double.infinity, 50)
                         ),
                         onPressed: () async {
-                          await controller.checkOtp(_otpController.text, mobile ?? "");
+                          print("🔁 Verifying state: ${ctr.isVerifying}");
+                          await ctr.checkOtp(_otpController.text, mobile ?? "");
                         },
                         child: ctr.isVerifying
                         ? const SizedBox(
