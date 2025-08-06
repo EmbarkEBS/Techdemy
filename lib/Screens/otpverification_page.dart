@@ -33,7 +33,8 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
       _code = code!;
     });
     final controller = Get.find<AuthController>();
-    await controller.checkOtp(_code, widget.mobileNumber!);
+    final mobile = Get.arguments;
+    await controller.checkOtp(_code, mobile);
   }
 
   @override

@@ -55,7 +55,7 @@ class CourseDetailPart {
 class ChapterDataPart {
   final int chapterId;
   final String chapterName;
-  final String topicData;
+  final List<TopicDataPart> topicData;
   final int quizLimit;
   final int quizCount;
   final int topicCount;
@@ -74,11 +74,29 @@ class ChapterDataPart {
     return ChapterDataPart(
       chapterId: json['chapter_id'] ?? 0,
       chapterName: json['chapter_name'] ?? "",
-      topicData: json['topic_data'] ?? "",
+      topicData: ((json['topic_data'] ?? []) as List<dynamic>).map((json) => TopicDataPart.fromJson(json),).toList(),
       timer: int.tryParse(json["quiz_time"]) ?? 10,
       quizLimit: int.tryParse(json["quiz_limit"] ?? "3") ?? 3,
       quizCount: json["no_of_quiz"] ?? 0,
       topicCount: json["no_of_topics"] ?? 0,
+    );
+  }
+}
+
+
+class TopicDataPart{
+  final String topicTitle;
+  final String topicDescription;
+
+  TopicDataPart({
+    required this.topicTitle,
+    required this.topicDescription,
+  });
+
+  factory TopicDataPart.fromJson(Map<String, dynamic> json) {
+    return TopicDataPart(
+      topicTitle: json["topic_title"] ?? "", 
+      topicDescription: json["topic_description"] ?? ""
     );
   }
 }

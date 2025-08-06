@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Screens/quiz/quiz.dart';
+import 'package:tech/Widgets/courseDetail/topic_detail_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
 
 class ChapterDetailWidget extends StatelessWidget {
@@ -36,9 +37,10 @@ class ChapterDetailWidget extends StatelessWidget {
                   )
                 : const SizedBox(),
                 Text(
-                  "${index + 1}    ${chapterlist.chapterName}",
+                  chapterlist.chapterName,
                   style: const TextStyle(
-                    color: Colors.black
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -52,15 +54,17 @@ class ChapterDetailWidget extends StatelessWidget {
                 )
               else
                 ...chapterlist.topicData
-                  .toString()
-                  .trim()
-                  .split("-")
                   .map(
-                    (topics) => ListTile(
+                    (topic) => ListTile(
                       dense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
                       leading: const Icon(Icons.menu_open_outlined, size: 16,),
-                      onTap: () {},
-                      title: Text(topics),
+                      onTap: () => Get.to(() => TopicDetailWidget(title: topic.topicTitle, content: topic.topicDescription)),
+                      trailing: IconButton(
+                        onPressed: () {}, 
+                        icon: const Icon(Icons.arrow_forward_ios, size: 15,)
+                      ),
+                      title: Text(topic.topicTitle, style: const TextStyle(fontSize: 16,),),
                       subtitle: const Text("Contains topic file"),
                       // trailing: SizedBox(
                       //   height: 20,

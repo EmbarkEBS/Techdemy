@@ -73,8 +73,10 @@ class ApiService {
   }
 
   Future<bool> checkLoggedIn() async {
-    String value = await _storage.read(key: "${await getDeviceId()}_${await _storage.read(key: "userId")}") ?? "";
-    log("Logged in user : ${await getDeviceId()}_${await _storage.read(key: "userId")}");
+    String mobile = await _storage.read(key: "mobileNo") ?? "";
+    String userId = await _storage.read(key: "userId") ?? "";
+    String value = await _storage.read(key: "${mobile}_$userId") ?? "";
+    log("Logged in user : ${mobile}_$userId");
     if(value.isNotEmpty) {
       bool check = bool.tryParse(value) ?? false;
       log("Value of logged in user $check");
@@ -108,14 +110,17 @@ class ApiService {
   }
 
   // Verify the OTP in local
-  Future<void> checkOtp(String otp, String mobile) async {
+  Future<void> checkOtp(String otp, String phone) async {
     String correct = await _storage.read(key: "otp") ?? "";
-    String verified = await _storage.read(key: "${mobile}_${_storage.read(key: "userId")}") ?? "";
+    String userId = await _storage.read(key: "userId") ?? "";
+    String mobile = await _storage.read(key: "mobileNo") ?? phone;
+    String verified = await _storage.read(key: "${mobile}_$userId") ?? "";
     if(correct.isNotEmpty && correct == otp) {
       if(verified != "true") {
         await verifyUser(mobile);
       }
     }
+
   }
 
   Future<int> generateOTP() async {
@@ -164,6 +169,7 @@ class ApiService {
     var userId = await _storage.containsKey(key: "userId") ? await _storage.read(key: "userId") : 0;
     var url = 'https://techdemy.in/connect/api/verifyuser';
     String deviceId = await getDeviceId() ?? "";
+    String useId = await _storage.read(key: "userId") ?? '';
     final Map<String, String> data = {
       "device_id": deviceId,
       "user_id": userId.toString(),
@@ -180,7 +186,8 @@ class ApiService {
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Verify user response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
-        await _storage.write(key: "${mobile}_${await _storage.read(key: "userId")}", value: true.toString());
+        await _storage.write(key: "mobileNo", value: mobile);
+        await _storage.write(key: "${mobile}_$useId", value: true.toString());
         Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: result["message"], duration: const Duration(seconds: 1))).close().then((value) {
           Get.offNamed(AppRoutes.bottom);
         },);

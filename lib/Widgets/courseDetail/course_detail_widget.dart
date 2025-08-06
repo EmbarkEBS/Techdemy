@@ -13,6 +13,7 @@ class CourseDetailWidget extends StatelessWidget {
       builder: (controller) {
         int topicsCount = controller.courseDetail!.chapters.fold(0, (previousValue, element) => previousValue + element.topicCount);
         return SingleChildScrollView(
+          controller: ScrollController(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

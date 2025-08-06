@@ -102,9 +102,14 @@ class AuthController extends GetxController {
   Future<void> checkOtp(String otp, String mobile) async {
     isVerifying = true;
     update(["verifyOtp"]);
-    await _apiService.checkOtp(otp, mobile);
-    isVerifying = false;
-    update(["verifyOtp"]);
+    try {
+      await _apiService.checkOtp(otp, mobile);
+    } catch (_) {
+      log("Something wrong in verify user", error: _.toString(), stackTrace: StackTrace.current);
+    } finally {
+      isVerifying = false;
+      update(["verifyOtp"]);
+    }
   }
 
   // Resend OTP
