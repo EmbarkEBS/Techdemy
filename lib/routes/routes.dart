@@ -6,7 +6,7 @@ import 'package:tech/Screens/mycourses_page.dart';
 import 'package:tech/Screens/myprofile_page.dart';
 import 'package:tech/Screens/onboarding_page.dart';
 import 'package:tech/Screens/otpverification_page.dart';
-import 'package:tech/Screens/quiz/quiz.dart';
+import 'package:tech/Screens/quiz_page.dart';
 import 'package:tech/Screens/signup_page.dart';
 import 'package:tech/Widgets/bottom_widget.dart';
 import 'package:tech/Widgets/courseDetail/about_course_widget.dart';

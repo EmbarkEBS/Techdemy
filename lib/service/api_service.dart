@@ -17,7 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/Models/profile_model.dart';
 import 'package:tech/Models/quiz_model.dart';
-import 'package:tech/Screens/quiz/quiz_result_screen.dart';
+import 'package:tech/Screens/quiz_result_page.dart';
 import 'package:tech/routes/routes.dart';
 
 class ApiService {

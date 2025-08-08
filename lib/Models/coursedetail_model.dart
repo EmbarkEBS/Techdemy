@@ -87,16 +87,19 @@ class ChapterDataPart {
 class TopicDataPart{
   final String topicTitle;
   final String topicDescription;
+  final int? readTime;
 
   TopicDataPart({
     required this.topicTitle,
     required this.topicDescription,
+    required this.readTime,
   });
 
   factory TopicDataPart.fromJson(Map<String, dynamic> json) {
     return TopicDataPart(
       topicTitle: json["topic_title"] ?? "", 
-      topicDescription: json["topic_description"] ?? ""
+      topicDescription: json["topic_description"] ?? "",
+      readTime: int.tryParse(json["topic_readtime"] ?? 0)
     );
   }
 }

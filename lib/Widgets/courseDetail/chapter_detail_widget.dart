@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/coursedetail_model.dart';
-import 'package:tech/Screens/quiz/quiz.dart';
+import 'package:tech/Screens/quiz_page.dart';
 import 'package:tech/Widgets/courseDetail/topic_detail_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
 
@@ -65,7 +65,7 @@ class ChapterDetailWidget extends StatelessWidget {
                         icon: const Icon(Icons.arrow_forward_ios, size: 15,)
                       ),
                       title: Text(topic.topicTitle, style: const TextStyle(fontSize: 16,),),
-                      subtitle: const Text("Contains topic file"),
+                      subtitle: Text("${topic.readTime ?? 0} mins read"),
                       // trailing: SizedBox(
                       //   height: 20,
                       //   width: 20,
