@@ -28,12 +28,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   @override
   void codeUpdated() async {
     // if (!mounted) return;
-    // setState(() {
-    //   _otpController.text = code!;
-    // });
-    // final controller = Get.find<AuthController>();
-    // final mobile = Get.arguments;
-    // await controller.checkOtp(code!, mobile);
+    setState(() {
+      _code = code!;
+    });
+    final controller = Get.find<AuthController>();
+    final mobile = Get.arguments;
+    await controller.checkOtp(_code, mobile);
   }
 
   @override
@@ -90,10 +90,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
                             final controller = Get.find<AuthController>();
                             final mobile = Get.arguments;
                             await controller.checkOtp(_code, mobile);
-                          } else {
-                            setState(() {
-                              _code = _otpController.text;
-                            });
                           }
                         }, 
                         // currentCode: _code,

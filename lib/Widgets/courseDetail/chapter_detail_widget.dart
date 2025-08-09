@@ -86,13 +86,11 @@ class ChapterDetailWidget extends StatelessWidget {
                   dense: true,
                   leading: const Icon(CupertinoIcons.bolt, size: 14,),
                   trailing: controller.loadingQuiz[chapterlist.chapterId] ?? false
-                    ? const Center(
-                        child: SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
+                    ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(),
+                    )
                     : submitted
                       ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 14,)
                       : null,

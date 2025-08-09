@@ -225,15 +225,15 @@ class EditProfileWidget extends StatelessWidget {
                     // user if experience candidate
                       DropdownButtonFormField(
                         autovalidateMode: AutovalidateMode.onUserInteraction,
-                        hint: Text(controller.experiencelevel, style: const TextStyle(color: Colors.black26),),
+                        hint: Text(controller.experiencelevel,  style: TextStyle(color: controller.isEnabled ? Colors.black : Colors.black26),),
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black26,),
+                          prefixIcon: Icon(Icons.person, color: controller.isEnabled ? Colors.black: Colors.black12,),
                           border: InputBorder.none,
+                          focusedBorder: const OutlineInputBorder(),
+                          errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: controller.isEnabled ? Colors.black: Colors.black12)
-                          ),
-                          focusedBorder: const OutlineInputBorder(),
-                          errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent))
+                          )
                         ),
                         items: controller.items4.map((String items) {
                           return DropdownMenuItem(
@@ -241,22 +241,19 @@ class EditProfileWidget extends StatelessWidget {
                             child: Text(items),
                           );
                         }).toList(),
-                        validator: (value) {
-                          if (value == null ||
-                              value == "Select Experience Level" || controller.experiencelevel == "Select Experience Level") {
-                            return 'Please select experience level';
-                          }
-                          return null;
-                        },
-                        onChanged: controller.isEnabled
-                          ? (String? newValue) {
-                              controller.selectExperience(newValue ?? controller.experiencelevel);
-                            }
-                          : null
+                        // validator: (value) {
+                        //   if (value == null ||
+                        //       value == "Select Experience Level" || controller.experiencelevel == "Select Experience Level") {
+                        //     return 'Please select experience level';
+                        //   }
+                        //   return null;
+                        // },
+                        onChanged: null
                       ),
                     const SizedBox(height: 10,),
                     // Edit and cancel button
                     GetBuilder<ProfileController>(
+                      id: "updating",
                       builder: (ctr2) {
                         return Column(
                           spacing: 10,
