@@ -19,7 +19,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   @override
   void initState() {
     super.initState();
-    // listenForCode();
+    listenForCode();
     // SmsAutoFill().getAppSignature.then((value) {
     //   debugPrint("😊 App Signature: $value");
     // });
@@ -28,12 +28,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> with CodeAuto
   @override
   void codeUpdated() async {
     // if (!mounted) return;
-    setState(() {
-      _code = code!;
-    });
-    final controller = Get.find<AuthController>();
-    final mobile = Get.arguments;
-    await controller.checkOtp(_code, mobile);
+    // setState(() {
+    //   _code = code!;
+    // });
+    // final controller = Get.find<AuthController>();
+    // final mobile = Get.arguments;
+    // await controller.checkOtp(_code, mobile);
   }
 
   @override
