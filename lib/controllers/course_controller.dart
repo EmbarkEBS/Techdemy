@@ -8,6 +8,7 @@ import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/Models/quiz_model.dart';
 import 'package:tech/controllers/profile_controller.dart';
+import 'package:tech/routes/routes.dart';
 import 'package:tech/service/api_service.dart';
 
 class CourseController extends GetxController{
@@ -18,6 +19,7 @@ class CourseController extends GetxController{
   bool descTextShowFlag = true;
   Map<String, bool> isEnrolling = <String, bool>{};
   Map<int, bool> loadingQuiz = {};
+  Map<String, bool> isCourseDetailLoading = {};
   final ScrollController scrollController = ScrollController();
   List<CourseList> courses = [];
   List<CompletedChaptersModel> completedChapters = [];
@@ -49,8 +51,15 @@ class CourseController extends GetxController{
    return courses;
   }
 
-  Future<void> getCoursesDetail(String courseId) async {
+  Future<void> getCoursesDetail(String courseId, String courseName) async {
+    isCourseDetailLoading[courseId] = true;
+    update(["courseDetail"]);
     courseDetail  = await _apiService.getCoursesDetail(courseId);
+    bool status = await checkEnroll(int.tryParse(courseId) ?? 1);
+    await getCompletedChapters(courseId.toString());
+    isCourseDetailLoading[courseId] = false;
+    update(["courseDetail"]);
+    Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": courseName});
     update();
   }
 

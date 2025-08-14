@@ -9,6 +9,8 @@ class CourseDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments as Map<String, dynamic>;
+    final bool isEnrolled = args['isEnrolled'] ?? false;
     return GetBuilder<CourseController>(
       builder: (controller) {
         int topicsCount = controller.courseDetail!.chapters.fold(0, (previousValue, element) => previousValue + element.topicCount);
@@ -24,8 +26,9 @@ class CourseDetailWidget extends StatelessWidget {
               ),
               // _detailTile(icon: Icons.timelapse, title: "Duration",),
               _detailTile(icon: Icons.translate, title: "Language", subtitle: "English"),
-              _detailTile(icon: Icons.badge, title: "Certification",),
-              _detailTile(
+              // _detailTile(icon: Icons.badge, title: "Certification",),
+              isEnrolled
+              ?_detailTile(
                 icon: Icons.picture_as_pdf, 
                 title: "Course material", 
                 trailing: IconButton(
@@ -38,8 +41,9 @@ class CourseDetailWidget extends StatelessWidget {
                     color: Colors.blue,
                   )
                 )
-              ),
+              ) : const SizedBox(),
               _detailTile(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CodeEditorPage(),)),
                 icon: Icons.comment_sharp, 
                 title: "Try code", 
                 trailing:  IconButton(

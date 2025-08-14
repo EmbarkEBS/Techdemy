@@ -14,10 +14,7 @@ class CourseCardWidget extends StatelessWidget {
     final controller = Get.find<CourseController>();
     return InkWell(
       onTap: () async {
-         await controller.getCoursesDetail(course.courseId.toString()).then((value) async {
-          bool status = await controller.checkEnroll(course.courseId);
-          await controller.getCompletedChapters(course.courseId.toString());
-          Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
+         await controller.getCoursesDetail(course.courseId.toString(), course.name).then((value) async {
         },);
       },
       child: Card(
@@ -34,31 +31,47 @@ class CourseCardWidget extends StatelessWidget {
               const SizedBox(height: 10,),
               SizedBox(
                 height: 100,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
-                    imageUrl: course.image,
-                    errorWidget: (context, url, error) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200
+                child: GetBuilder<CourseController>(
+                  id: "courseDetail",
+                  builder: (ctr) {
+                    return Stack(
+                      children: [
+                        // Course image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: CachedNetworkImage(
+                            imageUrl: course.image,
+                            errorWidget: (context, url, error) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.error),
+                                ),
+                              );
+                            },
+                            imageBuilder: (context, imageProvider) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit.cover
+                                  )
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        child: const Center(
-                          child: Icon(Icons.error),
-                        ),
-                      );
-                    },
-                    imageBuilder: (context, imageProvider) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageProvider,
-                            fit: BoxFit.cover
-                          )
-                        ),
-                      );
-                    },
-                  ),
+                        // loading indicator only if the course detail is loading
+                        ctr.isCourseDetailLoading[course.courseId.toString()] != null && ctr.isCourseDetailLoading[course.courseId.toString()]!
+                        ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                        : const SizedBox()
+                      ],
+                    );
+                  }
                 ),
               ),
               const SizedBox(height: 10,),
@@ -107,10 +120,10 @@ class CourseTileWidget extends StatelessWidget {
     final controller = Get.find<CourseController>();
     return ListTile(
       onTap: () async {
-         await controller.getCoursesDetail(course.courseId.toString()).then((value) async {
-          bool status = await controller.checkEnroll(course.courseId);
-          await controller.getCompletedChapters(course.courseId.toString());
-          Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
+         await controller.getCoursesDetail(course.courseId.toString(), course.name).then((value) async {
+          // bool status = await controller.checkEnroll(course.courseId);
+          // await controller.getCompletedChapters(course.courseId.toString());
+          // Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
         },);
       },
       leading: SizedBox(
