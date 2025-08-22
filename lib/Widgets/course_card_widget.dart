@@ -27,7 +27,7 @@ class CourseCardWidget extends StatelessWidget {
             children: [
               const SizedBox(height: 10,),
               SizedBox(
-                height: 100,
+                height: 50,
                 child: GetBuilder<CourseController>(
                   id: "courseDetail",
                   builder: (ctr) {
