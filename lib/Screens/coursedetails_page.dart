@@ -5,11 +5,18 @@ import 'package:tech/Widgets/courseDetail/chapter_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/course_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/tag_card_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
-import 'package:tech/controllers/home_controller.dart';
 
 
-class CourseDetailsScreen extends StatelessWidget {
+class CourseDetailsScreen extends StatefulWidget {
   const CourseDetailsScreen({super.key,});
+
+  @override
+  State<CourseDetailsScreen> createState() => _CourseDetailsScreenState();
+}
+
+class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
+  
+  String _paymentType = "full"; // default
 
   @override
   Widget build(BuildContext context) {
@@ -197,13 +204,14 @@ class CourseDetailsScreen extends StatelessWidget {
                   final isLoading = btnctr.isEnrolling[courseId] ?? false;
                   return FilledButton(
                     onPressed: () async {
-                      if(!isLoading){
-                        btnctr.loadEnroll(courseId, true);
-                        await btnctr.enrollCourse(courseId);
-                        btnctr.loadEnroll(courseId, false);
-                        Navigator.pop(context);
-                        Get.find<HomeController>().changeIndex(1);
-                      }
+                      _showPaymentOptions(context, int.tryParse(controller.courseDetail!.courseDetailPart.price) ?? 1800);
+                      // if(!isLoading){
+                      //   btnctr.loadEnroll(courseId, true);
+                      //   await btnctr.enrollCourse(courseId);
+                      //   btnctr.loadEnroll(courseId, false);
+                      //   Navigator.pop(context);
+                      //   Get.find<HomeController>().changeIndex(1);
+                      // }
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black87,
@@ -220,7 +228,7 @@ class CourseDetailsScreen extends StatelessWidget {
                       ),
                     )
                     : const Text(
-                      'Start now',
+                      'Pay now',
                       style: TextStyle(
                         fontSize: 15,
                         color: Colors.yellow,
@@ -235,6 +243,76 @@ class CourseDetailsScreen extends StatelessWidget {
       }
     );
   
+  }
+
+  void _showPaymentOptions(BuildContext context, int amount) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder( // lets us update radio inside dialog
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusGeometry.circular(8.0)
+              ),
+              title: const Text("Choose Payment Option", style: TextStyle(fontSize: 18),),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<String>(
+                    activeColor: Colors.yellow,
+                    fillColor: const WidgetStatePropertyAll(Colors.black),
+                    title: const Text("Full Payment", style: TextStyle(color: Colors.black54, fontSize: 12.0),),
+                    subtitle: Text("₹$amount", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    value: "full",
+                    groupValue: _paymentType,
+                    onChanged: (val) {
+                      setState(() {
+                        _paymentType = val!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: const Text("Partial Payment",style: TextStyle(color: Colors.black54, fontSize: 12.0),),
+                    subtitle: Text("₹${(amount ~/ 2)}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    value: "partial",
+                    activeColor: Colors.yellow,
+                    fillColor: const WidgetStatePropertyAll(Colors.black),
+                    groupValue: _paymentType,
+                    onChanged: (val) {
+                      setState(() {
+                        _paymentType = val!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    minimumSize: const Size(double.infinity, 40)
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // _openCheckout();
+                  },
+                  child: const Text(
+                    "Pay",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.yellow,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }
 

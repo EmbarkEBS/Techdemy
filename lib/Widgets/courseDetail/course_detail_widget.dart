@@ -26,7 +26,9 @@ class CourseDetailWidget extends StatelessWidget {
               ),
               // _detailTile(icon: Icons.timelapse, title: "Duration",),
               _detailTile(icon: Icons.translate, title: "Language", subtitle: "English"),
-              // _detailTile(icon: Icons.badge, title: "Certification",),
+              _detailTile(icon: Icons.calendar_month, title: "Course Starts from", subtitle: "31 Aug 2025"),
+              _detailTile(icon: Icons.badge, title: "Batch timing", subtitle: "3:00 PM - 4:00PM, Every Monday, Wednesday, Friday"),
+              _detailTile(icon: Icons.person, title: "Trainer", subtitle: "Embark developer"),
               isEnrolled
               ?_detailTile(
                 icon: Icons.picture_as_pdf, 
@@ -76,9 +78,9 @@ class CourseDetailWidget extends StatelessWidget {
       minTileHeight: 20,
       contentPadding: EdgeInsets.zero,
       // dense: true,
-      title: Text(title, style: const TextStyle(fontSize: 14),),
-      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12),) : null,
-      leading: Icon(icon),
+      title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),),
+      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54),) : null,
+      leading: Icon(icon, color: Colors.black54,),
       trailing: trailing
     );
   }

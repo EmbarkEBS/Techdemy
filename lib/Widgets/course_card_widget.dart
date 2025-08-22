@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tech/Models/courselist_model.dart';
 import 'package:tech/controllers/course_controller.dart';
-import 'package:tech/routes/routes.dart';
 
 class CourseCardWidget extends StatelessWidget {
   final CourseList course;
@@ -13,10 +12,8 @@ class CourseCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<CourseController>();
     return InkWell(
-      onTap: () async {
-         await controller.getCoursesDetail(course.courseId.toString(), course.name).then((value) async {
-        },);
-      },
+      onTap: () async 
+        => await controller.getCoursesDetail(course.courseId.toString(), course.name),
       child: Card(
         color: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -75,15 +72,34 @@ class CourseCardWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10,),
-               Text(
-                course.name,
-                maxLines: 2,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-                ),
-              ),
-              const SizedBox(height: 10,),
+               Row(
+                spacing: 5.0,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      course.name,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      course.price != "Free" ? "₹${course.price}" : course.price,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                 ],
+               ),
+              const SizedBox(height: 8.0,),
               Text(
                 course.description,
                 maxLines: 1,
@@ -91,17 +107,23 @@ class CourseCardWidget extends StatelessWidget {
                 textAlign: TextAlign.justify,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.black38,
+                  color: Colors.black54,
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              Text(
-                course.price != "Free" ? "₹${course.price}" : course.price,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(height: 5.0,),
+              const Text(
+                "Starts from: 31 Aug 2025",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.justify,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+             
             ],
           ),
         ),
@@ -119,13 +141,8 @@ class CourseTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<CourseController>();
     return ListTile(
-      onTap: () async {
-         await controller.getCoursesDetail(course.courseId.toString(), course.name).then((value) async {
-          // bool status = await controller.checkEnroll(course.courseId);
-          // await controller.getCompletedChapters(course.courseId.toString());
-          // Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": course.name});
-        },);
-      },
+      onTap: () async
+        => await controller.getCoursesDetail(course.courseId.toString(), course.name),
       leading: SizedBox(
         height: 70,
         width: 70,

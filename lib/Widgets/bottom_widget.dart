@@ -30,14 +30,17 @@ class BottomWidget extends StatelessWidget {
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
                 destinations: [
                   NavigationDestination(
+                    tooltip: "Home",
                     icon: Icon(controller.currentIndex == 0 ? Icons.home : Icons.home_outlined), 
                     label: ""
                   ),
                   NavigationDestination(
+                    tooltip: "Your courses",
                     icon: Icon(controller.currentIndex == 1 ? Icons.play_circle : Icons.play_circle_outline), 
                     label: ""
                   ),
                   NavigationDestination(
+                    tooltip: "Profile",
                     icon: Icon(controller.currentIndex == 2 ? Icons.account_circle_rounded : Icons.account_circle_outlined), 
                     label: ""
                   ),
