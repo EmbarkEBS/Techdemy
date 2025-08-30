@@ -25,10 +25,6 @@ class CourseController extends GetxController{
   List<CompletedChaptersModel> completedChapters = [];
   var quizSubmitted = <String, RxBool>{}.obs;
 
-  List<String> categories = ['All', 'PHP', 'JAVA', 'DBMS', 'MYSQL'];
-  String selectedCategory = 'All';
-  
-
   void selectDesc(bool value) {
     descTextShowFlag = value;
     update();
@@ -47,19 +43,27 @@ class CourseController extends GetxController{
 
   Future<List<CourseList>> getCoursesList() async {
    courses = await _apiService.getCoursesList();
+    // Call my courses as well to check the course enrolled status
+    await Get.find<ProfileController>().getMyCourses();
    update();
    return courses;
   }
 
-  Future<void> getCoursesDetail(String courseId, String courseName) async {
-    isCourseDetailLoading[courseId] = true;
-    update(["courseDetail"]);
-    courseDetail  = await _apiService.getCoursesDetail(courseId);
-    bool status = await checkEnroll(int.tryParse(courseId) ?? 1);
-    await getCompletedChapters(courseId.toString());
+  Future<void> getCoursesDetail({required String courseId, required String courseName, String? enrollId}) async {
+   try {
+      isCourseDetailLoading[courseId] = true;
+      update(["courseDetail"]);
+      courseDetail  = await _apiService.getCoursesDetail(courseId, enrollId);
+      bool status = await checkEnroll(int.tryParse(courseId) ?? 1);
+      await getCompletedChapters(courseId.toString());
+      isCourseDetailLoading[courseId] = false;
+      update(["courseDetail"]);
+      Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": courseName});
+   } catch (e) {
+     dev.log("Course detail error", error: e.toString(), stackTrace: StackTrace.current);
+   } finally {
     isCourseDetailLoading[courseId] = false;
-    update(["courseDetail"]);
-    Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": courseName});
+   }
     update();
   }
 

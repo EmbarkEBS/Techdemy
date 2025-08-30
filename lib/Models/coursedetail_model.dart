@@ -1,10 +1,12 @@
 class CourseDetail{
   final CourseDetailPart courseDetailPart;
   final List<ChapterDataPart> chapters;
+  final BatchDetailModel? batchDetail;
 
   CourseDetail({
     required this.courseDetailPart,
     required this.chapters,
+    required this.batchDetail,
   });
 
   factory CourseDetail.fromJson(Map<String, dynamic> json) {
@@ -12,7 +14,8 @@ class CourseDetail{
       courseDetailPart: CourseDetailPart.fromJson(json["results"]), 
       chapters: (json["chapter_data"] as List<dynamic>)
         .map((chapter) => ChapterDataPart.fromJson(chapter),)
-        .toList()
+        .toList(),
+      batchDetail: json["batch_data"] != null ? BatchDetailModel.fromJson(json["batch_data"]) : null,
     );
   }
 }
@@ -103,3 +106,46 @@ class TopicDataPart{
     );
   }
 }
+
+
+class BatchDetailModel{
+  final String batchName;
+  final String batchStartTime;
+  final String batchEndTime;
+  final String batchStartDate;
+  final String batchEndDate;
+  final String batchDays;
+  final String batchTrainer;
+
+  BatchDetailModel({
+    required this.batchName,
+    required this.batchStartTime,
+    required this.batchEndTime,
+    required this.batchStartDate,
+    required this.batchEndDate,
+    required this.batchDays,
+    required this.batchTrainer,
+  });
+
+
+  factory BatchDetailModel.fromJson(Map<String, dynamic> json) {
+    return BatchDetailModel(
+      batchName: json["batch_name"] ?? "", 
+      batchStartTime: json["batch_start_time"] ?? "", 
+      batchEndTime: json["batch_end_time"] ?? "", 
+      batchStartDate: json["batch_start_date"] ?? "", 
+      batchEndDate: json["batch_end_date"] ?? "", 
+      batchDays: json["batch_days"] ?? "", 
+      batchTrainer: json["batch_trainer"] ?? ""
+    );
+  }
+}
+
+// batch_name
+// batch_start_time
+// batch_end_time
+// batch_start_date
+// batch_end_date
+// batch_days
+// batch_trainer
+

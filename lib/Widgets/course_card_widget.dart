@@ -13,7 +13,7 @@ class CourseCardWidget extends StatelessWidget {
     final controller = Get.find<CourseController>();
     return InkWell(
       onTap: () async 
-        => await controller.getCoursesDetail(course.courseId.toString(), course.name),
+        => await controller.getCoursesDetail(courseId: course.courseId.toString(), courseName: course.name),
       child: Card(
         color: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -142,7 +142,7 @@ class CourseTileWidget extends StatelessWidget {
     final controller = Get.find<CourseController>();
     return ListTile(
       onTap: () async
-        => await controller.getCoursesDetail(course.courseId.toString(), course.name),
+        => await controller.getCoursesDetail(courseId: course.courseId.toString(), courseName: course.name),
       leading: SizedBox(
         height: 70,
         width: 70,

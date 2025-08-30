@@ -253,20 +253,21 @@ class ApiService {
   }
 
   // Get course detail
-  Future<CourseDetail?> getCoursesDetail(String courseId) async {
+  Future<CourseDetail?> getCoursesDetail(String courseId, [String? enrollId]) async {
     //List<CourseDetail> list=[];
     var url = 'https://techdemy.in/connect/api/coursedetail';
     // SharedPreferences sp = await SharedPreferences.getInstance();
-    var data = {"course_id": courseId};
+    var data = {"course_id": courseId, "enroll_id": enrollId};
+    print(data);
     final encodedData = json.encode(data);
     final encryptedData = encryption(encodedData);
     var response = await http.post(
       Uri.parse(url),
       body: {"data" : encryptedData},
     );
+    log("Course detail response log: ${response.body}");
     if (response.statusCode == 200) {
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
-      //Map<String,dynamic> result=json.decode(decryption(response.body.toString().trim()).split("}")[0]+"}") as Map<String,dynamic>;
       Map<String, dynamic> result = json.decode(decryptedData);
       log("Course detail response log: $result");
       return CourseDetail.fromJson(result);

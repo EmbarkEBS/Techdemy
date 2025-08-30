@@ -26,9 +26,26 @@ class CourseDetailWidget extends StatelessWidget {
               ),
               // _detailTile(icon: Icons.timelapse, title: "Duration",),
               _detailTile(icon: Icons.translate, title: "Language", subtitle: "English"),
-              _detailTile(icon: Icons.calendar_month, title: "Course Starts from", subtitle: "31 Aug 2025"),
-              _detailTile(icon: Icons.badge, title: "Batch timing", subtitle: "3:00 PM - 4:00PM, Every Monday, Wednesday, Friday"),
-              _detailTile(icon: Icons.person, title: "Trainer", subtitle: "Embark developer"),
+              if(controller.courseDetail!.batchDetail != null)
+               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _detailTile(
+                    icon: Icons.calendar_month, 
+                    title: "Course Starts from", 
+                    subtitle: "${controller.courseDetail!.batchDetail!.batchStartDate} - ${controller.courseDetail!.batchDetail!.batchEndDate}"
+                  ),
+                  _detailTile(
+                    icon: Icons.badge, 
+                    title: "Batch timing", 
+                    subtitle: "${controller.courseDetail!.batchDetail!.batchStartTime} - ${controller.courseDetail!.batchDetail!.batchEndTime} on Every ${controller.courseDetail!.batchDetail!.batchDays} "),
+                  _detailTile(
+                    icon: Icons.person, 
+                    title: "Trainer", 
+                    subtitle: controller.courseDetail!.batchDetail!.batchTrainer
+                  ),
+                ],
+               ),
               isEnrolled
               ?_detailTile(
                 icon: Icons.picture_as_pdf, 
