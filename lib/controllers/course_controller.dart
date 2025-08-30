@@ -68,10 +68,22 @@ class CourseController extends GetxController{
   }
 
   // Enroll course
-  Future<void> enrollCourse(String courseId) async {
+  Future<void> enrollCourse({
+    required String courseId, 
+    required String paymentType, 
+    required String paymentStatus, 
+    required String amountPaid, 
+    required String balance
+  }) async {
     try {
       await Future.delayed(const Duration(seconds: 2));
-      await _apiService.enrollCourse(courseId).then((value) {
+      await _apiService.enrollCourse(
+        courseId: courseId, 
+        paymentType: paymentType, 
+        paymentStatus: paymentStatus, 
+        amountPaid: amountPaid, 
+        balance: balance,
+      ).then((value) {
         Get.find<ProfileController>().getMyCourses();
       },);
     } catch (e) {

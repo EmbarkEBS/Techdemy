@@ -5,6 +5,7 @@ import 'package:tech/Widgets/courseDetail/chapter_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/course_detail_widget.dart';
 import 'package:tech/Widgets/courseDetail/tag_card_widget.dart';
 import 'package:tech/controllers/course_controller.dart';
+import 'package:tech/controllers/home_controller.dart';
 
 
 class CourseDetailsScreen extends StatefulWidget {
@@ -179,7 +180,6 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       body: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                         child: TabBarView(
-                          // controller: _tabController,
                           children: [
                             ChapterDetailWidget(isEnrolled: isEnrolled,),
                             const CourseDetailWidget(),
@@ -201,33 +201,15 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 id: "enrollBtn",
                 builder: (btnctr) {
                   String courseId = btnctr.courseDetail!.courseDetailPart.courseId.toString();
-                  final isLoading = btnctr.isEnrolling[courseId] ?? false;
                   return FilledButton(
-                    onPressed: () async {
-                      _showPaymentOptions(context, int.tryParse(controller.courseDetail!.courseDetailPart.price) ?? 1800);
-                      // if(!isLoading){
-                      //   btnctr.loadEnroll(courseId, true);
-                      //   await btnctr.enrollCourse(courseId);
-                      //   btnctr.loadEnroll(courseId, false);
-                      //   Navigator.pop(context);
-                      //   Get.find<HomeController>().changeIndex(1);
-                      // }
+                    onPressed: ()  {
+                      _showPaymentOptions(context, int.tryParse(controller.courseDetail!.courseDetailPart.price) ?? 1800, courseId);
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black87,
                       minimumSize: const Size(double.infinity, 40)
                     ),
-                    child: isLoading 
-                    ? const Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.yellow,
-                        ),
-                      ),
-                    )
-                    : const Text(
+                    child: const Text(
                       'Pay now',
                       style: TextStyle(
                         fontSize: 15,
@@ -245,12 +227,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   
   }
 
-  void _showPaymentOptions(BuildContext context, int amount) {
+  void _showPaymentOptions(BuildContext context, int amount, String courseId) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (ctx) {
         return StatefulBuilder( // lets us update radio inside dialog
-          builder: (context, setState) {
+          builder: (stactx, setState) {
             return AlertDialog(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
@@ -289,23 +271,49 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 ],
               ),
               actions: [
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    minimumSize: const Size(double.infinity, 40)
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // _openCheckout();
-                  },
-                  child: const Text(
-                    "Pay",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.yellow,
-                      fontWeight: FontWeight.bold
-                    )
-                  ),
+                GetBuilder<CourseController>(
+                  id: "enrollBtn",
+                  builder: (btnctr) {
+                    final isLoading = btnctr.isEnrolling[courseId] ?? false;
+                    return FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.black87,
+                        minimumSize: const Size(double.infinity, 40)
+                      ),
+                      onPressed: () async {
+                        if(!isLoading){
+                          btnctr.loadEnroll(courseId, true);
+                          await btnctr.enrollCourse(
+                            courseId: courseId, 
+                            paymentType: _paymentType, 
+                            paymentStatus: 'Success', 
+                            amountPaid: _paymentType == "full" ? amount.toString() : (amount ~/ 2).toString(), 
+                            balance: _paymentType == "full" ? "0" : (amount - (amount ~/ 2)).toString()
+                          );
+                          btnctr.loadEnroll(courseId, false);
+                          Navigator.pop(ctx);
+                          Navigator.pop(context);
+                          Get.find<HomeController>().changeIndex(1);
+                        }
+                      },
+                      child: isLoading
+                      ? const Center(
+                        child: SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator()
+                        ),
+                      )
+                      : const Text(
+                        "Pay",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.yellow,
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
+                    );
+                  }
                 )
               ],
             );

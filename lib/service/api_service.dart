@@ -258,7 +258,6 @@ class ApiService {
     var url = 'https://techdemy.in/connect/api/coursedetail';
     // SharedPreferences sp = await SharedPreferences.getInstance();
     var data = {"course_id": courseId, "enroll_id": enrollId};
-    print(data);
     final encodedData = json.encode(data);
     final encryptedData = encryption(encodedData);
     var response = await http.post(
@@ -276,12 +275,22 @@ class ApiService {
   }
 
   /// Enroll course
-  Future<void> enrollCourse(String courseId) async {
+  Future<void> enrollCourse({
+    required String courseId, 
+    required String paymentType, 
+    required String paymentStatus, 
+    required String amountPaid, 
+    required String balance
+  }) async {
     var url = 'https://techdemy.in/connect/api/userenrollment';
     String userId =  await _storage.read(key: "userId") ?? "";
     final Map<String, String> data = {
       "user_id": userId,
       "course_id": courseId,
+      "payment_type": paymentType,
+      "amount_paid": amountPaid,
+      "balance": balance,
+      "payment_status": paymentStatus
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
