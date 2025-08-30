@@ -24,14 +24,48 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     final args = Get.arguments as Map<String, dynamic>;
     final bool isEnrolled = args['isEnrolled'] ?? false;
     final String title = args['title'] ?? '';
+    final bool fromMyCourses = args["myCourse"] ?? false;
+    final String paymentType = args["paymentType"] ?? '';
+    final String paidAmount = args["amountPaid"] ?? '';
+    final String remainingAmount = args["balance"] ?? '';
+    final String paymentStatus = args["paymentStatus"] ?? '';
+    final String? enrollId = args["enrollId"];
+
     return GetBuilder<CourseController>(
       builder: (controller) {
+        String courseId = controller.courseDetail!.courseDetailPart.courseId.toString();
         return Scaffold(
           backgroundColor: Colors.white,
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             title: Text(title),
             surfaceTintColor: Colors.transparent,
+            actions: remainingAmount.isNotEmpty
+            ? [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(46, 34),
+                    backgroundColor: Colors.blue.shade200,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(45)
+                    ),
+                  ),
+                  onPressed: (){
+                    _showPaymentOptions(
+                      context: context, 
+                      amount: int.tryParse(remainingAmount) ?? 0, 
+                      courseId: courseId,
+                      forFull: true,
+                      enrollId: enrollId
+                    );
+                  }, 
+                  child: Text("Pay ₹$remainingAmount")
+                ),
+              )
+            ]
+            : null,
           ),
           body: DefaultTabController(
             length: 2,
@@ -71,9 +105,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              const SizedBox(height: 8.0,),
                               // Course title, duraion and price
                               ListTile(
-                                titleAlignment: ListTileTitleAlignment.top,
+                                titleAlignment: ListTileTitleAlignment.center,
                                 dense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
                                 title: Text(
@@ -85,7 +120,28 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                     fontSize: 20
                                   ),
                                 ),
-                                subtitle: Text(
+                                subtitle: fromMyCourses
+                                ? Row(
+                                  children: [
+                                    Text(
+                                      paymentType,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.black38
+                                      ),
+                                    ),
+                                    Text(
+                                      " (₹$paidAmount)",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.black
+                                      ),
+                                    ),
+                                  ],
+                                )
+                                : Text(
                                   controller.courseDetail!.courseDetailPart.price == "free" 
                                   ? controller.courseDetail!.courseDetailPart.price
                                   : "₹${controller.courseDetail!.courseDetailPart.price}",
@@ -97,18 +153,34 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                 ),
                                 trailing: SizedBox(
                                   width: 100,
-                                  child: Row(
-                                  spacing: 5,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      const Icon(Icons.timelapse, color: Colors.black38, size: 14,),
-                                      Text(
-                                        controller.courseDetail!.courseDetailPart.duration,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black38,
-                                          fontWeight: FontWeight.w400
-                                        ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        spacing: 5,
+                                        children: [
+                                          const Icon(Icons.timelapse, color: Colors.black38, size: 14,),
+                                          Text(
+                                            controller.courseDetail!.courseDetailPart.duration,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black38,
+                                              fontWeight: FontWeight.w400
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                      paymentStatus.isNotEmpty 
+                                      ? Text(
+                                          paymentType == "parital" ? "Partially Paid": "Paid",
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: paymentType == "parital" ? Colors.orange : Colors.green,
+                                            fontWeight: FontWeight.w600
+                                          ),
+                                        )
+                                      : const SizedBox()
                                     ],
                                   ),
                                 ),
@@ -181,7 +253,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                         child: TabBarView(
                           children: [
-                            ChapterDetailWidget(isEnrolled: isEnrolled,),
+                            ChapterDetailWidget(isEnrolled: isEnrolled, enrollId: enrollId,),
                             const CourseDetailWidget(),
                           ],
                         ),
@@ -194,7 +266,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   child: CircularProgressIndicator(),
                 )
               ),
-          persistentFooterButtons: isEnrolled 
+          persistentFooterButtons: isEnrolled
             ? null 
             : [ 
               GetBuilder<CourseController>(
@@ -203,7 +275,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   String courseId = btnctr.courseDetail!.courseDetailPart.courseId.toString();
                   return FilledButton(
                     onPressed: ()  {
-                      _showPaymentOptions(context, int.tryParse(controller.courseDetail!.courseDetailPart.price) ?? 1800, courseId);
+                      _showPaymentOptions(context: context, amount: int.tryParse(controller.courseDetail!.courseDetailPart.price) ?? 1800, courseId: courseId);
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black87,
@@ -224,10 +296,16 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
         );
       }
     );
-  
   }
 
-  void _showPaymentOptions(BuildContext context, int amount, String courseId) {
+
+  void _showPaymentOptions({
+    required BuildContext context, 
+    required int amount, 
+    required String courseId,
+    bool? forFull,
+    String? enrollId,
+  }) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -255,19 +333,21 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       });
                     },
                   ),
-                  RadioListTile<String>(
-                    title: const Text("Partial Payment",style: TextStyle(color: Colors.black54, fontSize: 12.0),),
-                    subtitle: Text("₹${(amount ~/ 2)}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    value: "partial",
-                    activeColor: Colors.yellow,
-                    fillColor: const WidgetStatePropertyAll(Colors.black),
-                    groupValue: _paymentType,
-                    onChanged: (val) {
-                      setState(() {
-                        _paymentType = val!;
-                      });
-                    },
-                  ),
+                  forFull == null
+                  ? RadioListTile<String>(
+                      title: const Text("Partial Payment",style: TextStyle(color: Colors.black54, fontSize: 12.0),),
+                      subtitle: Text("₹${(amount ~/ 2)}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                      value: "partial",
+                      activeColor: Colors.yellow,
+                      fillColor: const WidgetStatePropertyAll(Colors.black),
+                      groupValue: _paymentType,
+                      onChanged: (val) {
+                        setState(() {
+                          _paymentType = val!;
+                        });
+                      },
+                    )
+                  : const SizedBox(),
                 ],
               ),
               actions: [
@@ -283,13 +363,24 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       onPressed: () async {
                         if(!isLoading){
                           btnctr.loadEnroll(courseId, true);
-                          await btnctr.enrollCourse(
-                            courseId: courseId, 
-                            paymentType: _paymentType, 
-                            paymentStatus: 'Success', 
-                            amountPaid: _paymentType == "full" ? amount.toString() : (amount ~/ 2).toString(), 
-                            balance: _paymentType == "full" ? "0" : (amount - (amount ~/ 2)).toString()
-                          );
+                          if(forFull == null) {
+                            await btnctr.enrollCourse(
+                              courseId: courseId, 
+                              paymentType: _paymentType, 
+                              paymentStatus: 'Success', 
+                              amountPaid: _paymentType == "full" ? amount.toString() : (amount ~/ 2).toString(), 
+                              balance: _paymentType == "full" ? "0" : (amount - (amount ~/ 2)).toString()
+                            );
+                          } else {
+                            await btnctr.updateEnrollCourse(
+                              enrollId: enrollId ?? "", 
+                              paymentType: _paymentType, 
+                              paymentStatus: 'Success', 
+                              amountPaid: amount.toString(), 
+                              balance:  "0"
+                            );
+
+                          }
                           btnctr.loadEnroll(courseId, false);
                           Navigator.pop(ctx);
                           Navigator.pop(context);

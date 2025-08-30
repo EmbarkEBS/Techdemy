@@ -327,6 +327,56 @@ class ApiService {
     }
   }
 
+
+  /// Update enroll status
+  Future<void> updateEnrollStatus({
+    required String enrollId, 
+    required String paymentType, 
+    required String paymentStatus, 
+    required String amountPaid, 
+    required String balance
+  }) async {
+    var url = 'https://techdemy.in/connect/api/updateenrollment';
+    final Map<String, String> data = {
+      "enroll_id": enrollId,
+      "payment_type": paymentType,
+      "amount_paid": amountPaid,
+      "balance": balance,
+      "payment_status": paymentStatus
+    };
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {"data": encryptedData},
+        ).timeout(const Duration(seconds: 20)
+      );
+      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+      log("Update Enroll course response log $result");
+      if (response.statusCode == 200 && result["status"] == "success") {
+        Get.showSnackbar(GetSnackBar(
+          snackPosition: SnackPosition.TOP, 
+          message: result["message"], 
+          duration: const Duration(seconds: 1)
+        ));
+        // Get.toNamed(AppRoutes.mycourses);
+      } else {
+        Get.showSnackbar(GetSnackBar(
+          snackPosition: SnackPosition.TOP, 
+          message: result["message"], 
+          duration: const Duration(seconds: 1)
+        ));
+        // Get.toNamed(AppRoutes.mycourses);
+      }
+    } on TimeoutException catch (_) {
+      Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: _.toString(), duration: const Duration(seconds: 1)));
+    } on Exception catch (e) {
+      log("Enroll courses exception", error: e.toString(), stackTrace: StackTrace.current);
+    }
+  }
+
   // Check enroll
   Future<bool> checkEnroll(String courseId) async {
     String userId =  await _storage.read(key: "userId") ?? "";
@@ -445,6 +495,7 @@ class ApiService {
       Uri.parse(url),
       body: {"data": encryptedData},
     );
+    log('My courses responses from API:${response.body}');
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
     try {
@@ -461,6 +512,31 @@ class ApiService {
       log("My courses exception", error: e.toString(), stackTrace: StackTrace.current);
     }
     return [];
+  }
+
+  // Mark as completed for the quiz
+  Future<void> markAsComplete(String enrollId, String chapterId) async {
+    var url = 'https://techdemy.in/connect/api/updateprogress';
+    final Map<String, String> data = {
+      "enroll_id": enrollId,
+      "chapter_id": chapterId,
+    };
+    String encodedData = json.encode(data);
+    String encryptedData = encryption(encodedData);
+    var response = await http.post(
+      Uri.parse(url),
+      body: {"data": encryptedData},
+    );
+    log('Update progress responses from API:${response.body}');
+    String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
+    Map<String, dynamic> jsonData = json.decode(decrptedData);
+    try {
+      if (response.statusCode == 200) {
+        log('Update progress log:$jsonData');
+      } 
+    } on Exception catch (e) {
+      log("Update progress exception", error: e.toString(), stackTrace: StackTrace.current);
+    }
   }
 
   // Download files

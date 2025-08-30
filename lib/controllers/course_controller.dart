@@ -41,6 +41,9 @@ class CourseController extends GetxController{
     update();
   }
 
+  Future<void> getMyCourses() async => 
+    await Get.find<ProfileController>().getMyCourses();
+
   Future<List<CourseList>> getCoursesList() async {
    courses = await _apiService.getCoursesList();
     // Call my courses as well to check the course enrolled status
@@ -49,7 +52,16 @@ class CourseController extends GetxController{
    return courses;
   }
 
-  Future<void> getCoursesDetail({required String courseId, required String courseName, String? enrollId}) async {
+  Future<void> getCoursesDetail({
+    required String courseId, 
+    required String courseName,
+    bool? fromMyCourses,
+    String? paymentType,
+    String? amountPaid,
+    String? balance,
+    String? paymentStatus,
+    String? enrollId
+  }) async {
    try {
       isCourseDetailLoading[courseId] = true;
       update(["courseDetail"]);
@@ -58,7 +70,19 @@ class CourseController extends GetxController{
       await getCompletedChapters(courseId.toString());
       isCourseDetailLoading[courseId] = false;
       update(["courseDetail"]);
-      Get.toNamed(AppRoutes.courseDetail, arguments: {"isEnrolled": status, "title": courseName});
+      Get.toNamed(
+        AppRoutes.courseDetail, 
+        arguments: {
+          "isEnrolled": status, 
+          "title": courseName, 
+          "myCourse": fromMyCourses,
+          "paymentType": paymentType,
+          "amountPaid": amountPaid,
+          "balance": balance,
+          "paymentStatus": paymentStatus,
+          "enrollId": enrollId
+        }
+      );
    } catch (e) {
      dev.log("Course detail error", error: e.toString(), stackTrace: StackTrace.current);
    } finally {
@@ -79,6 +103,30 @@ class CourseController extends GetxController{
       await Future.delayed(const Duration(seconds: 2));
       await _apiService.enrollCourse(
         courseId: courseId, 
+        paymentType: paymentType, 
+        paymentStatus: paymentStatus, 
+        amountPaid: amountPaid, 
+        balance: balance,
+      ).then((value) {
+        Get.find<ProfileController>().getMyCourses();
+      },);
+    } catch (e) {
+      dev.log("Enroll course issue", error: e.toString(), stackTrace: StackTrace.current);
+    } 
+  }
+
+  // Update enroll course
+  Future<void> updateEnrollCourse({
+    required String enrollId, 
+    required String paymentType, 
+    required String paymentStatus, 
+    required String amountPaid, 
+    required String balance
+  }) async {
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      await _apiService.updateEnrollStatus(
+        enrollId: enrollId, 
         paymentType: paymentType, 
         paymentStatus: paymentStatus, 
         amountPaid: amountPaid, 
@@ -126,9 +174,15 @@ class CourseController extends GetxController{
     quizSubmitted[chapterId] = RxBool(value);
   }
 
+  // Submit the quiz once it completed or auto submitted
   Future<void> submitQuiz(Map<String, dynamic> data) async {
      await _apiService.submitQuestions(data).then((value) async => await checkQuiz(data["chapter_id"].toString()),);
   }
 
+  // Call this APi once the quiz is completed either auto or manually by the user
+  Future<void> updateProgress(String enrollId, String chapterId) async
+    => await _apiService.markAsComplete(enrollId, chapterId);
+
+    
   Future<void> logout() async => _apiService.logout();
 }

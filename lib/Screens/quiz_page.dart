@@ -6,14 +6,17 @@ import 'package:tech/controllers/course_controller.dart';
 
 class QuizScreen extends StatefulWidget {
   final int chapterId;
+  final String? enrollId;
   final int timer;
   final int courseId;
   final List<QuizQuestion> questions;
   const QuizScreen({
     super.key, 
     required this.chapterId, 
-    required this.questions, required this.timer,
+    required this.questions, 
+    required this.timer,
     required this.courseId,
+    this.enrollId,
   });
 
   @override
@@ -102,6 +105,7 @@ class _QuizScreenState extends State<QuizScreen> {
       };
       final controller = Get.find<CourseController>();
       await controller.submitQuiz(data);
+      await controller.updateProgress(widget.enrollId ?? "", widget.chapterId.toString());
     } catch (e) {
       debugPrint("Something went wrong on submit ${e.toString()}");
     } finally {

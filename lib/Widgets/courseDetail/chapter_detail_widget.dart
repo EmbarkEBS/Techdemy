@@ -8,7 +8,8 @@ import 'package:tech/controllers/course_controller.dart';
 
 class ChapterDetailWidget extends StatelessWidget {
   final bool isEnrolled;
-  const ChapterDetailWidget({super.key, required this.isEnrolled});
+  final String? enrollId;
+  const ChapterDetailWidget({super.key, required this.isEnrolled, this.enrollId});
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +117,7 @@ class ChapterDetailWidget extends StatelessWidget {
                           questions: value, 
                           timer: chapterlist.timer, 
                           courseId: controller.courseDetail!.courseDetailPart.courseId,
+                          enrollId: enrollId,
                         ));
                       },);
                     }

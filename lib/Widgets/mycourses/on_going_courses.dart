@@ -72,7 +72,12 @@ class OnGoingCourses extends StatelessWidget {
             => await controller.getCoursesDetail(
                 courseId: coursesList.courseId, 
                 courseName: coursesList.name, 
-                enrollId: coursesList.enrollId
+                enrollId: coursesList.enrollId,
+                fromMyCourses: true,
+                paymentType: coursesList.paymentType,
+                amountPaid: coursesList.amountPaid,
+                balance: coursesList.balance,
+                paymentStatus: coursesList.status,
               ),
           leading: GetBuilder<CourseController>(
             id: "courseDetail",
@@ -175,3 +180,4 @@ class OnGoingCourses extends StatelessWidget {
     );
   }
 }
+

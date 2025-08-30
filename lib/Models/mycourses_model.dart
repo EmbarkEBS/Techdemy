@@ -10,6 +10,10 @@ class MyCoursesList {
   final String percentage;
   final String certificateFile;
   final String tagData;
+  final String paymentType;
+  final String amountPaid;
+  final String balance;
+  final String status;
 
   MyCoursesList({
     required this.courseId,
@@ -22,7 +26,11 @@ class MyCoursesList {
     required this.tagData,
     required this.courseStatus,
     required this.percentage,
-    required this.certificateFile
+    required this.certificateFile,
+    required this.paymentType,
+    required this.amountPaid,
+    required this.balance,
+    required this.status,
   });
 
   factory MyCoursesList.fromJson(Map<String, dynamic> json) => MyCoursesList(
@@ -36,6 +44,10 @@ class MyCoursesList {
       enrollId: (json["enroll_id"] ?? "0").toString(),
       courseStatus: json["course_status"] ?? "",
       percentage: (json["percentage"] ?? "0").toString(),
-      certificateFile: json["certificate_file"] ?? ""
+      certificateFile: json["certificate_file"] ?? "",
+      paymentType: json["payment_type"] ?? "",
+      amountPaid: json["amount_paid"] ?? "",
+      balance: json["balance"] ?? "",
+      status: json["status"] ?? "",
   );
 }
