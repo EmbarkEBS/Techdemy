@@ -258,8 +258,10 @@ class ApiService {
     var url = 'https://techdemy.in/connect/api/coursedetail';
     // SharedPreferences sp = await SharedPreferences.getInstance();
     var data = {"course_id": courseId, "enroll_id": enrollId};
+    log("Course detail data: $data");
     final encodedData = json.encode(data);
     final encryptedData = encryption(encodedData);
+    log("Course detail encrypted data: $encryptedData");
     var response = await http.post(
       Uri.parse(url),
       body: {"data" : encryptedData},
@@ -306,6 +308,7 @@ class ApiService {
       if (response.statusCode == 200 && result["status"] == "success") {
         debugPrint("result$result");
         await _storage.write(key: "${userId}_$courseId", value: true.toString());
+        await _storage.write(key: "${userId}_${courseId}_enrolled", value: result["enroll_id"] ?? "");
         Get.showSnackbar(GetSnackBar(
           snackPosition: SnackPosition.TOP, 
           message: result["message"], 
@@ -327,7 +330,6 @@ class ApiService {
     }
   }
 
-
   /// Update enroll status
   Future<void> updateEnrollStatus({
     required String enrollId, 
@@ -346,15 +348,15 @@ class ApiService {
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
+    log("Update Enroll course encrypted log $encryptedData");
+    final response = await http.post(
+      Uri.parse(url),
+      body: {"data": encryptedData},
+    );
+    String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
+    Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
+    log("Update Enroll course response log $result");
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: {"data": encryptedData},
-        ).timeout(const Duration(seconds: 20)
-      );
-      String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
-      Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
-      log("Update Enroll course response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
         Get.showSnackbar(GetSnackBar(
           snackPosition: SnackPosition.TOP, 
