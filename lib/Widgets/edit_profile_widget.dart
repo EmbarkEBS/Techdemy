@@ -13,6 +13,7 @@ class EditProfileWidget extends StatelessWidget {
         title: const Text("Edit profile", style: TextStyle(fontSize: 18),),
       ),
       body: GetBuilder<ProfileController>(
+        id: "profile",
         builder: (controller) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),

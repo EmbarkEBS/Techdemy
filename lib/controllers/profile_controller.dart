@@ -61,7 +61,7 @@ class ProfileController extends GetxController{
   @override
   void onInit() {
     super.onInit();
-    if(profile != null ) getProfile("Controller init");
+    if(profile == null ) getProfile("Controller init");
   }
 
   void selectGender(String value) {

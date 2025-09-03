@@ -13,18 +13,7 @@ class MyProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Profile', style: TextStyle(fontSize: 18),),
         surfaceTintColor: Colors.transparent,
-        // actions: [
-        //   IconButton(
-        //     onPressed: () => Navigator.pop(context),
-        //     icon: const Icon(
-        //       Icons.home,
-        //       size: 30,
-        //       // color: Colors.white,
-        //     )
-        //   ),
-        // ],
       ),
-      // drawer: const DrawerWidget(isProfile: true, profileCaller: "Profile screen",),
       body: GetBuilder<HomeController>(
         builder: (homeController) {
           return GetBuilder<ProfileController>(
