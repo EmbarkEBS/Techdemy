@@ -74,10 +74,6 @@ class OnGoingCourses extends StatelessWidget {
                 courseName: coursesList.name, 
                 enrollId: coursesList.enrollId,
                 fromMyCourses: true,
-                paymentType: coursesList.paymentType,
-                amountPaid: coursesList.amountPaid,
-                balance: coursesList.balance,
-                paymentStatus: coursesList.status,
               ),
           leading: GetBuilder<CourseController>(
             id: "courseDetail",

@@ -181,8 +181,7 @@ class ApiService {
     String encryptedData = encryption(encodedData);
     try {                                                                  
       final response = await http.post(Uri.parse(url),
-        body:{"data": encryptedData},
-        encoding: Encoding.getByName('utf-8'),).timeout(const Duration(seconds: 20)
+        body:{"data": encryptedData},).timeout(const Duration(seconds: 20)
       );
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
@@ -200,7 +199,7 @@ class ApiService {
       Get.showSnackbar(const GetSnackBar(snackPosition: SnackPosition.TOP, message: "Please Check your Internet Connection And data", duration: Duration(seconds: 1)));
     } on Exception catch (e) {
       Get.showSnackbar(GetSnackBar(snackPosition: SnackPosition.TOP, message: e.toString(), duration: const Duration(seconds: 1)));
-      log("Verifuy otp exception", error: e.toString(), stackTrace: StackTrace.current);
+      log("Verifuy user exception", error: e.toString(), stackTrace: StackTrace.current);
     }
   
   }
