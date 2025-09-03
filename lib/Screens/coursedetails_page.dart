@@ -25,10 +25,6 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     final bool isEnrolled = args['isEnrolled'] ?? false;
     final String title = args['title'] ?? '';
     final bool fromMyCourses = args["myCourse"] ?? false;
-    final String paymentType = args["paymentType"] ?? '';
-    final String paidAmount = args["amountPaid"] ?? '';
-    final String remainingAmount = args["balance"] ?? '';
-    final String paymentStatus = args["paymentStatus"] ?? '';
     final String? enrollId = args["enrollId"];
 
     return GetBuilder<CourseController>(
@@ -40,7 +36,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           appBar: AppBar(
             title: Text(title),
             surfaceTintColor: Colors.transparent,
-            actions: remainingAmount.isNotEmpty
+            actions: fromMyCourses && controller.courseDetail!.courseDetailPart.balance.isNotEmpty && controller.courseDetail!.courseDetailPart.balance != "0"
             ? [
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -55,13 +51,14 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   onPressed: (){
                     _showPaymentOptions(
                       context: context, 
-                      amount: int.tryParse(remainingAmount) ?? 0, 
+                      amount: int.tryParse(controller.courseDetail!.courseDetailPart.balance) ?? 0, 
                       courseId: courseId,
                       forFull: true,
+                      amountPaid: int.tryParse(controller.courseDetail!.courseDetailPart.amountPaid) ?? 0,
                       enrollId: enrollId
                     );
                   }, 
-                  child: Text("Pay ₹$remainingAmount")
+                  child: Text("Pay ₹${controller.courseDetail!.courseDetailPart.balance}")
                 ),
               )
             ]
@@ -124,7 +121,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                 ? Row(
                                   children: [
                                     Text(
-                                      paymentType,
+                                      controller.courseDetail!.courseDetailPart.paymentType.substring(0, 1).toUpperCase() + controller.courseDetail!.courseDetailPart.paymentType.substring(1),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
@@ -132,7 +129,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                       ),
                                     ),
                                     Text(
-                                      " (₹$paidAmount)",
+                                      " (₹${controller.courseDetail!.courseDetailPart.amountPaid})",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
@@ -171,12 +168,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                           ),
                                         ],
                                       ),
-                                      paymentStatus.isNotEmpty 
+                                      fromMyCourses &&  controller.courseDetail!.courseDetailPart.status.isNotEmpty 
                                       ? Text(
-                                          paymentType == "parital" ? "Partially Paid": "Paid",
+                                          controller.courseDetail!.courseDetailPart.paymentType == "parital" ? "Partially Paid": "Paid",
                                           style: TextStyle(
                                             fontSize: 13,
-                                            color: paymentType == "parital" ? Colors.orange : Colors.green,
+                                            color: controller.courseDetail!.courseDetailPart.paymentType == "parital" ? Colors.orange : Colors.green,
                                             fontWeight: FontWeight.w600
                                           ),
                                         )
@@ -304,6 +301,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     required int amount, 
     required String courseId,
     bool? forFull,
+    int? amountPaid,
     String? enrollId,
   }) {
     showDialog(
@@ -376,7 +374,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                               enrollId: enrollId ?? "", 
                               paymentType: _paymentType, 
                               paymentStatus: 'Success', 
-                              amountPaid: amount.toString(), 
+                              amountPaid: (amount + amountPaid!).toString(), 
                               balance:  "0"
                             );
 

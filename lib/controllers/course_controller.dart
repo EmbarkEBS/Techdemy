@@ -56,10 +56,6 @@ class CourseController extends GetxController{
     required String courseId, 
     required String courseName,
     bool? fromMyCourses,
-    String? paymentType,
-    String? amountPaid,
-    String? balance,
-    String? paymentStatus,
     String? enrollId
   }) async {
    try {
@@ -76,10 +72,6 @@ class CourseController extends GetxController{
           "isEnrolled": status, 
           "title": courseName, 
           "myCourse": fromMyCourses,
-          "paymentType": paymentType,
-          "amountPaid": amountPaid,
-          "balance": balance,
-          "paymentStatus": paymentStatus,
           "enrollId": enrollId
         }
       );

@@ -29,6 +29,10 @@ class CourseDetailPart {
   final String image;
   final String tagData;
   final String courseMaterial;
+  final String paymentType;
+  final String amountPaid;
+  final String balance;
+  final String status;
 
   CourseDetailPart({
     required this.courseId,
@@ -38,7 +42,11 @@ class CourseDetailPart {
     required this.duration,
     required this.image,
     required this.tagData,
-    required this.courseMaterial
+    required this.courseMaterial,
+    required this.paymentType,
+    required this.amountPaid,
+    required this.balance,
+    required this.status,
   });
   factory CourseDetailPart.fromJson(Map<String, dynamic> json) {
     return CourseDetailPart(
@@ -49,7 +57,11 @@ class CourseDetailPart {
       duration: json['duration'] ?? '',
       image: json['image'] ?? '',
       tagData: json['tag_data'] ?? '',
-      courseMaterial: json['course_material'] ?? ''
+      courseMaterial: json['course_material'] ?? '',
+      paymentType: json['payment_type'] ?? '',
+      amountPaid: json['amount_paid'] ?? '',
+      balance: json['balance'] ?? '',
+      status: json['status'] ?? '',
     );
   }
  
@@ -140,12 +152,3 @@ class BatchDetailModel{
     );
   }
 }
-
-// batch_name
-// batch_start_time
-// batch_end_time
-// batch_start_date
-// batch_end_date
-// batch_days
-// batch_trainer
-

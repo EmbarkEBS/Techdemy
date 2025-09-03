@@ -20,9 +20,7 @@ class _HomePageState extends State<HomePage> {
     final controller = Get.find<CourseController>();
     return Scaffold(
       appBar: AppBar(
-        title: GestureDetector(
-          onTap: () async => await controller.getMyCourses(),
-          child: const Text('Home Page', style: TextStyle(fontSize: 18))),
+        title: const Text('Home Page', style: TextStyle(fontSize: 18)),
         // backgroundColor: Colors.black,
         surfaceTintColor: Colors.transparent,
       ),
