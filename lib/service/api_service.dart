@@ -9,11 +9,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:tech/Helpers/api_helper.dart';
 import 'package:tech/Helpers/encrypter.dart';
 import 'package:tech/Models/completed_chapters_model.dart';
 import 'package:tech/Models/coursedetail_model.dart';
 import 'package:tech/Models/courselist_model.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:tech/Models/mycourses_model.dart';
 import 'package:tech/Models/profile_model.dart';
 import 'package:tech/Models/quiz_model.dart';
@@ -22,6 +23,8 @@ import 'package:tech/routes/routes.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
+
+  final http = ApiHelper();
   final _storage = const FlutterSecureStorage();
   static const platform = MethodChannel('com.example.device_info');
 
@@ -41,14 +44,9 @@ class ApiService {
     final Map<String, String> data = {
       "login_data": mobile
     };
-    debugPrint("Decrypted data :${ encryption(json.encode(data))}");
+      debugPrint("Decrypted data :${ encryption(json.encode(data))}");
     try {
-      final response = await http.post(Uri.parse(url),
-        body: {
-          "data": encryption(json.encode(data))
-        },
-       ).timeout(const Duration(seconds: 20)
-      );
+      final response = await http.post(Uri.parse(url), encryption(json.encode(data)));
       String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), "");
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("login response log $result");
@@ -102,14 +100,13 @@ class ApiService {
       } else {
         await _storage.write(key: "otp", value: "");
       }
-    } on http.ClientException catch (_) {
-      Get.showSnackbar(const GetSnackBar(message: "Can't send otp try again later", duration: Duration(seconds: 3), snackPosition: SnackPosition.TOP,),);
     } on Exception catch (e) {
       log("Error sending OTP:", error: e.toString(), stackTrace: StackTrace.current);
     }
   }
 
   // Verify the OTP in local
+  
   Future<void> checkOtp(String otp, String phone) async {
     String correct = await _storage.read(key: "otp") ?? "";
     String userId = await _storage.read(key: "userId") ?? "";
@@ -134,12 +131,9 @@ class ApiService {
   Future<Map<String, String>> register(Map<String, dynamic> registerData) async {
     var url = 'https://techdemy.in/connect/api/userregister';
     try {
-      final response = await http.post(Uri.parse(url),
-        body: {
-          "data" : encryption(json.encode(registerData))
-        },
-        ).timeout(const Duration(seconds: 20)
-      );
+      final encodedData = json.encode(registerData);
+      String encryptedData = encryption(encodedData);
+      final response = await http.post(Uri.parse(url), encryptedData,);
       String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Registration response log $result");
@@ -180,9 +174,7 @@ class ApiService {
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
     try {                                                                  
-      final response = await http.post(Uri.parse(url),
-        body:{"data": encryptedData},).timeout(const Duration(seconds: 20)
-      );
+      final response = await http.post(Uri.parse(url), encryptedData,);
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Verify user response log $result");
@@ -212,11 +204,7 @@ class ApiService {
       final Map<String, String> data = {
         "login_data": mobileNo.toString()
       };
-      final response = await http.post(Uri.parse(url),
-        body: json.encode({"data": encryption(json.encode(data))}),
-        encoding: Encoding.getByName('utf-8'),
-        ).timeout(const Duration(seconds: 20)
-      );
+      final response = await http.post(Uri.parse(url), encryption(json.encode(data)),);
       String decryptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), "");
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Resend otp response log $result");
@@ -261,10 +249,7 @@ class ApiService {
     final encodedData = json.encode(data);
     final encryptedData = encryption(encodedData);
     log("Course detail encrypted data: $encryptedData");
-    var response = await http.post(
-      Uri.parse(url),
-      body: {"data" : encryptedData},
-    );
+    var response = await http.post(Uri.parse(url), encryptedData,);
     log("Course detail response log: ${response.body}");
     if (response.statusCode == 200) {
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
@@ -296,18 +281,14 @@ class ApiService {
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: {"data": encryptedData},
-        ).timeout(const Duration(seconds: 20)
-      );
+      final response = await http.post(Uri.parse(url), encryptedData,);
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
       log("Enroll course response log $result");
       if (response.statusCode == 200 && result["status"] == "success") {
         debugPrint("result$result");
         await _storage.write(key: "${userId}_$courseId", value: true.toString());
-        await _storage.write(key: "${userId}_${courseId}_enrolled", value: result["enroll_id"] ?? "");
+        // await _storage.write(key: "${userId}_${courseId}_enrolled", value: result["enroll_id"] ?? "");
         Get.showSnackbar(GetSnackBar(
           snackPosition: SnackPosition.TOP, 
           message: result["message"], 
@@ -348,10 +329,7 @@ class ApiService {
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
     log("Update Enroll course encrypted log $encryptedData");
-    final response = await http.post(
-      Uri.parse(url),
-      body: {"data": encryptedData},
-    );
+    final response = await http.post(Uri.parse(url), encryptedData,);
     String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
     Map<String, dynamic> result = jsonDecode(decryptedData) as Map<String, dynamic>;
     log("Update Enroll course response log $result");
@@ -398,10 +376,7 @@ class ApiService {
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
-    final response = await http.post(
-      Uri.parse(url),
-      body: {"data": encryptedData},
-    );
+    final response = await http.post(Uri.parse(url), encryptedData,);
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
     
@@ -436,9 +411,7 @@ class ApiService {
         String encodedData = json.encode(data);
         final encryptedData = encryption(encodedData);
         log("encryption data of profile $data");
-        final response = await http.post(Uri.parse(url),
-          body: {"data": encryptedData}).timeout(const Duration(seconds:20)
-        );
+        final response = await http.post(Uri.parse(url), encryptedData);
         String decryptedResponse = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
         Map<String, dynamic> result = jsonDecode(decryptedResponse);
         log("Profile details log: $result", name: caller);
@@ -463,11 +436,7 @@ class ApiService {
       data["user_id"] = await _storage.read(key: "userId") ?? ""; 
       String encodedData = json.encode(data);
       String encryptedData = encryption(encodedData);
-      final response = await http.post(
-        Uri.parse(url),
-        body: {"data": encryptedData},
-        ).timeout(const Duration(seconds:20)
-      );
+      final response = await http.post(Uri.parse(url),encryptedData,);
       String decrptedData = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = jsonDecode(decrptedData) as Map<String, dynamic>;
       log("Update profile response log $result");
@@ -492,10 +461,7 @@ class ApiService {
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
-    var response = await http.post(
-      Uri.parse(url),
-      body: {"data": encryptedData},
-    );
+    var response = await http.post(Uri.parse(url), encryptedData,);
     log('My courses responses from API:${response.body}');
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
@@ -524,10 +490,7 @@ class ApiService {
     };
     String encodedData = json.encode(data);
     String encryptedData = encryption(encodedData);
-    var response = await http.post(
-      Uri.parse(url),
-      body: {"data": encryptedData},
-    );
+    var response = await http.post(Uri.parse(url), encryptedData,);
     log('Update progress responses from API:${response.body}');
     String decrptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F ]'), '');
     Map<String, dynamic> jsonData = json.decode(decrptedData);
@@ -564,7 +527,7 @@ class ApiService {
         ),);
         return;
       }
-      http.Response response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url));
       await file.writeAsBytes(response.bodyBytes);
       AlertDialog(
         title: Text('File downloaded and saved to: ${file.path}'),
@@ -604,12 +567,7 @@ class ApiService {
     final jsonData = json.encode(userData);
     final encryptedData = encryption(jsonData);
     String url = 'https://techdemy.in/connect/api/quizlist';
-     var response = await http.post(
-      Uri.parse(url),
-      body: {
-        "data": encryptedData
-      },
-    );
+     var response = await http.post(Uri.parse(url), encryptedData);
     String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
     Map<String, dynamic> decodedResponse = json.decode(decryptedData);
     log("Quiz list response log: $decodedResponse");
@@ -629,10 +587,7 @@ class ApiService {
       const url = 'https://techdemy.in/connect/api/quizsubmit';
       String encodedData = json.encode(submitQuestionData);
       String encryptedData = encryption(encodedData);
-      final response = await http.post(
-        Uri.parse(url),
-        body: {"data": encryptedData},
-      );
+      final response = await http.post(Uri.parse(url), encryptedData,);
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = json.decode(decryptedData);
       if (response.statusCode == 200 && result["status"] == "success") {
@@ -664,10 +619,7 @@ class ApiService {
       const url = 'https://techdemy.in/connect/api/quizresult';
       String encodedData = json.encode(data);
       String encryptedData = encryption(encodedData);
-      final response = await http.post(
-        Uri.parse(url),
-        body: {"data": encryptedData},
-      );
+      final response = await http.post(Uri.parse(url), encryptedData,);
       String decryptedData = decryption(response.body).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
       Map<String, dynamic> result = json.decode(decryptedData);
       if (response.statusCode == 200) {
@@ -692,9 +644,7 @@ class ApiService {
     String encodedData = json.encode(data);
     final encryptedData = encryption(encodedData);
     log("Encryption of log in activity: $encryptedData");
-    final response = await http.post(Uri.parse(url),
-      body: {"data": encryptedData}).timeout(const Duration(seconds:20)
-    );
+    final response = await http.post(Uri.parse(url), encryptedData);
     String a = decryption(response.body.toString()).replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), '');
     Map<String, dynamic> result = jsonDecode(a) as Map<String, dynamic>;
     log("Response of login: $result", );
@@ -705,10 +655,8 @@ class ApiService {
     }
   }
   
-
   // Logout
   void logout() => Get.offAllNamed(AppRoutes.login);
-
 
   ApiService._internal();
   factory ApiService() => _instance;

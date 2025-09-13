@@ -37,11 +37,14 @@ class ChapterDetailWidget extends StatelessWidget {
                     size: 18,
                   )
                 : const SizedBox(),
-                Text(
-                  chapterlist.chapterName,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500
+                Expanded(
+                  child: Text(
+                    chapterlist.chapterName,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500
+                    ),
                   ),
                 ),
               ],

@@ -13,7 +13,7 @@ class EditProfileWidget extends StatelessWidget {
         title: const Text("Edit profile", style: TextStyle(fontSize: 18),),
       ),
       body: GetBuilder<ProfileController>(
-        id: "profile",
+        id: "updating",
         builder: (controller) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -66,6 +66,7 @@ class EditProfileWidget extends StatelessWidget {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
                       enabled: controller.isEnabled,
+                      validator: (value) =>FieldValidator.validateMobile(value!),
                       controller: controller.mobilecontroller,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.phone_android),
@@ -118,6 +119,12 @@ class EditProfileWidget extends StatelessWidget {
                       textInputAction: TextInputAction.next,
                       enabled: controller.isEnabled,
                       controller: controller.addresscontroller,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter address';
+                        }
+                        return null;
+                      },
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.fingerprint),
                         hintText: 'Address',
@@ -160,6 +167,7 @@ class EditProfileWidget extends StatelessWidget {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             textInputAction: TextInputAction.next,
                             enabled: controller.isEnabled,
+                            validator: (value) => FieldValidator.validateCollegeName(value!),
                             controller: controller.collegecontroller,
                             decoration: const InputDecoration(
                               prefixIcon: Icon(Icons.short_text),
@@ -177,6 +185,7 @@ class EditProfileWidget extends StatelessWidget {
                           TextFormField(
                             textInputAction: TextInputAction.next,
                             enabled: controller.isEnabled,
+                            validator: (value) => FieldValidator.validateDepartment(value!),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             controller: controller.departmentcontroller,
                             decoration: InputDecoration(
@@ -242,13 +251,13 @@ class EditProfileWidget extends StatelessWidget {
                             child: Text(items),
                           );
                         }).toList(),
-                        // validator: (value) {
-                        //   if (value == null ||
-                        //       value == "Select Experience Level" || controller.experiencelevel == "Select Experience Level") {
-                        //     return 'Please select experience level';
-                        //   }
-                        //   return null;
-                        // },
+                        validator: (value) {
+                          if (value == null ||
+                              value == "Select Experience Level" || controller.experiencelevel == "Select Experience Level") {
+                            return 'Please select experience level';
+                          }
+                          return null;
+                        },
                         onChanged: null
                       ),
                     const SizedBox(height: 10,),

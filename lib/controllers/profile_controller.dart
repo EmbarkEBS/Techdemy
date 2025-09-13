@@ -86,12 +86,12 @@ class ProfileController extends GetxController{
 
   void editProfile(bool value) {
     isEnabled = value;
-    update();
+    update(["updating"]);
   }
 
   void cancelEdit(bool value) {
     isEnabled = value;
-    update();
+    update(["updating"]);
   }
 
   Future<void> getProfile(String caller) async {

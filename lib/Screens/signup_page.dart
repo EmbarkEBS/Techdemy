@@ -47,7 +47,7 @@ class SignUpPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20,),
                   Form(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    // autovalidateMode: AutovalidateMode.onUserInteraction,
                     key: controller.registerFormKey,
                     child: Column(
                       children: [
@@ -207,7 +207,7 @@ class SignUpPage extends StatelessWidget {
                             value: controller.experiencelevel,
                             validator: (value) {
                               if (value == null ||
-                                  value == "Select experience level") {
+                                  value == "Select Experience Level") {
                                 return 'Please select experience level';
                               }
                               return null;

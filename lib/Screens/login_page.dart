@@ -66,17 +66,17 @@ class LoginPage extends StatelessWidget {
                           validator: (value) => FieldValidator.validateMobile(value!),
                         ),
                         const SizedBox(height: 10,),
-                        if(controller.loginMessage.isNotEmpty)
-                          Text(
-                              controller.loginMessage["status"] == "success"
-                              ? controller.loginMessage["message"] ?? "Registered successfully"
-                              : controller.loginMessage["message"] ?? "Something went wrong",
-                              style: TextStyle(
-                                color: controller.loginMessage["status"] == "success" ? Colors.green : Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15
-                              ),
-                            ),
+                        // if(controller.loginMessage.isNotEmpty)
+                          // Text(
+                          //     controller.loginMessage["status"] == "success"
+                          //     ? controller.loginMessage["message"] ?? "Registered successfully"
+                          //     : controller.loginMessage["message"] ?? "Something went wrong",
+                          //     style: TextStyle(
+                          //       color: controller.loginMessage["status"] == "success" ? Colors.green : Colors.red,
+                          //       fontWeight: FontWeight.bold,
+                          //       fontSize: 15
+                          //     ),
+                          //   ),
                         const SizedBox(height: 10,),
                         GetBuilder<AuthController>(
                           builder: (ctr2) {

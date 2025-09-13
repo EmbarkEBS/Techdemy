@@ -7,6 +7,8 @@ import 'package:tech/routes/routes.dart';
 import 'package:tech/service/api_service.dart';
 import 'dart:io';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final apiService = ApiService();
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      navigatorKey: navigatorKey,
       // initialRoute: AppRoutes.onBoarding,
       initialRoute: isLoggedIn ? AppRoutes.bottom : AppRoutes.onBoarding,
       getPages: AppScreens.screens,
